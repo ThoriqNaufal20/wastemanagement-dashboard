@@ -1,9 +1,23 @@
+import {
+  ClipboardList,
+  Users,
+  Recycle,
+  Layers,
+  Tag,
+  Box,
+  Hand,
+  Clock,
+  FileText,
+  LayoutDashboard,
+  Truck,
+  Package,
+} from "lucide-react";
 import { DashboardHeader } from "@/components/dashboard/dashboard-header";
 import { MetricCard } from "@/components/dashboard/metric-card";
-import { CorrectiveActionPlanCard } from "@/components/dashboard/corrective-action-plan-card";
-import { KelolosanChartCard } from "@/components/dashboard/kelolosan-chart-card";
 import { ProgressShipmentCard } from "@/components/dashboard/progress-shipment-card";
 import { WipSewingCard } from "@/components/dashboard/wip-sewing-card";
+import { KelolosanChartCard } from "@/components/dashboard/kelolosan-chart-card";
+import { CorrectiveActionPlanCard } from "@/components/dashboard/corrective-action-plan-card";
 import { InternalAuditTable } from "@/components/dashboard/internal-audit-table";
 import {
   scorecardScore,
@@ -16,58 +30,172 @@ import { getUrgencyFlags } from "@/lib/urgency";
 export default function DashboardPage() {
   const urgency = getUrgencyFlags();
 
+  // Konfigurasi Ringkasan Angka. Item dengan hasData=false (0/0, tidak ada
+  // aktivitas sama sekali) otomatis disembunyikan — perilaku "notifikasi".
+  const ringkasanItems = [
+    ...(urgency.progressShipment.isUrgent
+      ? [
+          {
+            key: "progress-shipment-urgent",
+            label: "Shipment belum kirim",
+            value: urgency.progressShipment.total,
+            suffix: "pcs",
+            isUrgent: true,
+            icon: Truck,
+            href: "/progress-shipment",
+            hasData: true,
+          },
+        ]
+      : []),
+    ...urgency.wipSewing.criticalLines.map((line) => ({
+      key: `wip-sewing-urgent-${line.line}`,
+      label: `WIP sewing line ${line.line}`,
+      value: line.qty,
+      suffix: "pcs",
+      isUrgent: true,
+      icon: Package,
+      href: "/wip-sewing",
+      hasData: true,
+    })),
+    {
+      key: "3r-glove-active",
+      label: "3R glove active · late",
+      value: threeR.gloveActive.late,
+      suffix: `/ ${threeR.gloveActive.inProgressTotal} in-progress`,
+      isUrgent: urgency.threeRGloveActive.isUrgent,
+      icon: Recycle,
+      href: "/three-r",
+      hasData: threeR.gloveActive.inProgressTotal > 0 || threeR.gloveActive.late > 0,
+    },
+    {
+      key: "3r-wip-kulit",
+      label: "3R WIP kulit · late",
+      value: threeR.wipKulit.late,
+      suffix: threeR.wipKulit.unit,
+      isUrgent: urgency.threeRWipKulit.isUrgent,
+      icon: Layers,
+      href: "/three-r",
+      hasData: threeR.wipKulit.inProgressTotal > 0 || threeR.wipKulit.late > 0,
+    },
+    {
+      key: "3r-wip-logo",
+      label: "3R WIP logo · late",
+      value: threeR.wipLogo.late,
+      suffix: `/ ${threeR.wipLogo.inProgressTotal} in-progress`,
+      isUrgent: urgency.threeRWipLogo.isUrgent,
+      icon: Tag,
+      href: "/three-r",
+      hasData: threeR.wipLogo.inProgressTotal > 0 || threeR.wipLogo.late > 0,
+    },
+    {
+      key: "3r-wip-pola",
+      label: "3R WIP pola · late",
+      value: threeR.wipPola.late,
+      suffix: `/ ${threeR.wipPola.inProgressTotal} in-progress`,
+      isUrgent: urgency.threeRWipPola.isUrgent,
+      icon: Box,
+      href: "/three-r",
+      hasData: threeR.wipPola.inProgressTotal > 0 || threeR.wipPola.late > 0,
+    },
+    {
+      key: "3r-wip-glove",
+      label: "3R WIP glove · late",
+      value: threeR.wipGlove.late,
+      suffix: `/ ${threeR.wipGlove.inProgressTotal} in-progress`,
+      isUrgent: urgency.threeRWipGlove.isUrgent,
+      icon: Hand,
+      href: "/three-r",
+      hasData: threeR.wipGlove.inProgressTotal > 0 || threeR.wipGlove.late > 0,
+    },
+    {
+      key: "3r-wip-pending",
+      label: "3R WIP pending · late",
+      value: threeR.wipPending.late,
+      suffix: `/ ${threeR.wipPending.inProgressTotal} in-progress`,
+      isUrgent: urgency.threeRWipPending.isUrgent,
+      icon: Clock,
+      href: "/three-r",
+      hasData: threeR.wipPending.inProgressTotal > 0 || threeR.wipPending.late > 0,
+    },
+    {
+      key: "internal-audit",
+      label: `Audit ${urgency.internalAudit.row.fact} · OTS finding`,
+      value: urgency.internalAudit.row.otsFinding,
+      suffix: undefined,
+      isUrgent: urgency.internalAudit.isUrgent,
+      icon: ClipboardList,
+      href: "/internal-audit",
+      hasData: true,
+    },
+    {
+      key: "audit-support",
+      label: "Audit support · overdue",
+      value: auditSupportiveDept.overdue,
+      suffix: `/ ${auditSupportiveDept.inProgress} in-progress`,
+      isUrgent: urgency.auditSupportiveDept.isUrgent,
+      icon: Users,
+      href: "/audit-supportive-dept",
+      hasData: true,
+    },
+    {
+      key: "scorecard",
+      label: "Scorecard",
+      value: `${scorecardScore.value}%`,
+      suffix: undefined,
+      isUrgent: false,
+      icon: FileText,
+      href: "/scorecard",
+      hasData: true,
+    },
+    {
+      key: "dashboard-dept",
+      label: "Dashboard dept",
+      value: `${dashboardDeptScore.value}%`,
+      suffix: undefined,
+      isUrgent: false,
+      icon: LayoutDashboard,
+      href: "/dashboard-departement",
+      hasData: true,
+    },
+  ].filter((item) => item.hasData)
+    .sort((a, b) => Number(b.isUrgent) - Number(a.isUrgent));
+  
+
   return (
     <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-[1440px] space-y-6 p-6">
         <DashboardHeader />
 
-        {/* Baris 1 — Ringkasan angka */}
+        {/* Baris 1 — Ringkasan angka, grid memaksimalkan ruang sesuai jumlah item */}
         <section>
           <p className="mb-2 text-[11px] uppercase tracking-wide text-muted-foreground">
             Ringkasan angka
           </p>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-            <MetricCard
-              label={`Audit ${urgency.internalAudit.row.fact} · OTS finding`}
-              value={urgency.internalAudit.row.otsFinding}
-              isUrgent={urgency.internalAudit.isUrgent}
-            />
-            <MetricCard
-              label="Audit support · overdue"
-              value={auditSupportiveDept.overdue}
-              suffix={`/ ${auditSupportiveDept.inProgress} in-progress`}
-              isUrgent={urgency.auditSupportiveDept.isUrgent}
-            />
-            <MetricCard
-              label="3R glove · late"
-              value={threeR.gloveActive.late}
-              suffix={`/ ${threeR.gloveActive.inProgressTotal} in-progress`}
-              isUrgent={urgency.threeRGloveActive.isUrgent}
-            />
-            <MetricCard
-              label="3R WIP kulit · late"
-              value={threeR.wipKulit.late}
-              suffix={threeR.wipKulit.unit}
-              isUrgent={urgency.threeRWipKulit.isUrgent}
-            />
-            <MetricCard label="Scorecard" value={`${scorecardScore.value}%`} />
-            <MetricCard
-              label="Dashboard dept"
-              value={`${dashboardDeptScore.value}%`}
-            />
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))] gap-3">
+            {ringkasanItems.map((item) => (
+              <MetricCard
+                key={item.key}
+                label={item.label}
+                value={item.value}
+                suffix={item.suffix}
+                isUrgent={item.isUrgent}
+                icon={item.icon}
+                href={item.href}
+              />
+            ))}
           </div>
         </section>
 
-        {/* Baris 2 — Grafik */}
+        {/* Baris 2 — Grafik, urutan: Shipment, WIP Sewing, Kelolosan, CAP */}
         <section>
           <p className="mb-2 text-[11px] uppercase tracking-wide text-muted-foreground">
             Grafik
           </p>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <CorrectiveActionPlanCard />
-            <KelolosanChartCard />
             <ProgressShipmentCard />
             <WipSewingCard />
+            <KelolosanChartCard />
+            <CorrectiveActionPlanCard />
           </div>
         </section>
 

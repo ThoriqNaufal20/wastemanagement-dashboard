@@ -52,5 +52,17 @@ export function getUrgencyFlags(now: Date = new Date()) {
     threeRWipKulit: {
       isUrgent: threeR.wipKulit.late > 0,
     },
+    threeRWipLogo: {
+      isUrgent: threeR.wipLogo.late > 0,
+    },
+    threeRWipPola: {
+      isUrgent: threeR.wipPola.late > 0,
+    },
+    threeRWipGlove: {
+      isUrgent: threeR.wipGlove.late > 0,
+    },
+    threeRWipPending: {
+      isUrgent: threeR.wipPending.late > 0,
+    },
   };
 }

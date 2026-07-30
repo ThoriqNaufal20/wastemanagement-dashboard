@@ -62,12 +62,17 @@ export const wipSewing = [
 export const wipSewingThreshold = 10000; // tentatif
 
 // ---------- 3R ----------
+// Format: late / total in-progress. "OK" = in-progress & belum telat.
+// Kalau late = 0 DAN inProgressTotal = 0, artinya tidak ada data sama sekali
+// untuk periode ini — card ini akan disembunyikan dari Ringkasan Angka
+// (perilaku "notifikasi": kalau tidak ada apa-apa, tidak usah muncul).
 export const threeR = {
-  // Format: late / total in-progress. "OK" = in-progress & belum telat.
   gloveActive: { late: 2, inProgressTotal: 3, unit: "pcs" },
-  wipKulit: { late: 3, unit: "SF" },
-  // TODO: tambahkan WIP Logo, WIP Pola, WIP Glove, WIP Pending dengan pola
-  // yang sama (late / in-progress) begitu data aslinya tersedia.
+  wipKulit: { late: 3, inProgressTotal: 3, unit: "SF" },
+  wipLogo: { late: 0, inProgressTotal: 2, unit: "pcs" }, // contoh: tidak ada data → hilang
+  wipPola: { late: 0, inProgressTotal: 12, unit: "pcs" },
+  wipGlove: { late: 0, inProgressTotal: 0, unit: "pcs" }, // ada data, tapi tidak late
+  wipPending: { late: 2, inProgressTotal: 8, unit: "pcs" },
 };
 
 // ---------- % Kelolosan Sampah Kulit ----------
