@@ -1,0 +1,61 @@
+import { DashboardHeader } from "@/components/dashboard/dashboard-header";
+import { ScorecardCard } from "@/components/dashboard/scorecard-card";
+import { DashboardDepartmentCard } from "@/components/dashboard/dashboard-department-card";
+import { CorrectiveActionPlanCard } from "@/components/dashboard/corrective-action-plan-card";
+import { InternalAuditTable } from "@/components/dashboard/internal-audit-table";
+import { AuditSupportiveDeptCard } from "@/components/dashboard/audit-supportive-dept-card";
+import { ProgressShipmentCard } from "@/components/dashboard/progress-shipment-card";
+import { WipSewingCard } from "@/components/dashboard/wip-sewing-card";
+import { KelolosanChartCard } from "@/components/dashboard/kelolosan-chart-card";
+import { ThreeRCard } from "@/components/dashboard/three-r-card";
+
+export default function DashboardPage() {
+  return (
+    <div className="min-h-screen bg-background">
+      <div className="mx-auto max-w-[1440px] space-y-6 p-6">
+        <DashboardHeader />
+
+        {/* Row 1 — Scorecard, Dashboard Departement, Corrective Action Plan */}
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+          <div className="lg:col-span-4">
+            <ScorecardCard />
+          </div>
+          <div className="lg:col-span-4">
+            <DashboardDepartmentCard />
+          </div>
+          <div className="lg:col-span-4">
+            <CorrectiveActionPlanCard />
+          </div>
+        </div>
+
+        {/* Row 2 — Internal Audit table + Supportive Dept */}
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+          <div className="lg:col-span-7">
+            <InternalAuditTable />
+          </div>
+          <div className="lg:col-span-5">
+            <AuditSupportiveDeptCard />
+          </div>
+        </div>
+
+        {/* Row 3 — Progress Shipment, WIP Sewing, % Kelolosan */}
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+          <div className="lg:col-span-4">
+            <ProgressShipmentCard />
+          </div>
+          <div className="lg:col-span-4">
+            <WipSewingCard />
+          </div>
+          <div className="lg:col-span-4">
+            <KelolosanChartCard />
+          </div>
+        </div>
+
+        {/* Row 4 — 3R full width */}
+        <div className="grid grid-cols-1 gap-6">
+          <ThreeRCard />
+        </div>
+      </div>
+    </div>
+  );
+}

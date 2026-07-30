@@ -1,0 +1,122 @@
+// ============================================================
+// MOCK DATA — Waste Management Dashboard
+// Ganti isi file ini dengan data asli dari Google Sheets API
+// setelah koneksi backend selesai disetup.
+// ============================================================
+
+export const companyInfo = {
+  name: "PT. Adira Semesta Industry",
+  department: "Waste Management Department",
+  period: "Q-2 2026",
+};
+
+// ---------- Scorecard Departement ----------
+export const scorecardMetrics = [
+  { label: "I. Function", value: 78 },
+  { label: "II. Strategy", value: 77 },
+  { label: "III. Information & System Cap", value: 77 },
+  { label: "IV. Employee Cap", value: 75 },
+  { label: "V. Performance", value: 80 },
+  { label: "VI. Problem Solving", value: 92 },
+];
+
+// ---------- Dashboard Departement ----------
+export const dashboardDeptMetrics = [
+  { label: "I. Visualisasi", value: 81 },
+  { label: "II. Target & Gap", value: 65 },
+  { label: "III. Problem", value: 78 },
+  { label: "IV. Validity", value: 93 },
+  { label: "V. Performance", value: 71 },
+  { label: "VI. Internal Review", value: 66 },
+  { label: "VII. Action Plan", value: 65 },
+  { label: "VIII. Asi Software", value: 35 },
+  { label: "IX. Data Integration", value: 80 },
+];
+
+// ---------- Corrective Action Plan (Donut) ----------
+export const correctiveActionPlan = [
+  { name: "Material", value: 57.8, color: "var(--color-primary)" },
+  { name: "Man", value: 27.3, color: "var(--color-secondary)" },
+  { name: "Method", value: 12.1, color: "var(--color-status-warning)" },
+  { name: "Machine", value: 2.8, color: "var(--color-status-success)" },
+];
+
+// ---------- Internal Audit ----------
+export const internalAuditRows = [
+  {
+    period: "Q2-2026",
+    fact: "F",
+    otsFinding: 102,
+    avgScore: "79.51%",
+    areaBelumAudit: 0,
+    startDate: "Apr 20, 2026",
+    endDate: "May 18, 2026",
+  },
+  {
+    period: "Q2-2026",
+    fact: "B",
+    otsFinding: 24,
+    avgScore: "41.40%",
+    areaBelumAudit: 0,
+    startDate: "May 11, 2026",
+    endDate: "May 22, 2026",
+  },
+  {
+    period: "Q2-2026",
+    fact: "A",
+    otsFinding: 45,
+    avgScore: "84.26%",
+    areaBelumAudit: 0,
+    startDate: "May 25, 2026",
+    endDate: "Jun 19, 2026",
+  },
+  {
+    period: "Q2-2026",
+    fact: "K",
+    otsFinding: 76,
+    avgScore: "86.17%",
+    areaBelumAudit: 0,
+    startDate: "Jun 22, 2026",
+    endDate: "Jul 17, 2026",
+  },
+];
+
+// ---------- Internal Audit Supportive Dept ----------
+export const auditSupportiveDept = {
+  pending: 0,
+  items: [
+    { label: "MF", done: 0, total: 28 },
+    { label: "HSE", done: 0, total: 6 },
+    { label: "MT", done: 0, total: 14 },
+    { label: "QUALITY", done: 0, total: 8 },
+  ],
+};
+
+// ---------- Progress Shipment Minggu Depan ----------
+export const progressShipment = [
+  { week: "Week 32", hutangProduksi: 720, hutangCarton: 4524 },
+];
+
+// ---------- WIP Sewing > 7 Hari ----------
+export const wipSewing = [
+  { line: "A", qty: 3380 },
+  { line: "F", qty: 3664 },
+  { line: "K", qty: 19176 },
+];
+
+// ---------- 3R Section ----------
+export const threeR = {
+  permintaanGloveActive: { done: 0, total: 3 },
+  glovePending: 3,
+  wipPending: 0,
+  wipLogo: { done: 0, total: 0 },
+  wipKulit: { done: 0, total: 108.01 },
+  wipGlove: { done: 0, total: 266 },
+  wipPola: { done: 0, total: 2868 },
+};
+
+// ---------- % Kelolosan Sampah Kulit ----------
+export const kelolosanSampahKulit = [
+  { week: "Week 29", A: 0.3, K: 1.8 },
+  { week: "Week 30", A: 0.3, K: 2.2 },
+];

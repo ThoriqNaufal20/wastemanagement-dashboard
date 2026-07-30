@@ -1,0 +1,74 @@
+"use client";
+
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  ResponsiveContainer,
+  Tooltip,
+  Legend,
+} from "recharts";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { kelolosanSampahKulit } from "@/lib/mock-data";
+
+export function KelolosanChartCard() {
+  return (
+    <Card className="h-full">
+      <CardHeader>
+        <CardTitle className="text-sm font-semibold">
+          % Kelolosan Sampah Kulit
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="h-64">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={kelolosanSampahKulit} barGap={8}>
+              <XAxis
+                dataKey="week"
+                axisLine={false}
+                tickLine={false}
+                tick={{ fill: "var(--color-muted-foreground)", fontSize: 12 }}
+              />
+              <YAxis
+                axisLine={false}
+                tickLine={false}
+                tickFormatter={(v) => `${v}%`}
+                tick={{ fill: "var(--color-muted-foreground)", fontSize: 12 }}
+              />
+              <Tooltip
+                formatter={(value: number) => [`${value}%`, ""]}
+                contentStyle={{
+                  backgroundColor: "var(--color-card)",
+                  border: "1px solid var(--color-border)",
+                  borderRadius: "8px",
+                  fontSize: "12px",
+                }}
+              />
+              <Legend wrapperStyle={{ fontSize: "12px" }} />
+              <Bar
+                dataKey="A"
+                name="Line A"
+                fill="var(--color-secondary)"
+                radius={[6, 6, 0, 0]}
+                maxBarSize={36}
+              />
+              <Bar
+                dataKey="K"
+                name="Line K"
+                fill="var(--color-primary)"
+                radius={[6, 6, 0, 0]}
+                maxBarSize={36}
+              />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}

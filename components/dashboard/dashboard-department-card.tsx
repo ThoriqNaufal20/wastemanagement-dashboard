@@ -1,0 +1,27 @@
+import { PieChart } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { MetricGrid } from "@/components/dashboard/metric-grid";
+import { dashboardDeptMetrics } from "@/lib/mock-data";
+
+export function DashboardDepartmentCard() {
+  return (
+    <Card className="h-full">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0">
+        <div className="flex items-center gap-2">
+          <PieChart className="h-4 w-4 text-primary" />
+          <CardTitle className="text-sm font-semibold">
+            Dashboard Departement
+          </CardTitle>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <MetricGrid metrics={dashboardDeptMetrics} columns={3} />
+      </CardContent>
+    </Card>
+  );
+}

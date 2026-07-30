@@ -1,0 +1,78 @@
+// ============================================================
+// MOCK DATA — Waste Management Dashboard
+// Struktur ini akan jadi acuan mapping kolom Google Sheets nanti.
+// Ganti isi file ini dengan data asli setelah backend siap.
+// ============================================================
+
+export const companyInfo = {
+  name: "PT. Adira Semesta Industry",
+  department: "Waste Management Department",
+  period: "Q-2 2026",
+};
+
+// ---------- Scorecard & Dashboard Departement ----------
+// Update per kuartal. Breakdown per poin (I. Function, II. Strategy, dst)
+// akan ditampilkan di drill-down modal — belum diimplementasi di versi ini.
+export const scorecardScore = { value: 78, redBelow: 75 };
+export const dashboardDeptScore = { value: 71, redBelow: 80 };
+
+// ---------- Corrective Action Plan ----------
+// Tetap versi historis (belum real-time status "belum done").
+export const correctiveActionPlan = [
+  { name: "Material", value: 57.8, color: "var(--color-primary)" },
+  { name: "Man", value: 27.3, color: "var(--color-secondary)" },
+  { name: "Method", value: 12.1, color: "var(--color-status-warning)" },
+  { name: "Machine", value: 2.8, color: "var(--color-status-success)" },
+];
+
+// ---------- Internal Audit ----------
+// Satuan: jumlah temuan. Urgensi grid dinamis dipicu oleh otsFinding tertinggi.
+export const internalAuditRows = [
+  { period: "Q2-2026", fact: "F", otsFinding: 102, avgScore: "79.51%", areaBelumAudit: 0, startDate: "Apr 20, 2026", endDate: "May 18, 2026" },
+  { period: "Q2-2026", fact: "B", otsFinding: 24, avgScore: "41.40%", areaBelumAudit: 0, startDate: "May 11, 2026", endDate: "May 22, 2026" },
+  { period: "Q2-2026", fact: "A", otsFinding: 45, avgScore: "84.26%", areaBelumAudit: 0, startDate: "May 25, 2026", endDate: "Jun 19, 2026" },
+  { period: "Q2-2026", fact: "K", otsFinding: 76, avgScore: "86.17%", areaBelumAudit: 0, startDate: "Jun 22, 2026", endDate: "Jul 17, 2026" },
+];
+
+// Threshold tentatif — sesuaikan begitu rules resmi diberikan
+export const internalAuditUrgentThreshold = 80;
+
+// ---------- Internal Audit Supportive Dept ----------
+// Format: overdue / in-progress (bukan overdue/total keseluruhan)
+export const auditSupportiveDept = {
+  overdue: 4,
+  inProgress: 28,
+};
+
+// ---------- Progress Shipment Minggu Depan ----------
+// Satuan: qty (pcs). Urgent jika hari ini Jumat DAN qty >= threshold.
+export const progressShipment = {
+  hutangProduksi: 1800,
+  hutangCarton: 4400,
+  fridayThreshold: 5000, // tentatif, sesuai konfirmasi kamu
+};
+
+// ---------- WIP Sewing > 7 Hari ----------
+// Satuan: qty (pcs). Urgent jika qty > threshold.
+export const wipSewing = [
+  { line: "A", qty: 3380 },
+  { line: "F", qty: 3664 },
+  { line: "K", qty: 19176 },
+];
+export const wipSewingThreshold = 10000; // tentatif
+
+// ---------- 3R ----------
+export const threeR = {
+  // Format: late / total in-progress. "OK" = in-progress & belum telat.
+  gloveActive: { late: 2, inProgressTotal: 3, unit: "pcs" },
+  wipKulit: { late: 3, unit: "SF" },
+  // TODO: tambahkan WIP Logo, WIP Pola, WIP Glove, WIP Pending dengan pola
+  // yang sama (late / in-progress) begitu data aslinya tersedia.
+};
+
+// ---------- % Kelolosan Sampah Kulit ----------
+// Informatif, tidak masuk logika urgensi.
+export const kelolosanSampahKulit = [
+  { week: "Week 29", A: 0.3, K: 1.8 },
+  { week: "Week 30", A: 0.3, K: 2.2 },
+];

@@ -1,26 +1,118 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --radius: 0.75rem;
+
+  /* ===== LIGHT MODE — Purple Brand Palette ===== */
+  --background: hsl(255 30% 98%);        /* #F8F7FB — putih keunguan halus */
+  --foreground: hsl(240 25% 15%);        /* #1F2233 — abu gelap untuk judul */
+
+  --card: hsl(0 0% 100%);                /* putih bersih */
+  --card-foreground: hsl(240 25% 15%);
+
+  --popover: hsl(0 0% 100%);
+  --popover-foreground: hsl(240 25% 15%);
+
+  --primary: hsl(262 40% 41%);           /* #6B4FA0 — ungu brand utama */
+  --primary-foreground: hsl(0 0% 100%);
+
+  --secondary: hsl(262 45% 82%);         /* #C9B8E8 — ungu terang, elemen sekunder */
+  --secondary-foreground: hsl(240 25% 15%);
+
+  --muted: hsl(260 35% 95%);             /* background badge/section non-aktif */
+  --muted-foreground: hsl(220 9% 46%);   /* #6B7280 — teks label abu */
+
+  --accent: hsl(262 45% 82%);
+  --accent-foreground: hsl(240 25% 15%);
+
+  --destructive: hsl(0 72% 51%);         /* dipakai nanti sesuai rules merah kamu */
+  --destructive-foreground: hsl(0 0% 100%);
+
+  --border: hsl(260 30% 90%);
+  --input: hsl(260 30% 90%);
+  --ring: hsl(262 40% 41%);
+
+  /* ===== Semantic status colors (placeholder — sesuaikan nanti dengan rules kamu) ===== */
+  --status-success: hsl(142 71% 45%);    /* hijau */
+  --status-warning: hsl(38 92% 50%);     /* amber */
+  --status-critical: hsl(0 72% 51%);     /* merah */
+}
+
+.dark {
+  /* ===== DARK MODE — Purple Brand Palette ===== */
+  --background: hsl(258 35% 8%);         /* #15121F — ungu sangat gelap */
+  --foreground: hsl(255 30% 93%);        /* #EDEBF5 — putih pudar */
+
+  --card: hsl(258 30% 15%);              /* #231E3D */
+  --card-foreground: hsl(255 30% 93%);
+
+  --popover: hsl(258 30% 15%);
+  --popover-foreground: hsl(255 30% 93%);
+
+  --primary: hsl(262 50% 68%);           /* #A78BDA — ungu lebih terang biar kontras cukup */
+  --primary-foreground: hsl(258 35% 8%);
+
+  --secondary: hsl(258 25% 22%);         /* #332B54 */
+  --secondary-foreground: hsl(255 30% 93%);
+
+  --muted: hsl(258 28% 18%);
+  --muted-foreground: hsl(258 15% 65%);  /* #9C97B5 */
+
+  --accent: hsl(258 25% 22%);
+  --accent-foreground: hsl(255 30% 93%);
+
+  --destructive: hsl(0 63% 60%);
+  --destructive-foreground: hsl(0 0% 100%);
+
+  --border: hsl(258 25% 22%);
+  --input: hsl(258 25% 22%);
+  --ring: hsl(262 50% 68%);
+
+  --status-success: hsl(142 60% 50%);
+  --status-warning: hsl(38 85% 55%);
+  --status-critical: hsl(0 63% 60%);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-status-success: var(--status-success);
+  --color-status-warning: var(--status-warning);
+  --color-status-critical: var(--status-critical);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
   }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
 }
