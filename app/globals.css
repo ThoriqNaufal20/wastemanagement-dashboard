@@ -6,70 +6,69 @@
 :root {
   --radius: 0.75rem;
 
-  /* ===== LIGHT MODE — Purple Brand Palette ===== */
-  --background: hsl(255 30% 98%);        /* #F8F7FB — putih keunguan halus */
-  --foreground: hsl(240 25% 15%);        /* #1F2233 — abu gelap untuk judul */
+  /* ===== LIGHT MODE — Navy-Teal Brand Palette (dari referensi) ===== */
+  --background: hsl(220 20% 97%);        /* ~#F3F4F7 — abu sangat muda */
+  --foreground: hsl(220 15% 10%);        /* ~#16181D — hitam pekat */
 
   --card: hsl(0 0% 100%);                /* putih bersih */
-  --card-foreground: hsl(240 25% 15%);
+  --card-foreground: hsl(220 15% 10%);
 
   --popover: hsl(0 0% 100%);
-  --popover-foreground: hsl(240 25% 15%);
+  --popover-foreground: hsl(220 15% 10%);
 
-  --primary: hsl(262 40% 41%);           /* #6B4FA0 — ungu brand utama */
+  --primary: hsl(197 65% 24%);           /* ~#124357 — navy-teal gelap */
   --primary-foreground: hsl(0 0% 100%);
 
-  --secondary: hsl(262 45% 82%);         /* #C9B8E8 — ungu terang, elemen sekunder */
-  --secondary-foreground: hsl(240 25% 15%);
+  --secondary: hsl(199 70% 85%);         /* ~#BEE3F5 — biru langit muda, aksen */
+  --secondary-foreground: hsl(220 15% 10%);
 
-  --muted: hsl(260 35% 95%);             /* background badge/section non-aktif */
-  --muted-foreground: hsl(220 9% 46%);   /* #6B7280 — teks label abu */
+  --muted: hsl(220 20% 95%);
+  --muted-foreground: hsl(215 12% 42%);  /* ~#5B6470 — abu kebiruan */
 
-  --accent: hsl(262 45% 82%);
-  --accent-foreground: hsl(240 25% 15%);
+  --accent: hsl(199 70% 85%);
+  --accent-foreground: hsl(220 15% 10%);
 
-  --destructive: hsl(0 72% 51%);         /* dipakai nanti sesuai rules merah kamu */
+  --destructive: hsl(0 72% 51%);
   --destructive-foreground: hsl(0 0% 100%);
 
-  --border: hsl(260 30% 90%);
-  --input: hsl(260 30% 90%);
-  --ring: hsl(262 40% 41%);
+  --border: hsl(220 15% 90%);            /* ~#E4E7EB — border tipis badge/card */
+  --input: hsl(220 15% 90%);
+  --ring: hsl(197 65% 24%);
 
-  /* ===== Semantic status colors (placeholder — sesuaikan nanti dengan rules kamu) ===== */
-  --status-success: hsl(142 71% 45%);    /* hijau */
-  --status-warning: hsl(38 92% 50%);     /* amber */
-  --status-critical: hsl(0 72% 51%);     /* merah */
+  --status-success: hsl(142 71% 45%);
+  --status-warning: hsl(38 92% 50%);
+  --status-critical: hsl(0 72% 51%);
 }
 
 .dark {
-  /* ===== DARK MODE — Purple Brand Palette ===== */
-  --background: hsl(258 35% 8%);         /* #15121F — ungu sangat gelap */
-  --foreground: hsl(255 30% 93%);        /* #EDEBF5 — putih pudar */
+  /* ===== DARK MODE — versi gelap dari palet yang sama ===== */
+  --background: hsl(220 25% 8%);
+  --foreground: hsl(210 20% 95%);
 
-  --card: hsl(258 30% 15%);              /* #231E3D */
-  --card-foreground: hsl(255 30% 93%);
+  --card: hsl(220 20% 13%);
+  --card-foreground: hsl(210 20% 95%);
 
-  --popover: hsl(258 30% 15%);
-  --popover-foreground: hsl(255 30% 93%);
+  --popover: hsl(220 20% 13%);
+  --popover-foreground: hsl(210 20% 95%);
 
-  --primary: hsl(262 50% 68%);           /* #A78BDA — ungu lebih terang biar kontras cukup */
-  --primary-foreground: hsl(258 35% 8%);
+  --primary: hsl(197 55% 45%);           /* lebih terang biar kontras cukup di gelap */
+  --primary-foreground: hsl(220 25% 8%);
 
-  --secondary: hsl(258 25% 22%);         /* #332B54 */
-  --secondary-foreground: hsl(255 30% 93%);
+  --secondary: hsl(220 18% 20%);
+  --secondary-foreground: hsl(210 20% 95%);
 
-  --muted: hsl(258 28% 18%);
-  --muted-foreground: hsl(258 15% 65%);  /* #9C97B5 */
+  --muted: hsl(220 18% 16%);
+  --muted-foreground: hsl(215 12% 65%);
 
-  --accent: hsl(258 25% 22%);
-  --accent-foreground: hsl(255 30% 93%);
+  --accent: hsl(220 18% 20%);
+  --accent-foreground: hsl(210 20% 95%);
 
   --destructive: hsl(0 63% 60%);
   --destructive-foreground: hsl(0 0% 100%);
 
-  --border: hsl(258 25% 22%);
-  --input: hsl(258 25% 22%);
-  --ring: hsl(262 50% 68%);
+  --border: hsl(220 18% 20%);
+  --input: hsl(220 18% 20%);
+  --ring: hsl(197 55% 45%);
 
   --status-success: hsl(142 60% 50%);
   --status-warning: hsl(38 85% 55%);
@@ -100,6 +99,8 @@
   --color-status-success: var(--status-success);
   --color-status-warning: var(--status-warning);
   --color-status-critical: var(--status-critical);
+
+  --font-sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);

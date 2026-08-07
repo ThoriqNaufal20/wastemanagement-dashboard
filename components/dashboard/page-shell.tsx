@@ -11,7 +11,7 @@ interface PageShellProps {
 export function PageShell({ title, description, children }: PageShellProps) {
   return (
     <div className="min-h-screen bg-background">
-      <div className="mx-auto max-w-[900px] space-y-6 p-6">
+      <div className="mx-auto max-w-[900px] space-y-6 p-6 pb-28">
         <div className="flex items-center justify-between border-b border-border pb-4">
           <Link
             href="/"

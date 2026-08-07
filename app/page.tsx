@@ -13,50 +13,66 @@ import {
   Package,
 } from "lucide-react";
 import { DashboardHeader } from "@/components/dashboard/dashboard-header";
+import { ScrollReveal } from "@/components/dashboard/scroll-reveal";
 import { MetricCard } from "@/components/dashboard/metric-card";
 import { ProgressShipmentCard } from "@/components/dashboard/progress-shipment-card";
 import { WipSewingCard } from "@/components/dashboard/wip-sewing-card";
 import { KelolosanChartCard } from "@/components/dashboard/kelolosan-chart-card";
 import { CorrectiveActionPlanCard } from "@/components/dashboard/corrective-action-plan-card";
 import { InternalAuditTable } from "@/components/dashboard/internal-audit-table";
-import {
-  scorecardScore,
-  dashboardDeptScore,
-  auditSupportiveDept,
-  threeR,
-} from "@/lib/mock-data";
+import { auditSupportiveDept, threeR } from "@/lib/mock-data";
 import { getUrgencyFlags } from "@/lib/urgency";
+import { getAllScorecardData } from "@/lib/scorecard-data";
+import { getAllDashboardDeptData } from "@/lib/dashboard-dept-data";
+import { computeTrend } from "@/lib/scorecard-types";
 
-export default function DashboardPage() {
+// Departemen yang datanya ditampilkan sebagai ringkasan di dashboard utama.
+const TARGET_DEPARTMENT = "Waste Management";
+
+export default async function DashboardPage() {
   const urgency = getUrgencyFlags();
+
+  // Ambil data Scorecard & Dashboard Departement asli dari Google Sheets,
+  // paralel biar tidak saling nunggu.
+  const [scorecardData, dashboardDeptData] = await Promise.all([
+    getAllScorecardData(),
+    getAllDashboardDeptData(),
+  ]);
+
+  const scorecardDept = scorecardData[TARGET_DEPARTMENT];
+  const dashboardDeptDept = dashboardDeptData[TARGET_DEPARTMENT];
+
+  const scorecardTrend = scorecardDept ? computeTrend(scorecardDept.averageSeries) : null;
+  const dashboardDeptTrend = dashboardDeptDept
+    ? computeTrend(dashboardDeptDept.averageSeries)
+    : null;
+
+  const scorecardValue = scorecardTrend?.latest ?? null;
+  const dashboardDeptValue = dashboardDeptTrend?.latest ?? null;
 
   // Konfigurasi Ringkasan Angka. Item dengan hasData=false (0/0, tidak ada
   // aktivitas sama sekali) otomatis disembunyikan — perilaku "notifikasi".
   const ringkasanItems = [
-    ...(urgency.progressShipment.isUrgent
-      ? [
-          {
-            key: "progress-shipment-urgent",
-            label: "Shipment belum kirim",
-            value: urgency.progressShipment.total,
-            suffix: "pcs",
-            isUrgent: true,
-            icon: Truck,
-            href: "/progress-shipment",
-            hasData: true,
-          },
-        ]
-      : []),
-    ...urgency.wipSewing.criticalLines.map((line) => ({
-      key: `wip-sewing-urgent-${line.line}`,
-      label: `WIP sewing line ${line.line}`,
-      value: line.qty,
-      suffix: "pcs",
-      isUrgent: true,
-      icon: Package,
-      href: "/wip-sewing",
+    {
+      key: "internal-audit",
+      label: `Audit ${urgency.internalAudit.row.fact} · OTS finding`,
+      value: urgency.internalAudit.row.otsFinding,
+      suffix: undefined,
+      isUrgent: urgency.internalAudit.isUrgent,
+      icon: ClipboardList,
+      href: "/internal-audit",
       hasData: true,
-    })),
+    },
+    {
+      key: "audit-support",
+      label: "Audit support · overdue",
+      value: auditSupportiveDept.overdue,
+      suffix: `/ ${auditSupportiveDept.inProgress} in-progress`,
+      isUrgent: urgency.auditSupportiveDept.isUrgent,
+      icon: Users,
+      href: "/audit-supportive-dept",
+      hasData: true,
+    },
     {
       key: "3r-glove-active",
       label: "3R glove active · late",
@@ -118,52 +134,56 @@ export default function DashboardPage() {
       hasData: threeR.wipPending.inProgressTotal > 0 || threeR.wipPending.late > 0,
     },
     {
-      key: "internal-audit",
-      label: `Audit ${urgency.internalAudit.row.fact} · OTS finding`,
-      value: urgency.internalAudit.row.otsFinding,
-      suffix: undefined,
-      isUrgent: urgency.internalAudit.isUrgent,
-      icon: ClipboardList,
-      href: "/internal-audit",
-      hasData: true,
-    },
-    {
-      key: "audit-support",
-      label: "Audit support · overdue",
-      value: auditSupportiveDept.overdue,
-      suffix: `/ ${auditSupportiveDept.inProgress} in-progress`,
-      isUrgent: urgency.auditSupportiveDept.isUrgent,
-      icon: Users,
-      href: "/audit-supportive-dept",
-      hasData: true,
-    },
-    {
       key: "scorecard",
       label: "Scorecard",
-      value: `${scorecardScore.value}%`,
+      value: scorecardValue !== null ? `${scorecardValue}%` : "-",
       suffix: undefined,
       isUrgent: false,
       icon: FileText,
       href: "/scorecard",
-      hasData: true,
+      hasData: scorecardValue !== null,
     },
     {
       key: "dashboard-dept",
       label: "Dashboard dept",
-      value: `${dashboardDeptScore.value}%`,
+      value: dashboardDeptValue !== null ? `${dashboardDeptValue}%` : "-",
       suffix: undefined,
       isUrgent: false,
       icon: LayoutDashboard,
       href: "/dashboard-departement",
-      hasData: true,
+      hasData: dashboardDeptValue !== null,
     },
-  ].filter((item) => item.hasData)
+    ...(urgency.progressShipment.isUrgent
+      ? [
+          {
+            key: "progress-shipment-urgent",
+            label: "Shipment belum kirim",
+            value: urgency.progressShipment.total,
+            suffix: "pcs",
+            isUrgent: true,
+            icon: Truck,
+            href: "/progress-shipment",
+            hasData: true,
+          },
+        ]
+      : []),
+    ...urgency.wipSewing.criticalLines.map((line) => ({
+      key: `wip-sewing-urgent-${line.line}`,
+      label: `WIP sewing line ${line.line}`,
+      value: line.qty,
+      suffix: "pcs",
+      isUrgent: true,
+      icon: Package,
+      href: "/wip-sewing",
+      hasData: true,
+    })),
+  ]
+    .filter((item) => item.hasData)
     .sort((a, b) => Number(b.isUrgent) - Number(a.isUrgent));
-  
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="mx-auto max-w-[1440px] space-y-6 p-6">
+      <div className="mx-auto max-w-[1440px] space-y-6 p-6 pb-28">
         <DashboardHeader />
 
         {/* Baris 1 — Ringkasan angka, grid memaksimalkan ruang sesuai jumlah item */}
@@ -192,10 +212,18 @@ export default function DashboardPage() {
             Grafik
           </p>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <ProgressShipmentCard />
-            <WipSewingCard />
-            <KelolosanChartCard />
-            <CorrectiveActionPlanCard />
+            <ScrollReveal>
+              <ProgressShipmentCard />
+            </ScrollReveal>
+            <ScrollReveal>
+              <WipSewingCard />
+            </ScrollReveal>
+            <ScrollReveal>
+              <KelolosanChartCard />
+            </ScrollReveal>
+            <ScrollReveal>
+              <CorrectiveActionPlanCard />
+            </ScrollReveal>
           </div>
         </section>
 
