@@ -1,6 +1,6 @@
 // Tipe data & helper murni (tanpa dependency googleapis) — aman diimpor
 // dari client component. Kode yang benar-benar fetch ke Google Sheets
-// tetap di lib/scorecard-data.ts (server-only).
+// tetap di lib/scorecard-data.ts dan lib/dashboard-dept-data.ts (server-only).
 
 export interface QuarterValue {
   quarter: string;
@@ -39,4 +39,43 @@ export function computeTrend(series: QuarterValue[]): Trend {
     delta,
     latest,
   };
+}
+
+function averageValues(values: (number | null | undefined)[]): number | null {
+  const filled = values.filter((v): v is number => v !== null && v !== undefined);
+  if (filled.length === 0) return null;
+  return Math.round((filled.reduce((s, v) => s + v, 0) / filled.length) * 10) / 10;
+}
+
+/**
+ * Gabungkan data semua departemen jadi satu rata-rata gabungan
+ * ("Semua departemen"). Dipakai di halaman utama (ringkasan) dan
+ * sebagai opsi default di halaman detail Scorecard/Dashboard Dept.
+ */
+export function buildAllDepartmentsAverage(
+  data: Record<string, ScorecardDepartmentData>
+): ScorecardDepartmentData | null {
+  const depts = Object.values(data);
+  if (depts.length === 0) return null;
+
+  const quarters = depts[0].quarters;
+
+  const averageSeries: QuarterValue[] = quarters.map((quarter, i) => ({
+    quarter,
+    value: averageValues(depts.map((d) => d.averageSeries[i]?.value)),
+  }));
+
+  const aspectKeys = depts[0].aspects.map((a) => a.aspect);
+  const aspects: ScorecardAspectSeries[] = aspectKeys.map((aspectKey, idx) => {
+    const label = depts[0].aspects[idx].label;
+    const series: QuarterValue[] = quarters.map((quarter, i) => ({
+      quarter,
+      value: averageValues(
+        depts.map((d) => d.aspects.find((a) => a.aspect === aspectKey)?.series[i]?.value)
+      ),
+    }));
+    return { aspect: aspectKey, label, series };
+  });
+
+  return { department: "Semua departemen", quarters, averageSeries, aspects };
 }

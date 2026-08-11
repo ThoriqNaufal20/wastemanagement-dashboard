@@ -24,10 +24,7 @@ import { auditSupportiveDept, threeR } from "@/lib/mock-data";
 import { getUrgencyFlags } from "@/lib/urgency";
 import { getAllScorecardData } from "@/lib/scorecard-data";
 import { getAllDashboardDeptData } from "@/lib/dashboard-dept-data";
-import { computeTrend } from "@/lib/scorecard-types";
-
-// Departemen yang datanya ditampilkan sebagai ringkasan di dashboard utama.
-const TARGET_DEPARTMENT = "Waste Management";
+import { computeTrend, buildAllDepartmentsAverage } from "@/lib/scorecard-types";
 
 export default async function DashboardPage() {
   const urgency = getUrgencyFlags();
@@ -39,12 +36,14 @@ export default async function DashboardPage() {
     getAllDashboardDeptData(),
   ]);
 
-  const scorecardDept = scorecardData[TARGET_DEPARTMENT];
-  const dashboardDeptDept = dashboardDeptData[TARGET_DEPARTMENT];
+  // Rata-rata SEMUA departemen (bukan satu departemen tertentu) untuk
+  // ringkasan di halaman utama.
+  const scorecardAllDept = buildAllDepartmentsAverage(scorecardData);
+  const dashboardDeptAllDept = buildAllDepartmentsAverage(dashboardDeptData);
 
-  const scorecardTrend = scorecardDept ? computeTrend(scorecardDept.averageSeries) : null;
-  const dashboardDeptTrend = dashboardDeptDept
-    ? computeTrend(dashboardDeptDept.averageSeries)
+  const scorecardTrend = scorecardAllDept ? computeTrend(scorecardAllDept.averageSeries) : null;
+  const dashboardDeptTrend = dashboardDeptAllDept
+    ? computeTrend(dashboardDeptAllDept.averageSeries)
     : null;
 
   const scorecardValue = scorecardTrend?.latest ?? null;

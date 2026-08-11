@@ -27,7 +27,7 @@ export function KelolosanChartCard() {
       <CardContent className="px-2 pb-2">
         <div className="h-40">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={kelolosanSampahKulit} barGap={10} margin={{ top: 8, right: 8, left: -20, bottom: -10 }}>
+            <BarChart data={kelolosanSampahKulit} barGap={10} margin={{ top: -10, right: 8, left: -20, bottom: -10 }}>
               <XAxis
                 dataKey="week"
                 axisLine={false}
@@ -49,7 +49,13 @@ export function KelolosanChartCard() {
                   fontSize: "11px",
                 }}
               />
-              <Legend wrapperStyle={{ fontSize: "11px" }}/>
+              <Legend layout="horizontal"
+                      verticalAlign="top"
+                      align="center"
+                      wrapperStyle={{
+                        fontSize: "11px",
+                        width: "100%",
+                      }}/>
               <Bar
                 dataKey="A"
                 name="Fact A"

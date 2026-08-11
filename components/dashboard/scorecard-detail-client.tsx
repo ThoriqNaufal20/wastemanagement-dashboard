@@ -16,9 +16,8 @@ import { ScrollReveal } from "@/components/dashboard/scroll-reveal";
 import { AiAgentPanel } from "@/components/dashboard/ai-agent-panel";
 import {
   type ScorecardDepartmentData,
-  type ScorecardAspectSeries,
-  type QuarterValue,
   computeTrend,
+  buildAllDepartmentsAverage,
 } from "@/lib/scorecard-types";
 
 interface ScorecardDetailClientProps {
@@ -37,41 +36,6 @@ const ASPECT_COLORS = [
   "var(--color-status-critical)",
   "#0EA5E9",
 ];
-
-function average(values: (number | null | undefined)[]): number | null {
-  const filled = values.filter((v): v is number => v !== null && v !== undefined);
-  if (filled.length === 0) return null;
-  return Math.round((filled.reduce((s, v) => s + v, 0) / filled.length) * 10) / 10;
-}
-
-// Gabungkan semua departemen jadi satu rata-rata gabungan ("Semua departemen").
-function buildAllDeptAggregate(
-  data: Record<string, ScorecardDepartmentData>
-): ScorecardDepartmentData | null {
-  const depts = Object.values(data);
-  if (depts.length === 0) return null;
-
-  const quarters = depts[0].quarters;
-
-  const averageSeries: QuarterValue[] = quarters.map((quarter, i) => ({
-    quarter,
-    value: average(depts.map((d) => d.averageSeries[i]?.value)),
-  }));
-
-  const aspectKeys = depts[0].aspects.map((a) => a.aspect);
-  const aspects: ScorecardAspectSeries[] = aspectKeys.map((aspectKey, idx) => {
-    const label = depts[0].aspects[idx].label;
-    const series: QuarterValue[] = quarters.map((quarter, i) => ({
-      quarter,
-      value: average(
-        depts.map((d) => d.aspects.find((a) => a.aspect === aspectKey)?.series[i]?.value)
-      ),
-    }));
-    return { aspect: aspectKey, label, series };
-  });
-
-  return { department: "Semua departemen", quarters, averageSeries, aspects };
-}
 
 function TrendBadge({
   delta,
@@ -111,9 +75,28 @@ export function ScorecardDetailClient({
   departments,
 }: ScorecardDetailClientProps) {
   const [selectedDept, setSelectedDept] = useState(ALL_DEPT_KEY);
+  // Aspek yang lagi "diisolasi" di chart. Kosong = tampilkan semua garis.
+  const [selectedAspects, setSelectedAspects] = useState<Set<string>>(new Set());
 
-  const allDeptData = useMemo(() => buildAllDeptAggregate(data), [data]);
+  const allDeptData = useMemo(() => buildAllDepartmentsAverage(data), [data]);
   const dept = selectedDept === ALL_DEPT_KEY ? allDeptData : data[selectedDept];
+
+  function handleDeptChange(value: string) {
+    setSelectedDept(value);
+    setSelectedAspects(new Set()); // reset pilihan aspek saat ganti departemen
+  }
+
+  function toggleAspect(aspectKey: string) {
+    setSelectedAspects((prev) => {
+      const next = new Set(prev);
+      if (next.has(aspectKey)) {
+        next.delete(aspectKey);
+      } else {
+        next.add(aspectKey);
+      }
+      return next;
+    });
+  }
 
   const chartData = useMemo(() => {
     if (!dept) return [];
@@ -137,6 +120,7 @@ export function ScorecardDetailClient({
   }
 
   const averageTrend = computeTrend(dept.averageSeries);
+  const hasSelection = selectedAspects.size > 0;
 
   return (
     <div className="space-y-4">
@@ -148,7 +132,7 @@ export function ScorecardDetailClient({
         <select
           id="dept-filter"
           value={selectedDept}
-          onChange={(e) => setSelectedDept(e.target.value)}
+          onChange={(e) => handleDeptChange(e.target.value)}
           className="rounded-lg border border-border bg-card px-3 py-1.5 text-sm text-foreground"
         >
           <option value={ALL_DEPT_KEY}>Semua departemen</option>
@@ -175,13 +159,23 @@ export function ScorecardDetailClient({
         </CardContent>
       </Card>
 
-      {/* Line chart tren antar kuartal (tanpa garis Score Akhir) */}
+      {/* Line chart tren antar kuartal */}
       <ScrollReveal minHeight={340}>
         <Card>
           <CardContent className="pt-6">
-            <p className="mb-3 text-xs font-medium text-muted-foreground">
-              Tren skor per kuartal
-            </p>
+            <div className="mb-3 flex items-center justify-between">
+              <p className="text-xs font-medium text-muted-foreground">
+                Tren skor per kuartal
+              </p>
+              {hasSelection && (
+                <button
+                  onClick={() => setSelectedAspects(new Set())}
+                  className="text-[11px] text-primary hover:underline"
+                >
+                  Tampilkan semua
+                </button>
+              )}
+            </div>
             <div className="h-64 w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={chartData}>
@@ -210,19 +204,28 @@ export function ScorecardDetailClient({
                       fontSize: "11px",
                     }}
                   />
-                  <Legend wrapperStyle={{ fontSize: "11px" }} />
-                  {dept.aspects.map((aspect, i) => (
-                    <Line
-                      key={aspect.aspect}
-                      type="monotone"
-                      dataKey={aspect.aspect}
-                      name={aspect.label}
-                      stroke={ASPECT_COLORS[i % ASPECT_COLORS.length]}
-                      strokeWidth={1.5}
-                      dot={{ r: 3 }}
-                      connectNulls
-                    />
-                  ))}
+                  <Legend
+                    wrapperStyle={{ fontSize: "11px", cursor: "pointer" }}
+                    onClick={(e) => {
+                      if (typeof e.dataKey === "string") toggleAspect(e.dataKey);
+                    }}
+                  />
+                  {dept.aspects.map((aspect, i) => {
+                    const isActive = !hasSelection || selectedAspects.has(aspect.aspect);
+                    return (
+                      <Line
+                        key={aspect.aspect}
+                        type="monotone"
+                        dataKey={aspect.aspect}
+                        name={aspect.label}
+                        stroke={ASPECT_COLORS[i % ASPECT_COLORS.length]}
+                        strokeWidth={1.5}
+                        dot={{ r: 3 }}
+                        connectNulls
+                        hide={!isActive}
+                      />
+                    );
+                  })}
                 </LineChart>
               </ResponsiveContainer>
             </div>
@@ -230,22 +233,32 @@ export function ScorecardDetailClient({
         </Card>
       </ScrollReveal>
 
-      {/* Breakdown per aspek, dengan tren masing-masing */}
+      {/* Breakdown per aspek — klik card untuk isolasi di chart (multi-select) */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         {dept.aspects.map((aspect) => {
           const trend = computeTrend(aspect.series);
+          const isSelected = selectedAspects.has(aspect.aspect);
+          const isDimmed = hasSelection && !isSelected;
           return (
-            <Card key={aspect.aspect}>
-              <CardContent className="pt-6">
-                <p className="text-xs text-muted-foreground">{aspect.label}</p>
-                <p className="text-xl font-semibold text-foreground">
-                  {trend.latest ?? "-"}%
-                </p>
-                <div className="mt-1">
-                  <TrendBadge delta={trend.delta} direction={trend.direction} />
-                </div>
-              </CardContent>
-            </Card>
+            <button
+              key={aspect.aspect}
+              onClick={() => toggleAspect(aspect.aspect)}
+              className={`text-left transition-opacity ${isDimmed ? "opacity-40" : "opacity-100"}`}
+            >
+              <Card
+                className={isSelected ? "ring-2 ring-primary" : undefined}
+              >
+                <CardContent className="pt-6">
+                  <p className="text-xs text-muted-foreground">{aspect.label}</p>
+                  <p className="text-xl font-semibold text-foreground">
+                    {trend.latest ?? "-"}%
+                  </p>
+                  <div className="mt-1">
+                    <TrendBadge delta={trend.delta} direction={trend.direction} />
+                  </div>
+                </CardContent>
+              </Card>
+            </button>
           );
         })}
       </div>

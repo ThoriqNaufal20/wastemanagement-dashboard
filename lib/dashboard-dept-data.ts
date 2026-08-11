@@ -21,7 +21,7 @@ function parseNumber(value: string | undefined): number | null {
 // Score di sheet berskala 0-1 (contoh: 1 = 100%, 0.6 = 60%). Convert ke persen.
 function scoreToPercent(score: number | null): number | null {
   if (score === null) return null;
-  return Math.round(score * 1000) / 10; // 1 desimal
+  return Math.round(score * 10) / 10; // 1 desimal
 }
 
 async function fetchAllDashboardDeptData(): Promise<
