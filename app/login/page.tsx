@@ -2,8 +2,8 @@
 
 import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Recycle, Lock } from "lucide-react";
-import Image from "next/image";
+import { Lock } from "lucide-react";
+import { Logo } from "@/components/dashboard/logo";
 
 function LoginForm() {
   const router = useRouter();
@@ -26,7 +26,7 @@ function LoginForm() {
     setLoading(false);
 
     if (res.ok) {
-      const redirectTo = searchParams.get("from") || "/";
+      const redirectTo = searchParams.get("from") || "/dashboard";
       router.push(redirectTo);
       router.refresh();
     } else {
@@ -38,13 +38,7 @@ function LoginForm() {
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-primary/10 via-background to-secondary/20 p-6">
       <div className="w-full max-w-sm rounded-2xl bg-card p-8 shadow-[0_4px_6px_rgba(16,24,40,0.05),0_10px_15px_rgba(16,24,40,0.08)]">
         <div className="mb-6 flex flex-col items-center gap-3 text-center">
-          <Image
-            src="/LOGO ADIRA.png"
-            alt="PT. Adira Semesta Industry"
-            width={48}
-            height={48}
-            className="rounded-2xl"
-/>
+          <Logo size={48} className="rounded-2xl" />
           <div>
             <h1 className="text-lg font-semibold text-foreground">
               Waste Management Dashboard

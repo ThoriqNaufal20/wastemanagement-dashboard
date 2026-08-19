@@ -3,6 +3,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Public_Sans } from "next/font/google";
 import { FloatingNav } from "@/components/dashboard/floating-nav";
+import { FloatingThemeToggle } from "@/components/dashboard/floating-theme-toggle";
 
 const publicSans = Public_Sans({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -19,10 +20,11 @@ export default function RootLayout({
   return (
     <html lang="id" suppressHydrationWarning>
       <body className={publicSans.variable}>
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
+         <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
             {children}
             <FloatingNav />
-        </ThemeProvider>
+            <FloatingThemeToggle />
+          </ThemeProvider>
       </body>
     </html>
   );

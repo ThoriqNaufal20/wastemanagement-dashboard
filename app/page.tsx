@@ -1,236 +1,162 @@
+import Link from "next/link";
 import {
-  ClipboardList,
-  Users,
+  ClipboardCheck,
   Recycle,
-  Layers,
-  Tag,
-  Box,
-  Hand,
-  Clock,
-  FileText,
-  LayoutDashboard,
-  Truck,
-  Package,
+  LineChart,
+  Table2,
+  ArrowRight,
+  Mail,
+  Lock,
+  User,
 } from "lucide-react";
-import { DashboardHeader } from "@/components/dashboard/dashboard-header";
-import { ScrollReveal } from "@/components/dashboard/scroll-reveal";
-import { MetricCard } from "@/components/dashboard/metric-card";
-import { ProgressShipmentCard } from "@/components/dashboard/progress-shipment-card";
-import { WipSewingCard } from "@/components/dashboard/wip-sewing-card";
-import { KelolosanChartCard } from "@/components/dashboard/kelolosan-chart-card";
-import { CorrectiveActionPlanCard } from "@/components/dashboard/corrective-action-plan-card";
-import { InternalAuditTable } from "@/components/dashboard/internal-audit-table";
-import { auditSupportiveDept, threeR } from "@/lib/mock-data";
-import { getUrgencyFlags } from "@/lib/urgency";
-import { getAllScorecardData } from "@/lib/scorecard-data";
-import { getAllDashboardDeptData } from "@/lib/dashboard-dept-data";
-import { computeTrend, buildAllDepartmentsAverage } from "@/lib/scorecard-types";
+import { LandingHero } from "@/components/landing/landing-hero";
+import { FullPageScroll } from "@/components/landing/full-page-scroll";
 
-export default async function DashboardPage() {
-  const urgency = getUrgencyFlags();
+const SCOPE_ITEMS = [
+  {
+    icon: ClipboardCheck,
+    title: "Internal audit",
+    description: "Kesiapan menghadapi audit eksternal",
+  },
+  {
+    icon: Recycle,
+    title: "3R",
+    description: "Reduce, reuse, recycle material reject",
+  },
+  {
+    icon: LineChart,
+    title: "Monitoring dan analisa data",
+    description: "Pantau performa dan tren operasional",
+  },
+  {
+    icon: Table2,
+    title: "Spreadsheet training",
+    description: "Pelatihan pencatatan data untuk tim",
+  },
+];
 
-  // Ambil data Scorecard & Dashboard Departement asli dari Google Sheets,
-  // paralel biar tidak saling nunggu.
-  const [scorecardData, dashboardDeptData] = await Promise.all([
-    getAllScorecardData(),
-    getAllDashboardDeptData(),
-  ]);
+// TODO: ganti "Nama" dan role di bawah dengan data tim asli begitu tersedia.
+const TEAM = {
+  head: { name: "Nama", role: "Kepala departemen" },
+  members: [
+    { name: "Nama", role: "Lead 3R" },
+    { name: "Nama", role: "Lead internal audit" },
+    { name: "Nama", role: "Data analyst" },
+    { name: "Nama", role: "Staff operasional" },
+  ],
+};
 
-  // Rata-rata SEMUA departemen (bukan satu departemen tertentu) untuk
-  // ringkasan di halaman utama.
-  const scorecardAllDept = buildAllDepartmentsAverage(scorecardData);
-  const dashboardDeptAllDept = buildAllDepartmentsAverage(dashboardDeptData);
-
-  const scorecardTrend = scorecardAllDept ? computeTrend(scorecardAllDept.averageSeries) : null;
-  const dashboardDeptTrend = dashboardDeptAllDept
-    ? computeTrend(dashboardDeptAllDept.averageSeries)
-    : null;
-
-  const scorecardValue = scorecardTrend?.latest ?? null;
-  const dashboardDeptValue = dashboardDeptTrend?.latest ?? null;
-
-  // Konfigurasi Ringkasan Angka. Item dengan hasData=false (0/0, tidak ada
-  // aktivitas sama sekali) otomatis disembunyikan — perilaku "notifikasi".
-  const ringkasanItems = [
-    {
-      key: "internal-audit",
-      label: `Audit ${urgency.internalAudit.row.fact} · OTS finding`,
-      value: urgency.internalAudit.row.otsFinding,
-      suffix: undefined,
-      isUrgent: urgency.internalAudit.isUrgent,
-      icon: ClipboardList,
-      href: "/internal-audit",
-      hasData: true,
-    },
-    {
-      key: "audit-support",
-      label: "Audit support · overdue",
-      value: auditSupportiveDept.overdue,
-      suffix: `/ ${auditSupportiveDept.inProgress} in-progress`,
-      isUrgent: urgency.auditSupportiveDept.isUrgent,
-      icon: Users,
-      href: "/audit-supportive-dept",
-      hasData: true,
-    },
-    {
-      key: "3r-glove-active",
-      label: "3R glove active · late",
-      value: threeR.gloveActive.late,
-      suffix: `/ ${threeR.gloveActive.inProgressTotal} in-progress`,
-      isUrgent: urgency.threeRGloveActive.isUrgent,
-      icon: Recycle,
-      href: "/three-r",
-      hasData: threeR.gloveActive.inProgressTotal > 0 || threeR.gloveActive.late > 0,
-    },
-    {
-      key: "3r-wip-kulit",
-      label: "3R WIP kulit · late",
-      value: threeR.wipKulit.late,
-      suffix: threeR.wipKulit.unit,
-      isUrgent: urgency.threeRWipKulit.isUrgent,
-      icon: Layers,
-      href: "/three-r",
-      hasData: threeR.wipKulit.inProgressTotal > 0 || threeR.wipKulit.late > 0,
-    },
-    {
-      key: "3r-wip-logo",
-      label: "3R WIP logo · late",
-      value: threeR.wipLogo.late,
-      suffix: `/ ${threeR.wipLogo.inProgressTotal} in-progress`,
-      isUrgent: urgency.threeRWipLogo.isUrgent,
-      icon: Tag,
-      href: "/three-r",
-      hasData: threeR.wipLogo.inProgressTotal > 0 || threeR.wipLogo.late > 0,
-    },
-    {
-      key: "3r-wip-pola",
-      label: "3R WIP pola · late",
-      value: threeR.wipPola.late,
-      suffix: `/ ${threeR.wipPola.inProgressTotal} in-progress`,
-      isUrgent: urgency.threeRWipPola.isUrgent,
-      icon: Box,
-      href: "/three-r",
-      hasData: threeR.wipPola.inProgressTotal > 0 || threeR.wipPola.late > 0,
-    },
-    {
-      key: "3r-wip-glove",
-      label: "3R WIP glove · late",
-      value: threeR.wipGlove.late,
-      suffix: `/ ${threeR.wipGlove.inProgressTotal} in-progress`,
-      isUrgent: urgency.threeRWipGlove.isUrgent,
-      icon: Hand,
-      href: "/three-r",
-      hasData: threeR.wipGlove.inProgressTotal > 0 || threeR.wipGlove.late > 0,
-    },
-    {
-      key: "3r-wip-pending",
-      label: "3R WIP pending · late",
-      value: threeR.wipPending.late,
-      suffix: `/ ${threeR.wipPending.inProgressTotal} in-progress`,
-      isUrgent: urgency.threeRWipPending.isUrgent,
-      icon: Clock,
-      href: "/three-r",
-      hasData: threeR.wipPending.inProgressTotal > 0 || threeR.wipPending.late > 0,
-    },
-    {
-      key: "scorecard",
-      label: "Scorecard",
-      value: scorecardValue !== null ? `${scorecardValue}%` : "-",
-      suffix: undefined,
-      isUrgent: false,
-      icon: FileText,
-      href: "/scorecard",
-      hasData: scorecardValue !== null,
-    },
-    {
-      key: "dashboard-dept",
-      label: "Dashboard dept",
-      value: dashboardDeptValue !== null ? `${dashboardDeptValue}%` : "-",
-      suffix: undefined,
-      isUrgent: false,
-      icon: LayoutDashboard,
-      href: "/dashboard-departement",
-      hasData: dashboardDeptValue !== null,
-    },
-    ...(urgency.progressShipment.isUrgent
-      ? [
-          {
-            key: "progress-shipment-urgent",
-            label: "Shipment belum kirim",
-            value: urgency.progressShipment.total,
-            suffix: "pcs",
-            isUrgent: true,
-            icon: Truck,
-            href: "/progress-shipment",
-            hasData: true,
-          },
-        ]
-      : []),
-    ...urgency.wipSewing.criticalLines.map((line) => ({
-      key: `wip-sewing-urgent-${line.line}`,
-      label: `WIP sewing line ${line.line}`,
-      value: line.qty,
-      suffix: "pcs",
-      isUrgent: true,
-      icon: Package,
-      href: "/wip-sewing",
-      hasData: true,
-    })),
-  ]
-    .filter((item) => item.hasData)
-    .sort((a, b) => Number(b.isUrgent) - Number(a.isUrgent));
-
+export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-background">
-      <div className="mx-auto max-w-[1440px] space-y-6 p-6 pb-28">
-        <DashboardHeader />
+    <div>
+      <FullPageScroll>
+        {/* Section 1 — Hero */}
+        <LandingHero />
 
-        {/* Baris 1 — Ringkasan angka, grid memaksimalkan ruang sesuai jumlah item */}
-        <section>
-          <p className="mb-2 text-[11px] uppercase tracking-wide text-muted-foreground">
-            Ringkasan angka
-          </p>
-          <div className="grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))] gap-3">
-            {ringkasanItems.map((item) => (
-              <MetricCard
-                key={item.key}
-                label={item.label}
-                value={item.value}
-                suffix={item.suffix}
-                isUrgent={item.isUrgent}
-                icon={item.icon}
-                href={item.href}
-              />
-            ))}
+        {/* Section 2 — Ruang lingkup kerja */}
+        <div className="flex h-full w-full flex-col items-center justify-center bg-background px-4">
+          <div className="mx-auto w-full max-w-[900px]">
+            <p className="mb-3 text-[11px] uppercase tracking-wide text-muted-foreground">
+              Ruang lingkup kerja
+            </p>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              {SCOPE_ITEMS.map((item) => (
+                <div
+                  key={item.title}
+                  className="rounded-2xl bg-card p-5 transition-transform hover:-translate-y-0.5"
+                >
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10">
+                    <item.icon className="h-4 w-4 text-primary" />
+                  </div>
+                  <p className="mt-2.5 text-sm font-medium text-foreground">
+                    {item.title}
+                  </p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {item.description}
+                  </p>
+                </div>
+              ))}
+            </div>
           </div>
-        </section>
+        </div>
 
-        {/* Baris 2 — Grafik, urutan: Shipment, WIP Sewing, Kelolosan, CAP */}
-        <section>
-          <p className="mb-2 text-[11px] uppercase tracking-wide text-muted-foreground">
-            Grafik
-          </p>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <ScrollReveal>
-              <ProgressShipmentCard />
-            </ScrollReveal>
-            <ScrollReveal>
-              <WipSewingCard />
-            </ScrollReveal>
-            <ScrollReveal>
-              <KelolosanChartCard />
-            </ScrollReveal>
-            <ScrollReveal>
-              <CorrectiveActionPlanCard />
-            </ScrollReveal>
+        {/* Section 3 — Struktur tim */}
+        <div className="flex h-full w-full flex-col items-center justify-center bg-background px-4 text-center">
+          <div className="mx-auto w-full max-w-[900px]">
+            <p className="mb-5 text-[11px] uppercase tracking-wide text-muted-foreground">
+              Struktur tim
+            </p>
+
+            <div className="inline-flex flex-col items-center gap-1.5">
+              {/* TODO: ganti dengan <Image src="..." /> untuk foto asli */}
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
+                <User className="h-7 w-7 text-primary" />
+              </div>
+              <p className="mt-1 text-sm font-medium text-foreground">{TEAM.head.name}</p>
+              <p className="text-xs text-muted-foreground">{TEAM.head.role}</p>
+            </div>
+
+            <div className="mx-auto mt-3 h-6 w-px bg-border" />
+            <div className="mx-auto h-px max-w-[560px] bg-border" />
+
+            <div className="mx-auto mt-0 flex max-w-[600px] flex-wrap justify-center gap-5">
+              {TEAM.members.map((member) => (
+                <div key={member.role} className="flex w-[120px] flex-col items-center">
+                  <div className="h-6 w-px bg-border" />
+                  {/* TODO: ganti dengan <Image src="..." /> untuk foto asli */}
+                  <div className="mt-1 flex h-[56px] w-[56px] items-center justify-center rounded-full bg-primary/10">
+                    <User className="h-6 w-6 text-primary" />
+                  </div>
+                  <p className="mt-2 text-xs font-medium text-foreground">{member.name}</p>
+                  <p className="text-[11px] text-muted-foreground">{member.role}</p>
+                </div>
+              ))}
+            </div>
           </div>
-        </section>
+        </div>
 
-        {/* Baris 3 — Tabel Internal Audit lengkap */}
-        <section>
-          <InternalAuditTable />
-        </section>
-      </div>
+        {/* Section 4 — CTA + Footer */}
+        <div className="flex h-full w-full flex-col items-center justify-center bg-background px-4">
+          <div className="mx-auto w-full max-w-[900px]">
+            <div className="rounded-2xl bg-primary/[0.06] px-6 py-10 text-center">
+              <p className="text-base font-medium text-foreground sm:text-lg">
+                Pantau performa departemen secara real-time
+              </p>
+              <p className="mt-1.5 text-sm text-muted-foreground">
+                Audit, WIP, 3R, dan scorecard dalam satu dashboard
+              </p>
+              <Link
+                href="/login"
+                className="mt-5 inline-flex items-center gap-1.5 rounded-full bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground transition-all hover:scale-[1.02] hover:opacity-90"
+              >
+                Masuk ke dashboard
+                <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+            </div>
+
+            <footer className="mt-10 flex flex-wrap items-center justify-between gap-3 border-t border-border py-6">
+              <div>
+                <p className="text-xs font-medium text-foreground">
+                  PT. Adira Semesta Industry
+                </p>
+                <p className="mt-0.5 text-[11px] text-muted-foreground">
+                  Waste management department
+                </p>
+              </div>
+              <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                <Link href="/contact" className="flex items-center gap-1 hover:text-foreground">
+                  <Mail className="h-3.5 w-3.5" />
+                  Contact us
+                </Link>
+                <Link href="/login" className="flex items-center gap-1 hover:text-foreground">
+                  <Lock className="h-3.5 w-3.5" />
+                  Login
+                </Link>
+              </div>
+            </footer>
+          </div>
+        </div>
+      </FullPageScroll>
     </div>
   );
 }

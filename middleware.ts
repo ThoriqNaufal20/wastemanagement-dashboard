@@ -1,10 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 
-// Path yang tetap bisa diakses tanpa session (biar tidak infinite redirect)
-const PUBLIC_PATHS = ["/login", "/api/login"];
+// Path yang bisa diakses TANPA login.
+const PUBLIC_PATHS = ["/login", "/api/login", "/contact"];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  if (pathname === "/") {
+    return NextResponse.next();
+  }
 
   if (PUBLIC_PATHS.some((path) => pathname.startsWith(path))) {
     return NextResponse.next();
@@ -22,5 +26,10 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+  matcher: [
+    // Exclude _next internals DAN semua file statis (apa pun yang ada
+    // titik di nama filenya — .png, .jpg, .svg, .css, dst). Ini yang
+    // memperbaiki bug logo tidak muncul di halaman publik.
+    "/((?!_next/static|_next/image|favicon.ico|.*\\..*).*)",
+  ],
 };

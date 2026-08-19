@@ -5,15 +5,15 @@ import { usePathname } from "next/navigation";
 import { LayoutDashboard, Mail } from "lucide-react";
 
 const NAV_ITEMS = [
-  { label: "Dashboard", href: "/", icon: LayoutDashboard },
+  { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { label: "Contact Us", href: "/contact", icon: Mail },
 ];
 
 export function FloatingNav() {
   const pathname = usePathname();
 
-  // Sembunyikan di halaman login — tidak relevan sebelum user masuk.
-  if (pathname === "/login") return null;
+  // Sembunyikan di landing page (punya nav sendiri) dan halaman login.
+  if (pathname === "/" || pathname === "/login") return null;
 
   return (
     <nav
@@ -22,7 +22,10 @@ export function FloatingNav() {
     >
       <div className="flex items-center gap-1 rounded-full bg-card p-1.5 shadow-[0_4px_6px_rgba(16,24,40,0.06),0_10px_15px_rgba(16,24,40,0.1)]">
         {NAV_ITEMS.map((item) => {
-          const isActive = pathname === item.href;
+          // "Dashboard" tetap dianggap aktif di semua halaman detail
+          // (/scorecard, /internal-audit, dst), bukan cuma persis di /dashboard.
+          const isActive =
+            item.href === "/contact" ? pathname === "/contact" : pathname !== "/contact";
           const Icon = item.icon;
           return (
             <Link

@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
-    maxAge: 60 * 60 * 24 * 7, // 7 hari
+    maxAge: 60 * 60 * 24, // 1 hari — sesuai request: login ulang diperlukan tiap hari
     path: "/",
   });
 
