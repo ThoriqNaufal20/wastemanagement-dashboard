@@ -2,16 +2,17 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Recycle, LineChart, ClipboardCheck, Leaf } from "lucide-react";
+import { Recycle, LineChart, ClipboardCheck, Leaf, ArrowRight } from "lucide-react";
 import { Logo } from "@/components/dashboard/logo";
 import { ScrambleText } from "@/components/dashboard/scramble-text";
+import { useFullPageGoTo } from "@/components/landing/full-page-scroll";
 
 const CHIPS = [
   {
     label: "3R",
     icon: Recycle,
     colorClass: "text-status-success",
-    position: "left-[6%] top-[28%] sm:left-[10%]",
+    position: "left-[6%] top-[26%] sm:left-[10%]",
     rotate: -8,
     delay: 0,
   },
@@ -19,7 +20,7 @@ const CHIPS = [
     label: "Analisa data",
     icon: LineChart,
     colorClass: "text-primary",
-    position: "right-[8%] top-[20%] sm:right-[14%]",
+    position: "right-[8%] top-[18%] sm:right-[14%]",
     rotate: 6,
     delay: 150,
   },
@@ -27,7 +28,7 @@ const CHIPS = [
     label: "Audit",
     icon: ClipboardCheck,
     colorClass: "text-primary",
-    position: "bottom-[14%] left-[10%] sm:left-[16%]",
+    position: "bottom-[20%] left-[10%] sm:left-[16%]",
     rotate: 5,
     delay: 300,
   },
@@ -35,38 +36,41 @@ const CHIPS = [
     label: "Berkelanjutan",
     icon: Leaf,
     colorClass: "text-status-warning",
-    position: "bottom-[18%] right-[6%] sm:right-[12%]",
+    position: "bottom-[24%] right-[6%] sm:right-[12%]",
     rotate: -5,
     delay: 450,
   },
 ];
 
-// Blob sekarang <div> bulat biasa (border-radius: 50%), posisi & ukuran
-// pakai persen dari container — bukan lagi SVG viewBox. Ini yang
-// memperbaiki blob "kepotong" waktu container jadi tinggi (1 layar penuh).
+// Opsi A dari brief: soft gradient blur circles — pakai radial-gradient
+// asli + filter blur (bukan solid flat color lagi seperti versi sebelumnya).
 const BLOBS = [
   {
-    className: "left-[-8%] bottom-[-15%] h-[45%] w-[26%]",
-    color: "var(--color-primary)",
-    opacity: 0.1,
+    className: "left-[-10%] bottom-[-20%] h-[50%] w-[30%]",
+    gradient:
+      "radial-gradient(circle, var(--color-primary) 0%, transparent 70%)",
+    opacity: 0.18,
     delay: "0s",
   },
   {
-    className: "right-[-6%] top-[-10%] h-[55%] w-[30%]",
-    color: "var(--color-secondary)",
-    opacity: 0.5,
+    className: "right-[-8%] top-[-15%] h-[60%] w-[34%]",
+    gradient:
+      "radial-gradient(circle, var(--color-secondary) 0%, transparent 70%)",
+    opacity: 0.6,
     delay: "1.5s",
   },
   {
-    className: "right-[-4%] bottom-[-18%] h-[40%] w-[22%]",
-    color: "var(--color-status-warning)",
-    opacity: 0.12,
+    className: "right-[-6%] bottom-[-22%] h-[42%] w-[24%]",
+    gradient:
+      "radial-gradient(circle, var(--color-status-warning) 0%, transparent 70%)",
+    opacity: 0.2,
     delay: "3s",
   },
 ];
 
 export function LandingHero() {
   const [scrambleSettled, setScrambleSettled] = useState(false);
+  const goTo = useFullPageGoTo();
 
   return (
     <div className="relative flex h-full w-full flex-col overflow-hidden bg-background">
@@ -79,29 +83,30 @@ export function LandingHero() {
           </span>
         </div>
         <div className="flex items-center gap-5 text-sm text-muted-foreground">
-          <a href="#ruang-lingkup" className="hidden sm:inline hover:text-foreground">
+          <button onClick={() => goTo(1)} className="hidden sm:inline hover:text-foreground">
             Tentang
-          </a>
-          <a href="#tim" className="hidden sm:inline hover:text-foreground">
+          </button>
+          <button onClick={() => goTo(4)} className="hidden sm:inline hover:text-foreground">
             Tim
-          </a>
+          </button>
           <Link
             href="/login"
-            className="rounded-full bg-primary px-4 py-2 font-medium text-primary-foreground transition-opacity hover:opacity-90"
+            className="flex items-center gap-1 rounded-full bg-primary px-4 py-2 font-medium text-primary-foreground transition-opacity hover:opacity-90"
           >
-            Lihat dashboard
+            Dashboard
+            <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </div>
       </div>
 
-      {/* Ilustrasi blob + headline — mengisi sisa ruang */}
+      {/* Ilustrasi blob + headline */}
       <div className="relative mx-auto w-full max-w-[1100px] flex-1 px-6 sm:px-10">
         {BLOBS.map((blob, i) => (
           <div
             key={i}
-            className={`animate-blob-drift pointer-events-none absolute rounded-full ${blob.className}`}
+            className={`animate-blob-drift pointer-events-none absolute rounded-full blur-3xl ${blob.className}`}
             style={{
-              backgroundColor: blob.color,
+              background: blob.gradient,
               opacity: blob.opacity,
               animationDelay: blob.delay,
             }}
@@ -111,7 +116,7 @@ export function LandingHero() {
 
         <div className="relative z-10 flex h-full flex-col items-center justify-center text-center">
           <h1
-            className="animate-float-subtle text-3xl font-medium leading-snug text-primary sm:text-5xl"
+            className="animate-float-subtle text-4xl font-medium leading-tight text-primary sm:text-6xl"
             style={{ animationDelay: "0.5s" }}
           >
             <span className="relative inline-block">
@@ -147,12 +152,35 @@ export function LandingHero() {
               </svg>
             </span>
           </h1>
+
           <p
-            className="animate-float-subtle mt-5 text-sm italic text-muted-foreground"
+            className="animate-float-subtle mt-4 text-sm italic text-muted-foreground"
             style={{ animationDelay: "1.1s" }}
           >
             "Tagline"
           </p>
+
+          <p className="mt-5 max-w-md text-sm leading-relaxed text-muted-foreground sm:text-base">
+            Kami menggabungkan pengelolaan limbah yang bertanggung jawab, audit
+            berkelanjutan, dan monitoring berbasis data untuk menciptakan
+            dampak lingkungan yang nyata dan terukur.
+          </p>
+
+          <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
+            <Link
+              href="/login"
+              className="flex items-center gap-1.5 rounded-full bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground transition-all hover:scale-[1.02] hover:opacity-90"
+            >
+              Lihat Dashboard
+              <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+            <button
+              onClick={() => goTo(1)}
+              className="rounded-full border border-border px-6 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+            >
+              Tentang Kami
+            </button>
+          </div>
         </div>
 
         {CHIPS.map((chip) => (

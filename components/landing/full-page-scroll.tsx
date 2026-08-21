@@ -2,8 +2,10 @@
 
 import {
   Children,
+  createContext,
   isValidElement,
   useCallback,
+  useContext,
   useEffect,
   useRef,
   useState,
@@ -14,15 +16,15 @@ interface FullPageScrollProps {
   transitionMs?: number;
 }
 
-/**
- * Full-page scroll custom (bukan library pihak ketiga) dengan efek
- * transisi "drop" — section yang dituju jatuh dari atas menutupi
- * section sebelumnya, mirip efek di slideshow lama.
- *
- * Kenapa custom, bukan fullPage.js: beberapa efek transisi di
- * fullPage.js (termasuk yang serupa "drop") ada di paket berbayar.
- * Ini reimplementasi sendiri, gratis, tanpa dependency tambahan.
- */
+const FullPageScrollContext = createContext<((index: number) => void) | null>(null);
+
+/** Dipakai di dalam section manapun untuk lompat ke section lain, misal
+ * tombol "Tentang Kami" di hero yang lompat ke section About Us. */
+export function useFullPageGoTo() {
+  const goTo = useContext(FullPageScrollContext);
+  return goTo ?? (() => {});
+}
+
 export function FullPageScroll({ children, transitionMs = 750 }: FullPageScrollProps) {
   const sections = Children.toArray(children).filter(isValidElement);
   const total = sections.length;
@@ -44,18 +46,13 @@ export function FullPageScroll({ children, transitionMs = 750 }: FullPageScrollP
     [activeIndex, isAnimating, total, transitionMs]
   );
 
-  // Satu-satunya tempat yang benar-benar menggerakkan posisi section —
-  // dipisah dari render JSX supaya tidak saling rebutan/konflik.
   useEffect(() => {
     sectionRefs.current.forEach((el, i) => {
       if (!el) return;
-
       if (i === activeIndex) {
         el.style.zIndex = "20";
         el.style.transition = "none";
         el.style.transform = "translateY(-100%)";
-        // Paksa reflow supaya browser "sadar" posisi awal ini sebelum
-        // transisi ke posisi akhir dimulai — tanpa ini, drop-nya tidak kelihatan.
         void el.offsetHeight;
         requestAnimationFrame(() => {
           el.style.transition = `transform ${transitionMs}ms cubic-bezier(0.16, 1, 0.3, 1)`;
@@ -107,34 +104,35 @@ export function FullPageScroll({ children, transitionMs = 750 }: FullPageScrollP
   }, [activeIndex, goTo]);
 
   return (
-    <div ref={containerRef} className="fixed inset-0 overflow-hidden bg-background">
-      {sections.map((section, i) => (
-        <div
-          key={i}
-          ref={(el) => {
-            sectionRefs.current[i] = el;
-          }}
-          className="absolute inset-0 overflow-y-auto"
-        >
-          {section}
-        </div>
-      ))}
-
-      {/* Navigasi titik — warna pakai token brand (primary), bukan hardcode */}
-      <div className="fixed right-5 top-1/2 z-30 flex -translate-y-1/2 flex-col gap-3">
-        {sections.map((_, i) => (
-          <button
+    <FullPageScrollContext.Provider value={goTo}>
+      <div ref={containerRef} className="fixed inset-0 overflow-hidden bg-background">
+        {sections.map((section, i) => (
+          <div
             key={i}
-            onClick={() => goTo(i)}
-            aria-label={`Ke section ${i + 1}`}
-            className={`h-2.5 w-2.5 rounded-full transition-all ${
-              i === activeIndex
-                ? "scale-125 bg-primary"
-                : "bg-muted-foreground/30 hover:bg-muted-foreground/50"
-            }`}
-          />
+            ref={(el) => {
+              sectionRefs.current[i] = el;
+            }}
+            className="absolute inset-0 overflow-y-auto"
+          >
+            {section}
+          </div>
         ))}
+
+        <div className="fixed right-5 top-1/2 z-30 flex -translate-y-1/2 flex-col gap-3">
+          {sections.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => goTo(i)}
+              aria-label={`Ke section ${i + 1}`}
+              className={`h-2.5 w-2.5 rounded-full transition-all ${
+                i === activeIndex
+                  ? "scale-125 bg-primary"
+                  : "bg-muted-foreground/30 hover:bg-muted-foreground/50"
+              }`}
+            />
+          ))}
+        </div>
       </div>
-    </div>
+    </FullPageScrollContext.Provider>
   );
 }

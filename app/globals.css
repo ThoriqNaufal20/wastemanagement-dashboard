@@ -6,24 +6,24 @@
 :root {
   --radius: 0.75rem;
 
-  /* ===== LIGHT MODE — Navy-Teal Brand Palette (dari referensi) ===== */
-  --background: hsl(220 20% 97%);        /* ~#F3F4F7 — abu sangat muda */
-  --foreground: hsl(220 15% 10%);        /* ~#16181D — hitam pekat */
+  /* ===== LIGHT MODE — Navy-Teal Brand Palette ===== */
+  --background: hsl(220 20% 97%);
+  --foreground: hsl(220 15% 10%);
 
-  --card: hsl(0 0% 100%);                /* putih bersih */
+  --card: hsl(0 0% 100%);
   --card-foreground: hsl(220 15% 10%);
 
   --popover: hsl(0 0% 100%);
   --popover-foreground: hsl(220 15% 10%);
 
-  --primary: hsl(197 65% 24%);           /* ~#124357 — navy-teal gelap */
+  --primary: hsl(197 65% 24%);
   --primary-foreground: hsl(0 0% 100%);
 
-  --secondary: hsl(199 70% 85%);         /* ~#BEE3F5 — biru langit muda, aksen */
+  --secondary: hsl(199 70% 85%);
   --secondary-foreground: hsl(220 15% 10%);
 
   --muted: hsl(220 20% 95%);
-  --muted-foreground: hsl(215 12% 42%);  /* ~#5B6470 — abu kebiruan */
+  --muted-foreground: hsl(215 12% 42%);
 
   --accent: hsl(199 70% 85%);
   --accent-foreground: hsl(220 15% 10%);
@@ -31,7 +31,7 @@
   --destructive: hsl(0 72% 51%);
   --destructive-foreground: hsl(0 0% 100%);
 
-  --border: hsl(220 15% 90%);            /* ~#E4E7EB — border tipis badge/card */
+  --border: hsl(220 15% 90%);
   --input: hsl(220 15% 90%);
   --ring: hsl(197 65% 24%);
 
@@ -51,7 +51,7 @@
   --popover: hsl(220 20% 13%);
   --popover-foreground: hsl(210 20% 95%);
 
-  --primary: hsl(197 55% 45%);           /* lebih terang biar kontras cukup di gelap */
+  --primary: hsl(197 55% 45%);
   --primary-foreground: hsl(220 25% 8%);
 
   --secondary: hsl(220 18% 20%);
@@ -119,37 +119,7 @@
 }
 
 /* ============================================================
-   TAMBAHAN LAGI untuk app/globals.css — taruh di bawah tambahan
-   sebelumnya (keyframes float, blob-drift, chip-enter).
-   ============================================================ */
-
-@keyframes float-subtle {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-4px);
-  }
-}
-
-.animate-float-subtle {
-  animation: float-subtle 5s ease-in-out infinite;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .animate-float-subtle {
-    animation: none;
-  }
-}
-
-/* ============================================================
-   SEMUA ANIMASI LANDING PAGE — versi konsolidasi.
-   Cari dulu di app/globals.css: kalau ada blok @keyframes float,
-   @keyframes blob-drift, @keyframes chip-enter, atau @keyframes
-   float-subtle yang sudah ada dari sebelumnya — HAPUS semua itu
-   dulu, baru tempel seluruh isi file ini di bawahnya. Supaya
-   tidak ada definisi dobel/tercecer.
+   ANIMASI LANDING PAGE
    ============================================================ */
 
 @keyframes float {
@@ -218,4 +188,30 @@
   }
 }
 
- 
+/* ============================================================
+   TAMBAHAN LAGI di app/globals.css — taruh di bawah animasi
+   yang sudah ada (float, blob-drift, chip-enter, float-subtle).
+   ============================================================ */
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee 28s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee {
+    animation: none;
+  }
+}
