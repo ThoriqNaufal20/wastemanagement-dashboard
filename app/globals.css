@@ -38,6 +38,8 @@
   --status-success: hsl(142 71% 45%);
   --status-warning: hsl(38 92% 50%);
   --status-critical: hsl(0 72% 51%);
+
+  --status-info: hsl(211 80% 52%); 
 }
 
 .dark {
@@ -73,6 +75,8 @@
   --status-success: hsl(142 60% 50%);
   --status-warning: hsl(38 85% 55%);
   --status-critical: hsl(0 63% 60%);
+
+  --status-info: hsl(211 75% 62%); 
 }
 
 @theme inline {
@@ -106,6 +110,8 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+
+  --color-status-info: var(--status-info);
 }
 
 @layer base {

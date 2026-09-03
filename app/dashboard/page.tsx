@@ -2,6 +2,7 @@ import {
   ClipboardList,
   Users,
   Recycle,
+  PauseCircle,
   Layers,
   Tag,
   Box,
@@ -9,8 +10,6 @@ import {
   Clock,
   FileText,
   LayoutDashboard,
-  Truck,
-  Package,
 } from "lucide-react";
 import { DashboardHeader } from "@/components/dashboard/dashboard-header";
 import { ScrollReveal } from "@/components/dashboard/scroll-reveal";
@@ -24,14 +23,46 @@ import { auditSupportiveDept, threeR } from "@/lib/mock-data";
 import { getUrgencyFlags } from "@/lib/urgency";
 import { getAllScorecardData } from "@/lib/scorecard-data";
 import { getAllDashboardDeptData } from "@/lib/dashboard-dept-data";
+import { getGloveActiveSummary } from "@/lib/glove-3r-data";
+import { getTimbangan3RSummary } from "@/lib/timbangan-3r-data";
 import { computeTrend, buildAllDepartmentsAverage } from "@/lib/scorecard-types";
+import type { StatusLevel } from "@/components/dashboard/status-chip";
+
+const SEVERITY_WEIGHT: Record<string, number> = {
+  late: 3,
+  overdue: 3,
+  attention: 2,
+  on_progress: 1,
+  pending: 1,
+  none: 0,
+};
+
+// Helper dengan tipe balik eksplisit — mencegah TypeScript "melebarkan"
+// literal "late"/"on_progress" jadi string biasa di dalam array literal.
+function wipStatus(late: number, total: number): StatusLevel | undefined {
+  if (total === 0) return undefined;
+  return late > 0 ? "late" : "on_progress";
+}
+
+type RingkasanItem = {
+  key: string;
+  label: string;
+  value: string | number;
+  suffix?: string;
+  status: StatusLevel | undefined;
+  icon: typeof ClipboardList;
+  href: string;
+  hasData: boolean;
+};
 
 export default async function DashboardPage() {
   const urgency = getUrgencyFlags();
 
-  const [scorecardData, dashboardDeptData] = await Promise.all([
+  const [scorecardData, dashboardDeptData, gloveActive, timbangan3R] = await Promise.all([
     getAllScorecardData(),
     getAllDashboardDeptData(),
+    getGloveActiveSummary(),
+    getTimbangan3RSummary(),
   ]);
 
   const scorecardAllDept = buildAllDepartmentsAverage(scorecardData);
@@ -45,93 +76,112 @@ export default async function DashboardPage() {
   const scorecardValue = scorecardTrend?.latest ?? null;
   const dashboardDeptValue = dashboardDeptTrend?.latest ?? null;
 
-  const ringkasanItems = [
+  const problemItems: RingkasanItem[] = [
     {
       key: "internal-audit",
       label: `Audit ${urgency.internalAudit.row.fact} · OTS finding`,
       value: urgency.internalAudit.row.otsFinding,
       suffix: undefined,
-      isUrgent: urgency.internalAudit.isUrgent,
+      status: urgency.internalAudit.status ?? undefined,
       icon: ClipboardList,
       href: "/internal-audit",
-      hasData: true,
+      hasData: urgency.internalAudit.status !== null,
     },
     {
       key: "audit-support",
       label: "Audit support · overdue",
       value: auditSupportiveDept.overdue,
       suffix: `/ ${auditSupportiveDept.inProgress} in-progress`,
-      isUrgent: urgency.auditSupportiveDept.isUrgent,
+      status: urgency.auditSupportiveDept.status ?? undefined,
       icon: Users,
       href: "/audit-supportive-dept",
-      hasData: true,
+      hasData: urgency.auditSupportiveDept.status !== null,
     },
+    // ---------- 3R Glove Active — data ASLI dari WEBGlove3R (Opsi C: teks biasa, bukan pecahan) ----------
     {
-      key: "3r-glove-active",
-      label: "3R glove active · late",
-      value: threeR.gloveActive.late,
-      suffix: `/ ${threeR.gloveActive.inProgressTotal} in-progress`,
-      isUrgent: urgency.threeRGloveActive.isUrgent,
+      key: "3r-glove-active-late",
+      label: "3R glove active",
+      value: gloveActive.late,
+      suffix: "permintaan telat",
+      status: gloveActive.late > 0 ? "late" : undefined,
       icon: Recycle,
       href: "/three-r",
-      hasData: threeR.gloveActive.inProgressTotal > 0 || threeR.gloveActive.late > 0,
+      hasData: gloveActive.late > 0,
     },
+    {
+      key: "3r-glove-active-pending",
+      label: "3R glove active",
+      value: gloveActive.onHold,
+      suffix: "menunggu diproses",
+      status: gloveActive.onHold > 0 ? "pending" : undefined,
+      icon: PauseCircle,
+      href: "/three-r",
+      hasData: gloveActive.onHold > 0,
+    },
+    // ---------- Sisa 3R lain — masih data dummy, belum disambungkan ----------
     {
       key: "3r-wip-kulit",
       label: "3R WIP kulit · late",
       value: threeR.wipKulit.late,
       suffix: threeR.wipKulit.unit,
-      isUrgent: urgency.threeRWipKulit.isUrgent,
+      status: urgency.threeRWipKulit.status ?? undefined,
       icon: Layers,
       href: "/three-r",
-      hasData: threeR.wipKulit.inProgressTotal > 0 || threeR.wipKulit.late > 0,
+      hasData: urgency.threeRWipKulit.status !== null,
     },
+    // ---------- 3R WIP Logo/Pola/Glove — data ASLI dari WEBTimbangan3R ----------
+    // Tetap muncul selama ada aktivitas (total > 0), bukan cuma saat late.
+    // Kalau late=0 tapi total>0 → status "on_progress" (netral, tanpa pulse).
     {
       key: "3r-wip-logo",
       label: "3R WIP logo · late",
-      value: threeR.wipLogo.late,
-      suffix: `/ ${threeR.wipLogo.inProgressTotal} in-progress`,
-      isUrgent: urgency.threeRWipLogo.isUrgent,
+      value: timbangan3R.logo.late,
+      suffix: `/ ${timbangan3R.logo.total} in progress`,
+      status: wipStatus(timbangan3R.logo.late, timbangan3R.logo.total),
       icon: Tag,
       href: "/three-r",
-      hasData: threeR.wipLogo.inProgressTotal > 0 || threeR.wipLogo.late > 0,
+      hasData: timbangan3R.logo.total > 0,
     },
     {
       key: "3r-wip-pola",
       label: "3R WIP pola · late",
-      value: threeR.wipPola.late,
-      suffix: `/ ${threeR.wipPola.inProgressTotal} in-progress`,
-      isUrgent: urgency.threeRWipPola.isUrgent,
+      value: timbangan3R.pola.late,
+      suffix: `/ ${timbangan3R.pola.total} in progress`,
+      status: wipStatus(timbangan3R.pola.late, timbangan3R.pola.total),
       icon: Box,
       href: "/three-r",
-      hasData: threeR.wipPola.inProgressTotal > 0 || threeR.wipPola.late > 0,
+      hasData: timbangan3R.pola.total > 0,
     },
     {
       key: "3r-wip-glove",
       label: "3R WIP glove · late",
-      value: threeR.wipGlove.late,
-      suffix: `/ ${threeR.wipGlove.inProgressTotal} in-progress`,
-      isUrgent: urgency.threeRWipGlove.isUrgent,
+      value: timbangan3R.glove.late,
+      suffix: `/ ${timbangan3R.glove.total} in progress`,
+      status: wipStatus(timbangan3R.glove.late, timbangan3R.glove.total),
       icon: Hand,
       href: "/three-r",
-      hasData: threeR.wipGlove.inProgressTotal > 0 || threeR.wipGlove.late > 0,
+      hasData: timbangan3R.glove.total > 0,
     },
+    // WIP Pending — GABUNGAN Pola+Logo+Glove, 1 card, format Opsi C ("N pending")
     {
       key: "3r-wip-pending",
-      label: "3R WIP pending · late",
-      value: threeR.wipPending.late,
-      suffix: `/ ${threeR.wipPending.inProgressTotal} in-progress`,
-      isUrgent: urgency.threeRWipPending.isUrgent,
+      label: "3R WIP pending",
+      value: timbangan3R.totalPending,
+      suffix: "pending",
+      status: timbangan3R.totalPending > 0 ? "pending" : undefined,
       icon: Clock,
       href: "/three-r",
-      hasData: threeR.wipPending.inProgressTotal > 0 || threeR.wipPending.late > 0,
+      hasData: timbangan3R.totalPending > 0,
     },
+  ].filter((item) => item.hasData);
+
+  const infoItems: RingkasanItem[] = [
     {
       key: "scorecard",
       label: "Scorecard",
       value: scorecardValue !== null ? `${scorecardValue}%` : "-",
       suffix: undefined,
-      isUrgent: false,
+      status: undefined,
       icon: FileText,
       href: "/scorecard",
       hasData: scorecardValue !== null,
@@ -141,46 +191,24 @@ export default async function DashboardPage() {
       label: "Dashboard dept",
       value: dashboardDeptValue !== null ? `${dashboardDeptValue}%` : "-",
       suffix: undefined,
-      isUrgent: false,
+      status: undefined,
       icon: LayoutDashboard,
       href: "/dashboard-departement",
       hasData: dashboardDeptValue !== null,
     },
-    ...(urgency.progressShipment.isUrgent
-      ? [
-          {
-            key: "progress-shipment-urgent",
-            label: "Shipment belum kirim",
-            value: urgency.progressShipment.total,
-            suffix: "pcs",
-            isUrgent: true,
-            icon: Truck,
-            href: "/progress-shipment",
-            hasData: true,
-          },
-        ]
-      : []),
-    ...urgency.wipSewing.criticalLines.map((line) => ({
-      key: `wip-sewing-urgent-${line.line}`,
-      label: `WIP sewing line ${line.line}`,
-      value: line.qty,
-      suffix: "pcs",
-      isUrgent: true,
-      icon: Package,
-      href: "/wip-sewing",
-      hasData: true,
-    })),
-  ]
-    .filter((item) => item.hasData)
-    .sort((a, b) => Number(b.isUrgent) - Number(a.isUrgent));
+  ].filter((item) => item.hasData);
+
+  const ringkasanItems = [...problemItems, ...infoItems].sort(
+    (a, b) => SEVERITY_WEIGHT[b.status ?? "none"] - SEVERITY_WEIGHT[a.status ?? "none"]
+  );
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="mx-auto max-w-[1440px] space-y-6 p-6 pb-28">
+      <div className="mx-auto max-w-[1440px] space-y-8 p-6 pb-28">
         <DashboardHeader />
 
         <section>
-          <p className="mb-2 text-[11px] uppercase tracking-wide text-muted-foreground">
+          <p className="mb-3 text-[11px] uppercase tracking-wide text-muted-foreground">
             Ringkasan angka
           </p>
           <div className="grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))] gap-3">
@@ -190,7 +218,7 @@ export default async function DashboardPage() {
                 label={item.label}
                 value={item.value}
                 suffix={item.suffix}
-                isUrgent={item.isUrgent}
+                status={item.status}
                 icon={item.icon}
                 href={item.href}
               />
@@ -199,8 +227,8 @@ export default async function DashboardPage() {
         </section>
 
         <section>
-          <p className="mb-2 text-[11px] uppercase tracking-wide text-muted-foreground">
-            Grafik
+          <p className="mb-3 text-[11px] uppercase tracking-wide text-muted-foreground">
+            Trend & distribusi
           </p>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <ScrollReveal>

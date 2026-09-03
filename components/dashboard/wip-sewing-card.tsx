@@ -11,88 +11,103 @@ import {
   Tooltip,
   LabelList,
   Cell,
+  ReferenceLine,
 } from "recharts";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { wipSewing, wipSewingThreshold } from "@/lib/mock-data";
 import { getUrgencyFlags } from "@/lib/urgency";
+import { StatusChip } from "@/components/dashboard/status-chip";
 
-const maxQty = Math.max(...wipSewing.map((d) => d.qty));
+const maxQty = Math.max(...wipSewing.map((d) => d.qty), wipSewingThreshold);
 
 export function WipSewingCard() {
   const { wipSewing: urgency } = getUrgencyFlags();
+  const criticalLines = urgency.criticalLines.map((l) => l.line);
+  const isLate = criticalLines.length > 0;
 
   return (
-    <Card
-      className={`group relative overflow-hidden ${
-        urgency.isUrgent
-          ? "border-status-critical/40 bg-status-critical/10"
-          : ""
-      }`}
+    <Link
+      href="/wip-sewing"
+      className="group flex h-[300px] flex-col rounded-2xl bg-card p-4 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_1px_3px_rgba(16,24,40,0.06)] transition-all duration-200 hover:shadow-[0_2px_4px_rgba(16,24,40,0.06),0_4px_8px_rgba(16,24,40,0.08)]"
     >
-      <Link href="/wip-sewing" className="absolute inset-0 z-10" aria-label="Lihat detail WIP Sewing" />
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1">
-        <CardTitle
-          className={`text-xs font-medium ${
-            urgency.isUrgent ? "text-status-critical" : "text-muted-foreground"
-          }`}
-        >
+      <div className="mb-1 flex items-center justify-between">
+        <span className="text-xs font-medium text-muted-foreground">
           WIP sewing &gt; 7 hari
-        </CardTitle>
-        <div className="flex items-center gap-1">
-          {urgency.isUrgent && (
-            <span className="text-[10px] text-status-critical">
-              {urgency.criticalLines.map((l) => l.line).join(", ")} urgent
-            </span>
-          )}
+        </span>
+        <div className="flex items-center gap-1.5">
+          {isLate && <StatusChip status="late" />}
           <ChevronRight className="h-3.5 w-3.5 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
         </div>
-      </CardHeader>
-      <CardContent className="px-2 pb-2">
-        <div className="h-40">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={wipSewing} margin={{ top: 24, right: 8, left: -20, bottom: 0 }}>
-              <XAxis
-                dataKey="line"
-                axisLine={false}
-                tickLine={false}
-                tick={{ fill: "var(--color-muted-foreground)", fontSize: 11 }}
-              />
-              <YAxis
-                domain={[0, maxQty * 1.2]}
-                axisLine={false}
-                tickLine={false}
-                tick={{ fill: "var(--color-muted-foreground)", fontSize: 10 }}
-              />
-              <Tooltip
-                formatter={(value) => [`${value} pcs`, ""]}
-                contentStyle={{
-                  backgroundColor: "var(--color-card)",
-                  border: "1px solid var(--color-border)",
-                  borderRadius: "8px",
-                  fontSize: "11px",
-                }}
-              />
-              <Bar dataKey="qty" radius={[4, 4, 0, 0]} maxBarSize={44}>
-                {wipSewing.map((entry) => (
-                  <Cell
-                    key={entry.line}
-                    fill={
-                      entry.qty > wipSewingThreshold
-                        ? "var(--color-status-critical)"
-                        : "var(--color-primary)"
-                    }
-                  />
-                ))}
-                <LabelList
-                  dataKey="qty"
-                  position="top"
-                  style={{ fill: "var(--color-foreground)", fontSize: 11 }}
+      </div>
+
+      <p className="mb-2 line-clamp-2 text-xs text-muted-foreground">
+        {isLate ? (
+          <>
+            <span className="font-medium text-status-critical">
+              Line {criticalLines.join(", ")}
+            </span>{" "}
+            di atas target {wipSewingThreshold.toLocaleString("id-ID")} pcs
+          </>
+        ) : (
+          "Semua line masih di bawah target"
+        )}
+      </p>
+
+      <div className="min-h-0 flex-1">
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart data={wipSewing} margin={{ top: 20, right: 4, left: -20, bottom: 0 }}>
+            <XAxis
+              dataKey="line"
+              axisLine={false}
+              tickLine={false}
+              tick={{ fill: "var(--color-muted-foreground)", fontSize: 11 }}
+            />
+            <YAxis
+              domain={[0, maxQty * 1.15]}
+              axisLine={false}
+              tickLine={false}
+              tick={{ fill: "var(--color-muted-foreground)", fontSize: 10 }}
+            />
+            <Tooltip
+              formatter={(value) => [`${value} pcs`, ""]}
+              contentStyle={{
+                backgroundColor: "var(--color-card)",
+                border: "1px solid var(--color-border)",
+                borderRadius: "8px",
+                fontSize: "11px",
+              }}
+            />
+            <ReferenceLine
+              y={wipSewingThreshold}
+              stroke="var(--color-status-warning)"
+              strokeDasharray="4 3"
+              strokeWidth={1.5}
+              label={{
+                value: "Target",
+                position: "insideTopRight",
+                fill: "var(--color-status-warning)",
+                fontSize: 10,
+              }}
+            />
+            <Bar dataKey="qty" radius={[4, 4, 0, 0]} maxBarSize={44}>
+              {wipSewing.map((entry) => (
+                <Cell
+                  key={entry.line}
+                  fill={
+                    entry.qty > wipSewingThreshold
+                      ? "var(--color-status-critical)"
+                      : "var(--color-primary)"
+                  }
                 />
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </CardContent>
-    </Card>
+              ))}
+              <LabelList
+                dataKey="qty"
+                position="top"
+                style={{ fill: "var(--color-foreground)", fontSize: 11 }}
+              />
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+    </Link>
   );
 }

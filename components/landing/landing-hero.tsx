@@ -79,7 +79,7 @@ export function LandingHero() {
         <div className="flex items-center gap-2">
           <Logo size={28} />
           <span className="text-sm font-medium text-foreground">
-            Waste Management Dept
+            Waste Management Departement
           </span>
         </div>
         <div className="flex items-center gap-5 text-sm text-muted-foreground">

@@ -1,0 +1,14 @@
+/* ============================================================
+   TAMBAHAN untuk app/globals.css — status-info (biru, informational)
+   sesuai brief upgrade dashboard. Taruh di dalam :root, .dark, dan
+   @theme inline yang sudah ada.
+   ============================================================ */
+
+/* Tambahkan baris ini di dalam blok :root (dekat --status-warning): */
+/* --status-info: hsl(211 80% 52%); */
+
+/* Tambahkan baris ini di dalam blok .dark: */
+/* --status-info: hsl(211 75% 62%); */
+
+/* Tambahkan baris ini di dalam blok @theme inline: */
+/* --color-status-info: var(--status-info); */
