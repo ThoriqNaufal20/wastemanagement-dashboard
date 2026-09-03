@@ -16,7 +16,7 @@ export interface Timbangan3RSummary {
   pola: CategorySummary;
   logo: CategorySummary;
   glove: CategorySummary;
-  totalPending: number; // gabungan Pola + Logo + Glove yang Status = "Pending"
+  totalPending: number; // gabungan Pola + Logo + Glove yang Status = "PENDING"
 }
 
 const CATEGORY_MAP: Record<string, keyof Omit<Timbangan3RSummary, "totalPending">> = {
@@ -27,6 +27,12 @@ const CATEGORY_MAP: Record<string, keyof Omit<Timbangan3RSummary, "totalPending"
 
 function emptyCounter(): CategoryCounter {
   return { late: 0, onProgress: 0, pending: 0 };
+}
+
+function parseQty(value: string | undefined): number {
+  if (!value) return 0;
+  const num = parseFloat(value.replace(/,/g, "").trim());
+  return Number.isNaN(num) ? 0 : num;
 }
 
 async function fetchTimbangan3RSummary(): Promise<Timbangan3RSummary> {
@@ -44,13 +50,14 @@ async function fetchTimbangan3RSummary(): Promise<Timbangan3RSummary> {
     const key = category ? CATEGORY_MAP[category] : undefined;
     if (!key) return;
 
-    // "DONE" sengaja diabaikan total — tidak masuk late, in-progress,
-    // atau pending, sama seperti "sudah dikirim" di data Glove.
+    // "DONE" diabaikan total — tidak masuk late, in-progress, atau pending.
     if (status === "DONE") return;
 
-    if (status === "LATE") counters[key].late++;
-    else if (status === "DALAM PROSES") counters[key].onProgress++;
-    else if (status === "PENDING") counters[key].pending++;
+    const qty = parseQty(row["QTY"]);
+
+    if (status === "LATE") counters[key].late += qty;
+    else if (status === "DALAM PROSES") counters[key].onProgress += qty;
+    else if (status === "PENDING") counters[key].pending += qty;
   });
 
   function summarize(c: CategoryCounter): CategorySummary {

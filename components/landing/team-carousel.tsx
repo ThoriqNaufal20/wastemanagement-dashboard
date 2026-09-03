@@ -2,12 +2,12 @@ import { User } from "lucide-react";
 
 // TODO: ganti "Nama" dan role dengan data tim asli begitu tersedia.
 const TEAM = {
-  head: { name: "Nama", role: "Kepala departemen" },
+  head: { name: "Caren Ryana Kosasih", role: "Manajer Waste Management" },
   members: [
-    { name: "Nama", role: "Lead 3R" },
-    { name: "Nama", role: "Lead internal audit" },
-    { name: "Nama", role: "Data analyst" },
-    { name: "Nama", role: "Staff operasional" },
+    { name: "Inas Arfieny Halimatus Nadiyah", role: "Staff Waste Management" },
+    { name: "Joseph Johanes Aditya", role: "Staff 3R" },
+    { name: "Dicky Abrian Setiyanto", role: "Staff Data Analyst" },
+    { name: "Muhammad Thoriq Naufal", role: "Staff Data Analyst" },
   ],
 };
 
@@ -35,22 +35,35 @@ export function TeamSection() {
           <p className="text-xs text-muted-foreground">{TEAM.head.role}</p>
         </div>
 
-        <div className="mx-auto mt-2 h-5 w-px bg-border" />
-        <div className="mx-auto h-px max-w-[560px] bg-border" />
+        <div className="relative mx-auto mt-2 w-fit">
+        {/* Garis horizontal: dari tengah profile pertama sampai tengah profile terakhir */}
+        <div className="absolute left-[90px] right-[90px] top-0 h-px bg-border" />
 
-        <div className="mx-auto flex max-w-[600px] flex-wrap justify-center gap-4">
+        <div className="flex gap-8">
           {TEAM.members.map((member) => (
-            <div key={member.role} className="flex w-[110px] flex-col items-center">
+            <div
+              key={member.name}
+              className="flex w-[180px] shrink-0 flex-col items-center"
+            >
+              {/* Garis vertikal menuju profile */}
               <div className="h-5 w-px bg-border" />
-              {/* TODO: ganti dengan <Image src="..." /> untuk foto asli */}
+
               <div className="mt-1 flex h-[48px] w-[48px] items-center justify-center rounded-full bg-primary/10">
                 <User className="h-5 w-5 text-primary" />
               </div>
-              <p className="mt-1.5 text-xs font-medium text-foreground">{member.name}</p>
-              <p className="text-[10px] text-muted-foreground">{member.role}</p>
+
+              <p className="mt-1.5 text-xs font-medium text-foreground">
+                {member.name}
+              </p>
+
+              <p className="whitespace-nowrap text-[10px] text-muted-foreground">
+                {member.role}
+              </p>
             </div>
           ))}
         </div>
+      </div>
+
 
         {/* Carousel foto suasana kerja — auto-scroll, pause saat di-hover */}
         <div className="mt-8 w-full overflow-hidden">
