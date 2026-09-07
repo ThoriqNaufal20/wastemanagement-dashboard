@@ -26,8 +26,8 @@ export function CorrectiveActionPlanCard() {
         <span className="font-medium text-foreground">{topCategory.name}</span> jadi kontributor terbesar
       </p>
 
-      <div className="flex min-h-0 flex-1 items-center gap-4">
-        <div className="h-24 w-24 shrink-0">
+      <div className="flex min-h-0 flex-1 flex-col items-center justify-center">
+        <div className="h-40 w-40 shrink-0">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
@@ -35,7 +35,7 @@ export function CorrectiveActionPlanCard() {
                 dataKey="value"
                 nameKey="name"
                 innerRadius={0}
-                outerRadius={46}
+                outerRadius={72}
                 strokeWidth={0}
               >
                 {correctiveActionPlan.map((entry) => (
@@ -54,17 +54,26 @@ export function CorrectiveActionPlanCard() {
             </PieChart>
           </ResponsiveContainer>
         </div>
-        <div className="flex flex-col gap-1.5">
-          {correctiveActionPlan.map((item) => (
-            <div key={item.name} className="flex items-center gap-1.5">
-              <span
-                className="h-2 w-2 shrink-0 rounded-full"
-                style={{ backgroundColor: item.color }}
-              />
-              <span className="text-[11px] text-muted-foreground">{item.name}</span>
-              <span className="text-[11px] font-medium text-foreground">{item.value}%</span>
-            </div>
-          ))}
+        <div className="mt-2 flex flex-wrap justify-center gap-x-4 gap-y-1">
+    {correctiveActionPlan.map((item) => (
+      <div
+        key={item.name}
+        className="flex items-center gap-1.5"
+      >
+        <span
+          className="h-2 w-2 shrink-0 rounded-full"
+          style={{ backgroundColor: item.color }}
+        />
+
+        <span className="text-[11px] text-muted-foreground">
+          {item.name}
+        </span>
+
+        <span className="text-[11px] font-medium text-foreground">
+          {item.value}%
+        </span>
+      </div>
+    ))}
         </div>
       </div>
     </Link>

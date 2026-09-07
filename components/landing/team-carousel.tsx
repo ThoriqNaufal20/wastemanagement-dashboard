@@ -2,7 +2,7 @@ import { User } from "lucide-react";
 
 // TODO: ganti "Nama" dan role dengan data tim asli begitu tersedia.
 const TEAM = {
-  head: { name: "Caren Ryana Kosasih", role: "Manajer Waste Management" },
+  head: { name: "Caren Ryana Kosasih", role: "Manager Waste Management" },
   members: [
     { name: "Inas Arfieny Halimatus Nadiyah", role: "Staff Waste Management" },
     { name: "Joseph Johanes Aditya", role: "Staff 3R" },

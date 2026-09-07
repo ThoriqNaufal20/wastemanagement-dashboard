@@ -12,12 +12,17 @@ interface LogoProps {
  */
 export function Logo({ size = 28, className = "" }: LogoProps) {
   return (
-    <Image
-      src="/LOGO ADIRA.png"
-      alt="PT. Adira Semesta Industry"
-      width={size}
-      height={size}
-      className={`rounded-lg object-cover ${className}`}
-    />
+    <div
+  className={`flex items-center justify-center overflow-hidden rounded-lg ${className}`}
+  style={{ width: size, height: size }}
+>
+  <Image
+    src="/LOGO ADIRA.png"
+    alt="PT. Adira Semesta Industry"
+    width={size}
+    height={size}
+    className="h-full w-full object-contain"
+  />
+</div>
   );
 }

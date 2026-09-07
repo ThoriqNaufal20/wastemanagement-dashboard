@@ -77,7 +77,7 @@ export function LandingHero() {
       {/* Nav */}
       <div className="relative z-20 mx-auto flex w-full max-w-[1100px] items-center justify-between px-6 py-5 sm:px-10">
         <div className="flex items-center gap-2">
-          <Logo size={28} />
+          <Logo size={32} />
           <span className="text-sm font-medium text-foreground">
             Waste Management Departement
           </span>

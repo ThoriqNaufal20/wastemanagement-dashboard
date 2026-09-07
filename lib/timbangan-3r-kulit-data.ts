@@ -1,0 +1,107 @@
+import { unstable_cache } from "next/cache";
+import { getNamedRangeData } from "@/lib/google-sheets";
+
+function parseNumber(value: string | undefined): number {
+  if (!value) return 0;
+  const num = parseFloat(value.replace(/,/g, "").replace("%", "").trim());
+  return Number.isNaN(num) ? 0 : num;
+}
+
+// ---------- WIP Kulit summary (untuk MetricCard) ----------
+
+export interface WipKulitSummary {
+  late: number;
+  total: number; // late + onProgress, dalam KG (jumlah BERAT KIRIMAN)
+}
+
+async function fetchWipKulitSummary(): Promise<WipKulitSummary> {
+  const rows = await getNamedRangeData("WEBTimbangan3RKulit");
+
+  let late = 0;
+  let onProgress = 0;
+
+  rows.forEach((row) => {
+    const status = row["Status"]?.trim().toUpperCase();
+    const beratKiriman = parseNumber(row["BERAT KIRIMAN (KG)"]);
+
+    if (status === "LATE") late += beratKiriman;
+    else if (status === "WIP") onProgress += beratKiriman;
+    // "OK" dan baris tanpa status diabaikan total.
+  });
+
+  return { late: Math.round(late * 10) / 10, total: Math.round((late + onProgress) * 10) / 10 };
+}
+
+export const getWipKulitSummary = unstable_cache(
+  fetchWipKulitSummary,
+  ["wip-kulit-summary"],
+  { revalidate: 120 }
+);
+
+// ---------- % Kelolosan chart (data sama, dipakai beda) ----------
+
+export interface KelolosanWeekPoint {
+  week: string;
+  [factLabel: string]: string | number;
+}
+
+// ISO week number dari sebuah tanggal.
+function getISOWeek(date: Date): number {
+  const target = new Date(date.valueOf());
+  const dayNr = (date.getDay() + 6) % 7;
+  target.setDate(target.getDate() - dayNr + 3);
+  const firstThursday = target.valueOf();
+  target.setMonth(0, 1);
+  if (target.getDay() !== 4) {
+    target.setMonth(0, 1 + ((4 - target.getDay() + 7) % 7));
+  }
+  return 1 + Math.round((firstThursday - target.valueOf()) / (7 * 24 * 3600 * 1000));
+}
+
+function parseSheetDate(value: string | undefined): Date | null {
+  if (!value) return null;
+  const parsed = new Date(value);
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+}
+
+async function fetchKelolosanChartData(): Promise<KelolosanWeekPoint[]> {
+  const rows = await getNamedRangeData("WEBTimbangan3RKulit");
+
+  const raw: { week: string; fact: string; value: number }[] = [];
+
+  rows.forEach((row) => {
+    const isFilterWeek = row["Filter Week"]?.trim().toUpperCase() === "YES";
+    if (!isFilterWeek) return;
+
+    const date = parseSheetDate(row["TANGGAL"]);
+    const factRaw = row["FACT"]?.trim().toUpperCase();
+    if (!date || !factRaw) return;
+
+    const weekNumber = getISOWeek(date);
+    const kelolosan = parseNumber(row["% KELOLOSAN"]);
+
+    raw.push({
+      week: `Week ${weekNumber}`,
+      fact: `Fact ${factRaw}`, // "Fact A", "Fact K", dst — dipakai langsung sebagai nama series
+      value: Math.round(kelolosan * 10) / 10,
+    });
+  });
+
+  const weekMap = new Map<string, KelolosanWeekPoint>();
+  raw.forEach(({ week, fact, value }) => {
+    if (!weekMap.has(week)) weekMap.set(week, { week });
+    weekMap.get(week)![fact] = value;
+  });
+
+  return Array.from(weekMap.values()).sort((a, b) => {
+    const na = parseInt(String(a.week).replace("Week ", ""), 10);
+    const nb = parseInt(String(b.week).replace("Week ", ""), 10);
+    return na - nb;
+  });
+}
+
+export const getKelolosanChartData = unstable_cache(
+  fetchKelolosanChartData,
+  ["kelolosan-chart-data"],
+  { revalidate: 120 }
+);

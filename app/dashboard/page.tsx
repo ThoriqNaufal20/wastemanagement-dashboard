@@ -19,12 +19,13 @@ import { WipSewingCard } from "@/components/dashboard/wip-sewing-card";
 import { KelolosanChartCard } from "@/components/dashboard/kelolosan-chart-card";
 import { CorrectiveActionPlanCard } from "@/components/dashboard/corrective-action-plan-card";
 import { InternalAuditTable } from "@/components/dashboard/internal-audit-table";
-import { auditSupportiveDept, threeR } from "@/lib/mock-data";
+import { auditSupportiveDept } from "@/lib/mock-data";
 import { getUrgencyFlags } from "@/lib/urgency";
 import { getAllScorecardData } from "@/lib/scorecard-data";
 import { getAllDashboardDeptData } from "@/lib/dashboard-dept-data";
 import { getGloveActiveSummary } from "@/lib/glove-3r-data";
 import { getTimbangan3RSummary } from "@/lib/timbangan-3r-data";
+import { getWipKulitSummary, getKelolosanChartData } from "@/lib/timbangan-3r-kulit-data";
 import { computeTrend, buildAllDepartmentsAverage } from "@/lib/scorecard-types";
 import type { StatusLevel } from "@/components/dashboard/status-chip";
 
@@ -58,12 +59,15 @@ type RingkasanItem = {
 export default async function DashboardPage() {
   const urgency = getUrgencyFlags();
 
-  const [scorecardData, dashboardDeptData, gloveActive, timbangan3R] = await Promise.all([
-    getAllScorecardData(),
-    getAllDashboardDeptData(),
-    getGloveActiveSummary(),
-    getTimbangan3RSummary(),
-  ]);
+  const [scorecardData, dashboardDeptData, gloveActive, timbangan3R, wipKulit, kelolosanData] =
+    await Promise.all([
+      getAllScorecardData(),
+      getAllDashboardDeptData(),
+      getGloveActiveSummary(),
+      getTimbangan3RSummary(),
+      getWipKulitSummary(),
+      getKelolosanChartData(),
+    ]);
 
   const scorecardAllDept = buildAllDepartmentsAverage(scorecardData);
   const dashboardDeptAllDept = buildAllDepartmentsAverage(dashboardDeptData);
@@ -118,16 +122,18 @@ export default async function DashboardPage() {
       href: "/three-r",
       hasData: gloveActive.onHold > 0,
     },
-    // ---------- Sisa 3R lain — masih data dummy, belum disambungkan ----------
+    // ---------- 3R WIP Kulit — data ASLI dari WEBTimbangan3RKulit ----------
+    // Sekarang jumlah KG (dari BERAT KIRIMAN), bukan jumlah baris.
+    // Tetap muncul selama ada aktivitas (total > 0), sama seperti WIP lain.
     {
       key: "3r-wip-kulit",
       label: "3R WIP kulit · late",
-      value: threeR.wipKulit.late,
-      suffix: threeR.wipKulit.unit,
-      status: urgency.threeRWipKulit.status ?? undefined,
+      value: wipKulit.late,
+      suffix: `/ ${wipKulit.total} KG`,
+      status: wipStatus(wipKulit.late, wipKulit.total),
       icon: Layers,
       href: "/three-r",
-      hasData: urgency.threeRWipKulit.status !== null,
+      hasData: wipKulit.total > 0,
     },
     // ---------- 3R WIP Logo/Pola/Glove — data ASLI dari WEBTimbangan3R ----------
     // Tetap muncul selama ada aktivitas (total > 0), bukan cuma saat late.
@@ -238,7 +244,7 @@ export default async function DashboardPage() {
               <WipSewingCard />
             </ScrollReveal>
             <ScrollReveal>
-              <KelolosanChartCard />
+              <KelolosanChartCard data={kelolosanData} />
             </ScrollReveal>
             <ScrollReveal>
               <CorrectiveActionPlanCard />

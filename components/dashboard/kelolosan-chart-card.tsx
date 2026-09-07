@@ -11,13 +11,30 @@ import {
   Tooltip,
   Legend,
 } from "recharts";
-import { kelolosanSampahKulit } from "@/lib/mock-data";
+import type { KelolosanWeekPoint } from "@/lib/timbangan-3r-kulit-data";
 
-const first = kelolosanSampahKulit[0];
-const last = kelolosanSampahKulit[kelolosanSampahKulit.length - 1];
-const deltaK = Math.round((last.K - first.K) * 10) / 10;
+interface KelolosanChartCardProps {
+  data: KelolosanWeekPoint[];
+}
 
-export function KelolosanChartCard() {
+const SERIES_COLORS = [
+  "var(--color-secondary)",
+  "var(--color-primary)",
+  "var(--color-status-warning)",
+  "var(--color-status-success)",
+];
+
+export function KelolosanChartCard({ data }: KelolosanChartCardProps) {
+  const seriesKeys =
+    data.length > 0 ? Object.keys(data[0]).filter((k) => k !== "week") : [];
+  const first = data[0];
+  const last = data[data.length - 1];
+  const primaryKey = seriesKeys[seriesKeys.length - 1];
+  const deltaPrimary =
+    first && last && primaryKey
+      ? Math.round((Number(last[primaryKey]) - Number(first[primaryKey])) * 10) / 10
+      : 0;
+
   return (
     <Link
       href="/kelolosan-sampah-kulit"
@@ -31,16 +48,20 @@ export function KelolosanChartCard() {
       </div>
 
       <p className="mb-2 line-clamp-2 text-xs text-muted-foreground">
-        Fact K {deltaK >= 0 ? "naik" : "turun"}{" "}
-        <span className="font-medium text-foreground">
-          {Math.abs(deltaK)}%
-        </span>{" "}
-        vs {first.week}
+        {primaryKey ? (
+          <>
+            {primaryKey} {deltaPrimary >= 0 ? "naik" : "turun"}{" "}
+            <span className="font-medium text-foreground">{Math.abs(deltaPrimary)}%</span>{" "}
+            vs {first?.week}
+          </>
+        ) : (
+          "Belum ada data minggu terfilter"
+        )}
       </p>
 
       <div className="min-h-0 flex-1">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={kelolosanSampahKulit} barGap={10} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
+          <BarChart data={data} barGap={10} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
             <XAxis
               dataKey="week"
               axisLine={false}
@@ -63,8 +84,16 @@ export function KelolosanChartCard() {
               }}
             />
             <Legend wrapperStyle={{ fontSize: "10px" }} />
-            <Bar dataKey="A" name="Fact A" fill="var(--color-secondary)" radius={[4, 4, 0, 0]} maxBarSize={28} />
-            <Bar dataKey="K" name="Fact K" fill="var(--color-primary)" radius={[4, 4, 0, 0]} maxBarSize={28} />
+            {seriesKeys.map((key, i) => (
+              <Bar
+                key={key}
+                dataKey={key}
+                name={key}
+                fill={SERIES_COLORS[i % SERIES_COLORS.length]}
+                radius={[4, 4, 0, 0]}
+                maxBarSize={28}
+              />
+            ))}
           </BarChart>
         </ResponsiveContainer>
       </div>
