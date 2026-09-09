@@ -88,9 +88,21 @@ async function fetchKelolosanChartData(): Promise<KelolosanWeekPoint[]> {
   });
 
   const weekMap = new Map<string, KelolosanWeekPoint>();
+  const sumMap = new Map<string, { sum: number; count: number }>(); // key = "week|fact"
+
   raw.forEach(({ week, fact, value }) => {
+    const mapKey = `${week}|${fact}`;
+    const entry = sumMap.get(mapKey) ?? { sum: 0, count: 0 };
+    entry.sum += value;
+    entry.count += 1;
+    sumMap.set(mapKey, entry);
+  });
+
+  sumMap.forEach((entry, mapKey) => {
+    const [week, fact] = mapKey.split("|");
     if (!weekMap.has(week)) weekMap.set(week, { week });
-    weekMap.get(week)![fact] = value;
+    const average = Math.round((entry.sum / entry.count) * 10) / 10;
+    weekMap.get(week)![fact] = average;
   });
 
   return Array.from(weekMap.values()).sort((a, b) => {
