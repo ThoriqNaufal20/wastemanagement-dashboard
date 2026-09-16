@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
-import { getScorecardData } from "@/lib/scorecard-data";
+import { getAllScorecardData } from "@/lib/scorecard-data";
 
 export async function GET() {
   try {
-    const data = await getScorecardData();
+    const data = await getAllScorecardData();
 
     if (!data) {
       return NextResponse.json(

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 // Path yang bisa diakses TANPA login.
-const PUBLIC_PATHS = ["/login", "/api/login", "/contact"];
+const PUBLIC_PATHS = ["/login", "/api/"];
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;

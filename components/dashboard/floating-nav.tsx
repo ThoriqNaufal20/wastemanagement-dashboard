@@ -2,12 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, LayoutDashboard, Mail } from "lucide-react";
+import { Home, LayoutDashboard } from "lucide-react";
 
 const NAV_ITEMS = [
   { label: "Home", href: "/", icon: Home },
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { label: "Contact Us", href: "/contact", icon: Mail },
 ];
 
 export function FloatingNav() {

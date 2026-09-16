@@ -1,43 +1,38 @@
 import { PageShell } from "@/components/dashboard/page-shell";
-import { Card, CardContent } from "@/components/ui/card";
-import { wipSewing, wipSewingThreshold } from "@/lib/mock-data";
+import { WipSewingDetailClient } from "@/components/dashboard/wip-sewing-detail-client";
+import { headers } from "next/headers";
 
-export default function WipSewingDetailPage() {
+export const dynamic = "force-dynamic";
+
+export default async function WipSewingDetailPage() {
+  const headersList = await headers();
+  const host = headersList.get("host") || "localhost:3000";
+  const protocol = process.env.NODE_ENV === "development" ? "http" : "https";
+
+  let summary: any[] = [];
+  let details: any[] = [];
+
+  try {
+    const res = await fetch(`${protocol}://${host}/api/wip-sewing-data`, {
+      cache: "no-store",
+    });
+    if (res.ok) {
+      const json = await res.json();
+      summary = json.summary || [];
+      details = json.details || [];
+    }
+  } catch (err) {
+    console.error("Failed to fetch wip sewing data via API:", err);
+  }
+
   return (
     <PageShell
-      title="WIP sewing > 7 hari"
-      description="Barang di area sewing yang sudah lebih dari 7 hari tapi belum masuk gudang."
+      title="WIP Sewing > 7 Hari"
+      description="Monitoring barang di area sewing yang sudah lebih dari 7 hari kerja berdasarkan data spreadsheet WEBWIPSewing7Hari."
+      maxWidth="max-w-[1360px]"
     >
-      <div className="grid grid-cols-3 gap-3">
-        {wipSewing.map((line) => (
-          <Card key={line.line}>
-            <CardContent className="pt-6">
-              <p className="text-xs text-muted-foreground">Line {line.line}</p>
-              <p
-                className={`text-2xl font-semibold ${
-                  line.qty > wipSewingThreshold ? "text-status-critical" : "text-foreground"
-                }`}
-              >
-                {line.qty} <span className="text-xs font-normal text-muted-foreground">pcs</span>
-              </p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      <Card>
-        <CardContent className="pt-6 text-sm text-muted-foreground">
-          <p>
-            Threshold urgent saat ini: <strong className="text-foreground">{wipSewingThreshold} pcs</strong> (tentatif).
-          </p>
-          <p className="mt-3 font-medium text-foreground">Rencana konten lanjutan:</p>
-          <ul className="mt-2 list-inside list-disc space-y-1">
-            <li>Breakdown per style/PO yang menumpuk di line K</li>
-            <li>Tren 7 hari terakhir per line</li>
-            <li>Panel tanya AI kontekstual</li>
-          </ul>
-        </CardContent>
-      </Card>
+      <WipSewingDetailClient summary={summary} details={details} />
     </PageShell>
   );
 }
+

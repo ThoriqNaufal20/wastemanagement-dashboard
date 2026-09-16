@@ -13,16 +13,33 @@ import {
   Cell,
   ReferenceLine,
 } from "recharts";
-import { wipSewing, wipSewingThreshold } from "@/lib/mock-data";
-import { getUrgencyFlags } from "@/lib/urgency";
 import { StatusChip } from "@/components/dashboard/status-chip";
+import {
+  type WipSewingFactSummary,
+  WIP_SEWING_THRESHOLD,
+} from "@/lib/wip-sewing-types";
 
-const maxQty = Math.max(...wipSewing.map((d) => d.qty), wipSewingThreshold);
+interface WipSewingCardProps {
+  data?: WipSewingFactSummary[];
+}
 
-export function WipSewingCard() {
-  const { wipSewing: urgency } = getUrgencyFlags();
-  const criticalLines = urgency.criticalLines.map((l) => l.line);
-  const isLate = criticalLines.length > 0;
+export function WipSewingCard({ data }: WipSewingCardProps) {
+  const chartData = (data && data.length > 0)
+    ? data.map((d) => ({
+        line: `Fact ${d.fact}`,
+        fact: d.fact,
+        qty: d.qty,
+        maxOverdue: d.maxOverdue,
+      }))
+    : [
+        { line: "Fact A", fact: "A", qty: 0, maxOverdue: 0 },
+        { line: "Fact F", fact: "F", qty: 0, maxOverdue: 0 },
+        { line: "Fact K", fact: "K", qty: 0, maxOverdue: 0 },
+      ];
+
+  const criticalFacts = chartData.filter((d) => d.qty > WIP_SEWING_THRESHOLD);
+  const isLate = criticalFacts.length > 0;
+  const maxQty = Math.max(...chartData.map((d) => d.qty), WIP_SEWING_THRESHOLD);
 
   return (
     <Link
@@ -43,18 +60,18 @@ export function WipSewingCard() {
         {isLate ? (
           <>
             <span className="font-medium text-status-critical">
-              Line {criticalLines.join(", ")}
+              {criticalFacts.map((f) => f.line).join(", ")}
             </span>{" "}
-            di atas target {wipSewingThreshold.toLocaleString("id-ID")} pcs
+            di atas target {WIP_SEWING_THRESHOLD.toLocaleString("id-ID")} pcs
           </>
         ) : (
-          "Semua line masih di bawah target"
+          "Semua factory masih di bawah target"
         )}
       </p>
 
       <div className="min-h-0 flex-1">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={wipSewing} margin={{ top: 20, right: 4, left: -20, bottom: 0 }}>
+          <BarChart data={chartData} margin={{ top: 20, right: 4, left: -20, bottom: 0 }}>
             <XAxis
               dataKey="line"
               axisLine={false}
@@ -62,13 +79,16 @@ export function WipSewingCard() {
               tick={{ fill: "var(--color-muted-foreground)", fontSize: 11 }}
             />
             <YAxis
-              domain={[0, maxQty * 1.15]}
+              domain={[0, maxQty * 1.18]}
               axisLine={false}
               tickLine={false}
               tick={{ fill: "var(--color-muted-foreground)", fontSize: 10 }}
             />
             <Tooltip
-              formatter={(value) => [`${value} pcs`, ""]}
+              formatter={(value, name, item) => [
+                `${Number(value).toLocaleString("id-ID")} pcs (${item.payload.maxOverdue} hari kerja)`,
+                "Qty WIP",
+              ]}
               contentStyle={{
                 backgroundColor: "var(--color-card)",
                 border: "1px solid var(--color-border)",
@@ -77,7 +97,7 @@ export function WipSewingCard() {
               }}
             />
             <ReferenceLine
-              y={wipSewingThreshold}
+              y={WIP_SEWING_THRESHOLD}
               stroke="var(--color-status-warning)"
               strokeDasharray="4 3"
               strokeWidth={1.5}
@@ -89,11 +109,11 @@ export function WipSewingCard() {
               }}
             />
             <Bar dataKey="qty" radius={[4, 4, 0, 0]} maxBarSize={44}>
-              {wipSewing.map((entry) => (
+              {chartData.map((entry) => (
                 <Cell
-                  key={entry.line}
+                  key={entry.fact}
                   fill={
-                    entry.qty > wipSewingThreshold
+                    entry.qty > WIP_SEWING_THRESHOLD
                       ? "var(--color-status-critical)"
                       : "var(--color-primary)"
                   }
@@ -102,6 +122,7 @@ export function WipSewingCard() {
               <LabelList
                 dataKey="qty"
                 position="top"
+                formatter={(val) => Number(val).toLocaleString("id-ID")}
                 style={{ fill: "var(--color-foreground)", fontSize: 11 }}
               />
             </Bar>
@@ -111,3 +132,4 @@ export function WipSewingCard() {
     </Link>
   );
 }
+

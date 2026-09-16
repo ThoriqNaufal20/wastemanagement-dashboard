@@ -1,4 +1,3 @@
-import { unstable_cache } from "next/cache";
 import { getNamedRangeData } from "@/lib/google-sheets";
 
 interface CategoryCounter {
@@ -75,8 +74,53 @@ async function fetchTimbangan3RSummary(): Promise<Timbangan3RSummary> {
   };
 }
 
-export const getTimbangan3RSummary = unstable_cache(
-  fetchTimbangan3RSummary,
-  ["timbangan-3r-summary"],
-  { revalidate: 120 }
-);
+export async function getTimbangan3RSummary(): Promise<Timbangan3RSummary> {
+  return fetchTimbangan3RSummary();
+}
+
+export interface Timbangan3RDetailItem {
+  tanggal: string;
+  tipe: string;
+  dept: string;
+  noSj: string;
+  operator: string;
+  kategori: string;
+  barang: string;
+  qty: number;
+  uom: string;
+  beratKg: string;
+  status: string;
+  note: string;
+}
+
+async function fetchTimbangan3RDetails(): Promise<Timbangan3RDetailItem[]> {
+  const rows = await getNamedRangeData("WEBTimbangan3R");
+  const items: Timbangan3RDetailItem[] = [];
+
+  rows.forEach((row) => {
+    const status = (row["Status"] || row["STATUS"] || "").trim().toUpperCase();
+    if (!status || status === "DONE") return;
+
+    items.push({
+      tanggal: row["TANGGAL"]?.trim() || "-",
+      tipe: row["PENERIMAAN / PENGIRIMAN"]?.trim() || "-",
+      dept: row["DEPT PENGIRIM / DEPT TERTUJU"]?.trim() || "-",
+      noSj: row["NO SJ"]?.trim() || "-",
+      operator: row["NAMA OPERATOR"]?.trim() || "-",
+      kategori: row["Kategori barang"]?.trim() || "-",
+      barang: row["BARANG"]?.trim() || "-",
+      qty: parseQty(row["QTY"]),
+      uom: row["UOM"]?.trim() || "PCS",
+      beratKg: row["BERAT (KG)"]?.trim() || "-",
+      status: status,
+      note: row["Note"]?.trim() || "-",
+    });
+  });
+
+  return items;
+}
+
+export async function getTimbangan3RDetails(): Promise<Timbangan3RDetailItem[]> {
+  return fetchTimbangan3RDetails();
+}
+

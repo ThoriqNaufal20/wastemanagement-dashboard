@@ -1,4 +1,3 @@
-import { unstable_cache } from "next/cache";
 import { getNamedRangeData } from "@/lib/google-sheets";
 
 function parseNumber(value: string | undefined): number {
@@ -32,11 +31,54 @@ async function fetchWipKulitSummary(): Promise<WipKulitSummary> {
   return { late: Math.round(late * 10) / 10, total: Math.round((late + onProgress) * 10) / 10 };
 }
 
-export const getWipKulitSummary = unstable_cache(
-  fetchWipKulitSummary,
-  ["wip-kulit-summary"],
-  { revalidate: 120 }
-);
+export async function getWipKulitSummary(): Promise<WipKulitSummary> {
+  return fetchWipKulitSummary();
+}
+
+export interface WipKulitDetailItem {
+  tanggal: string;
+  tglCek3R: string;
+  fact: string;
+  spo: string;
+  style: string;
+  beratKiriman: number;
+  beratSetelahCek: number;
+  kelolosan: number;
+  temuan: string;
+  keterangan: string;
+  status: string;
+}
+
+async function fetchWipKulitDetails(): Promise<WipKulitDetailItem[]> {
+  const rows = await getNamedRangeData("WEBTimbangan3RKulit");
+  const items: WipKulitDetailItem[] = [];
+
+  rows.forEach((row) => {
+    const status = row["Status"]?.trim().toUpperCase();
+    if (status !== "LATE" && status !== "WIP") return;
+
+    items.push({
+      tanggal: row["TANGGAL"]?.trim() || "-",
+      tglCek3R: row["TGL CEK 3R"]?.trim() || "-",
+      fact: row["FACT"]?.trim() || "-",
+      spo: row["SPO"]?.trim() || "-",
+      style: row["STYLE"]?.trim() || "-",
+      beratKiriman: parseNumber(row["BERAT KIRIMAN (KG)"]),
+      beratSetelahCek: parseNumber(row["BERAT SETELAH CEK 3R (KG)"]),
+      kelolosan: parseNumber(row["% KELOLOSAN"]),
+      temuan: row["TEMUAN"]?.trim() || "-",
+      keterangan: row["KETERANGAN"]?.trim() || "-",
+      status: status,
+    });
+  });
+
+  return items;
+}
+
+export async function getWipKulitDetails(): Promise<WipKulitDetailItem[]> {
+  return fetchWipKulitDetails();
+}
+
 
 // ---------- % Kelolosan chart (data sama, dipakai beda) ----------
 
@@ -112,8 +154,6 @@ async function fetchKelolosanChartData(): Promise<KelolosanWeekPoint[]> {
   });
 }
 
-export const getKelolosanChartData = unstable_cache(
-  fetchKelolosanChartData,
-  ["kelolosan-chart-data"],
-  { revalidate: 120 }
-);
+export async function getKelolosanChartData(): Promise<KelolosanWeekPoint[]> {
+  return fetchKelolosanChartData();
+}

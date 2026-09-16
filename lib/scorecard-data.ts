@@ -1,4 +1,3 @@
-import { unstable_cache } from "next/cache";
 import { getNamedRangeData } from "@/lib/google-sheets";
 import type {
   QuarterValue,
@@ -73,9 +72,8 @@ async function fetchAllScorecardData(): Promise<
   return result;
 }
 
-// Cache 2 menit di server, sesuai kesepakatan refresh interval.
-export const getAllScorecardData = unstable_cache(
-  fetchAllScorecardData,
-  ["scorecard-data-all"],
-  { revalidate: 120 }
-);
+export async function getAllScorecardData(): Promise<
+  Record<string, ScorecardDepartmentData>
+> {
+  return fetchAllScorecardData();
+}

@@ -4,13 +4,19 @@ import { ArrowLeft } from "lucide-react";
 interface PageShellProps {
   title: string;
   description?: string;
+  maxWidth?: string;
   children: React.ReactNode;
 }
 
-export function PageShell({ title, description, children }: PageShellProps) {
+export function PageShell({
+  title,
+  description,
+  maxWidth = "max-w-[900px]",
+  children,
+}: PageShellProps) {
   return (
     <div className="min-h-screen bg-background">
-      <div className="mx-auto max-w-[900px] space-y-6 p-6 pb-28">
+      <div className={`mx-auto ${maxWidth} space-y-6 p-6 pb-28`}>
         <div className="border-b border-border pb-4">
           <Link
             href="/dashboard"

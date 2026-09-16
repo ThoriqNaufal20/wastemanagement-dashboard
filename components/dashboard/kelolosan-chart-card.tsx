@@ -11,7 +11,7 @@ import {
   Tooltip,
   Legend,
 } from "recharts";
-import type { KelolosanWeekPoint } from "@/lib/timbangan-3r-kulit-data";
+import type { KelolosanWeekPoint } from "@/lib/three-r-types";
 
 interface KelolosanChartCardProps {
   data: KelolosanWeekPoint[];

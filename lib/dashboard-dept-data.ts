@@ -1,4 +1,3 @@
-import { unstable_cache } from "next/cache";
 import { getNamedRangeData } from "@/lib/google-sheets";
 import type {
   QuarterValue,
@@ -91,8 +90,8 @@ async function fetchAllDashboardDeptData(): Promise<
   return result;
 }
 
-export const getAllDashboardDeptData = unstable_cache(
-  fetchAllDashboardDeptData,
-  ["dashboard-dept-data-all"],
-  { revalidate: 120 }
-);
+export async function getAllDashboardDeptData(): Promise<
+  Record<string, ScorecardDepartmentData>
+> {
+  return fetchAllDashboardDeptData();
+}
