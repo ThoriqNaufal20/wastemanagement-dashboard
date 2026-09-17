@@ -58,6 +58,54 @@ type RingkasanItem = {
   hasData: boolean;
 };
 
+import { getAllScorecardData } from "@/lib/scorecard-data";
+import { getAllDashboardDeptData } from "@/lib/dashboard-dept-data";
+import { getGloveActiveSummary } from "@/lib/glove-3r-data";
+import { getTimbangan3RSummary } from "@/lib/timbangan-3r-data";
+import { getWipKulitSummary, getKelolosanChartData } from "@/lib/timbangan-3r-kulit-data";
+import { getWipSewingSummary } from "@/lib/wip-sewing-data";
+import { prefetchNamedRanges } from "@/lib/google-sheets";
+
+const DASHBOARD_NAMED_RANGES = [
+  "WEBScorecardDept",
+  "WEBDashboardDept",
+  "WEBGlove3R",
+  "WEBTimbangan3R",
+  "WEBTimbangan3RKulit",
+  "WEBWIPSewing7Hari",
+];
+
+async function loadDashboardDataDirect() {
+  await prefetchNamedRanges(DASHBOARD_NAMED_RANGES);
+  const [
+    scorecardData,
+    dashboardDeptData,
+    gloveActive,
+    timbangan3R,
+    wipKulit,
+    kelolosanData,
+    wipSewingData,
+  ] = await Promise.all([
+    getAllScorecardData(),
+    getAllDashboardDeptData(),
+    getGloveActiveSummary(),
+    getTimbangan3RSummary(),
+    getWipKulitSummary(),
+    getKelolosanChartData(),
+    getWipSewingSummary(),
+  ]);
+
+  return {
+    scorecardData,
+    dashboardDeptData,
+    gloveActive,
+    timbangan3R,
+    wipKulit,
+    kelolosanData,
+    wipSewingData,
+  };
+}
+
 export default async function DashboardPage() {
   const headersList = await headers();
   const host = headersList.get("host") || "localhost:3000";
@@ -76,22 +124,48 @@ export default async function DashboardPage() {
   let kelolosanData: any[] = [];
   let wipSewingData: any[] = [];
 
-  try {
-    const res = await fetch(`${protocol}://${host}/api/dashboard-data`, {
-      cache: "no-store",
-    });
-    if (res.ok) {
-      const json = await res.json();
-      scorecardData = json.scorecardData || {};
-      dashboardDeptData = json.dashboardDeptData || {};
-      gloveActive = json.gloveActive || gloveActive;
-      timbangan3R = json.timbangan3R || timbangan3R;
-      wipKulit = json.wipKulit || wipKulit;
-      kelolosanData = json.kelolosanData || [];
-      wipSewingData = json.wipSewingData || [];
+  let loadedData: any = null;
+
+  // Di Vercel / Production: gunakan direct call (cepat, serverless-native, bebas blokir proteksi Vercel)
+  if (process.env.VERCEL || process.env.NODE_ENV === "production") {
+    try {
+      loadedData = await loadDashboardDataDirect();
+    } catch (err) {
+      console.error("[Dashboard] Direct load error on Vercel:", err);
     }
-  } catch (err) {
-    console.error("Failed to fetch dashboard data via internal API:", err);
+  }
+
+  // Jika belum ada data (misal di local dev Windows): gunakan internal API
+  if (!loadedData) {
+    try {
+      const res = await fetch(`${protocol}://${host}/api/dashboard-data`, {
+        cache: "no-store",
+      });
+      if (res.ok) {
+        loadedData = await res.json();
+      }
+    } catch (err) {
+      console.error("[Dashboard] Internal API fetch failed:", err);
+    }
+  }
+
+  // Fallback terakhir jika API route gagal
+  if (!loadedData) {
+    try {
+      loadedData = await loadDashboardDataDirect();
+    } catch (err) {
+      console.error("[Dashboard] Fallback direct load failed:", err);
+    }
+  }
+
+  if (loadedData) {
+    scorecardData = loadedData.scorecardData || {};
+    dashboardDeptData = loadedData.dashboardDeptData || {};
+    gloveActive = loadedData.gloveActive || gloveActive;
+    timbangan3R = loadedData.timbangan3R || timbangan3R;
+    wipKulit = loadedData.wipKulit || wipKulit;
+    kelolosanData = loadedData.kelolosanData || [];
+    wipSewingData = loadedData.wipSewingData || [];
   }
 
   const urgency = getUrgencyFlags();

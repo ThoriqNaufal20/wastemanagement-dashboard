@@ -1,13 +1,56 @@
 import { google } from "googleapis";
 
+// Helper untuk membersihkan private key dari berbagai format paste di Vercel / .env
+export function cleanPrivateKey(rawKey: string | undefined): string {
+  if (!rawKey) return "";
+  let key = rawKey.trim();
+  // Hapus kutip ganda atau tunggal di awal & akhir jika user copy-paste bersama kutipnya di Vercel
+  if (
+    (key.startsWith('"') && key.endsWith('"')) ||
+    (key.startsWith("'") && key.endsWith("'"))
+  ) {
+    key = key.slice(1, -1).trim();
+  }
+  // Normalisasi karakter newline: \r\n, literal \n, dsb.
+  key = key.replace(/\\r\\n/g, "\n").replace(/\\n/g, "\n").replace(/\r\n/g, "\n");
+  return key;
+}
+
+export function cleanEnvValue(val: string | undefined): string {
+  if (!val) return "";
+  let v = val.trim();
+  if (
+    (v.startsWith('"') && v.endsWith('"')) ||
+    (v.startsWith("'") && v.endsWith("'"))
+  ) {
+    v = v.slice(1, -1).trim();
+  }
+  return v;
+}
+
+export function getSpreadsheetId(): string {
+  return cleanEnvValue(process.env.GOOGLE_SHEETS_SPREADSHEET_ID);
+}
+
 // Singleton auth client agar tidak mengulang handshake JWT setiap pemanggilan
 let sheetsClient: ReturnType<typeof google.sheets> | null = null;
 
-function getSheetsClient() {
+export function getSheetsClient() {
   if (!sheetsClient) {
+    const email = cleanEnvValue(process.env.GOOGLE_SHEETS_CLIENT_EMAIL);
+    const key = cleanPrivateKey(process.env.GOOGLE_SHEETS_PRIVATE_KEY);
+
+    if (!email || !key) {
+      console.error("[GoogleSheets] Kredensial tidak lengkap:", {
+        hasEmail: Boolean(email),
+        hasKey: Boolean(key),
+        hasSpreadsheetId: Boolean(getSpreadsheetId()),
+      });
+    }
+
     const auth = new google.auth.JWT({
-      email: process.env.GOOGLE_SHEETS_CLIENT_EMAIL,
-      key: process.env.GOOGLE_SHEETS_PRIVATE_KEY?.replace(/\\n/g, "\n"),
+      email,
+      key,
       scopes: ["https://www.googleapis.com/auth/spreadsheets.readonly"],
     });
     sheetsClient = google.sheets({ version: "v4", auth });
@@ -58,7 +101,7 @@ export async function prefetchNamedRanges(namedRanges: string[]): Promise<void> 
   try {
     const sheets = getSheetsClient();
     const response = await sheets.spreadsheets.values.batchGet({
-      spreadsheetId: process.env.GOOGLE_SHEETS_SPREADSHEET_ID,
+      spreadsheetId: getSpreadsheetId(),
       ranges: rangesToFetch,
     });
 
@@ -96,7 +139,7 @@ export async function getNamedRangeData(
     try {
       const sheets = getSheetsClient();
       const response = await sheets.spreadsheets.values.get({
-        spreadsheetId: process.env.GOOGLE_SHEETS_SPREADSHEET_ID,
+        spreadsheetId: getSpreadsheetId(),
         range: namedRange,
       });
 
