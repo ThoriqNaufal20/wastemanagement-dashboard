@@ -66,12 +66,12 @@ export function DashboardPreview() {
       ref={sectionRef}
       className="flex h-full w-full flex-col items-center justify-center bg-background px-4"
     >
-      <div className="mx-auto w-full max-w-[900px] text-center">
+      <div className="mx-auto w-full max-w-[900px] 2xl:max-w-[1500px] text-center">
 
         {/* Label */}
         <p
           className={`
-            mb-3 text-[11px] uppercase tracking-wide text-muted-foreground
+            mb-3 2xl:mb-4 text-[11px] 2xl:text-base uppercase tracking-wide text-muted-foreground
             transition-all duration-500 ease-out
             ${
               isVisible
@@ -86,7 +86,7 @@ export function DashboardPreview() {
         {/* Heading */}
         <h2
           className={`
-            text-xl font-medium text-foreground sm:text-2xl
+            text-xl sm:text-2xl 2xl:text-4xl font-medium 2xl:font-semibold text-foreground
             transition-all duration-700 ease-out
             ${
               isVisible
@@ -101,7 +101,7 @@ export function DashboardPreview() {
         {/* Description */}
         <p
           className={`
-            mx-auto mt-3 max-w-md text-sm text-muted-foreground
+            mx-auto mt-3 2xl:mt-5 max-w-md 2xl:max-w-xl text-sm 2xl:text-xl text-muted-foreground leading-relaxed
             transition-all duration-700 ease-out
             ${
               isVisible
@@ -120,9 +120,9 @@ export function DashboardPreview() {
         {/* Dashboard Mockup */}
         <div
           className={`
-            mx-auto mt-8 max-w-2xl rounded-2xl bg-card p-4
-            shadow-[0_8px_24px_rgba(0,0,0,0.06)]
-            sm:p-6
+            mx-auto mt-8 2xl:mt-12 max-w-2xl 2xl:max-w-4xl rounded-2xl 2xl:rounded-3xl bg-card p-4
+            shadow-[0_8px_24px_rgba(0,0,0,0.06)] border border-border/40
+            sm:p-6 2xl:p-8
             transition-all duration-800 ease-out
             ${
               isVisible
@@ -135,7 +135,7 @@ export function DashboardPreview() {
           }}
         >
           {/* KPI Cards */}
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-3 gap-3 2xl:gap-5">
             {KPI_PREVIEW.map((item, index) => {
               const Icon = item.icon;
 
@@ -143,7 +143,7 @@ export function DashboardPreview() {
                 <div
                   key={item.label}
                   className={`
-                    rounded-xl ${item.bgClass} p-3 text-left
+                    rounded-xl 2xl:rounded-2xl ${item.bgClass} p-3 2xl:p-5 text-left
                     transition-all duration-600 ease-out
                     ${
                       isVisible
@@ -169,14 +169,14 @@ export function DashboardPreview() {
                       transitionDelay: `${600 + index * 120}ms`,
                     }}
                   >
-                    <Icon className={`h-4 w-4 ${item.iconClass}`} />
+                    <Icon className={`h-4 w-4 2xl:h-7 2xl:w-7 ${item.iconClass}`} />
                   </div>
 
-                  <p className="mt-2 text-lg font-semibold text-foreground">
+                  <p className="mt-2 2xl:mt-3 text-lg 2xl:text-3xl font-semibold text-foreground tracking-tight">
                     {item.value}
                   </p>
 
-                  <p className="text-[10px] text-muted-foreground">
+                  <p className="text-[10px] 2xl:text-sm font-medium text-muted-foreground">
                     {item.label}
                   </p>
                 </div>
@@ -185,7 +185,7 @@ export function DashboardPreview() {
           </div>
 
           {/* Bar Chart */}
-          <div className="mt-3 flex h-[150px] items-end gap-1.5 rounded-xl bg-muted p-3">
+          <div className="mt-3 2xl:mt-5 flex h-[150px] 2xl:h-[220px] items-end gap-1.5 2xl:gap-3 rounded-xl 2xl:rounded-2xl bg-muted p-3 2xl:p-5">
             {CHART_BARS.map((height, index) => (
               <div
                 key={index}
@@ -196,7 +196,7 @@ export function DashboardPreview() {
                   ease-[cubic-bezier(0.22,1,0.36,1)]
                 `}
                 style={{
-                  height: isVisible ? `${height}px` : "0px",
+                  height: isVisible ? `${height * 1.3}px` : "0px",
                   opacity: isVisible ? 1 : 0,
                   transitionDelay: `${850 + index * 100}ms`,
                 }}
@@ -209,26 +209,25 @@ export function DashboardPreview() {
         <Link
           href="/login"
           className={`
-  group mt-7 inline-flex items-center gap-1.5 rounded-full
-  bg-primary px-6 py-2.5 text-sm font-medium
-  text-primary-foreground
-  transition-all duration-300
-  hover:scale-[1.02] hover:opacity-90
-  ${
-    isVisible
-      ? "translate-y-0 opacity-100"
-      : "translate-y-4 opacity-0"
-  }
-`}
+            group mt-7 2xl:mt-10 inline-flex items-center gap-1.5 rounded-full
+            bg-primary px-6 py-2.5 2xl:px-8 2xl:py-3.5 text-sm 2xl:text-base font-medium
+            text-primary-foreground shadow-sm
+            transition-all duration-300
+            hover:scale-[1.02] hover:opacity-90
+            ${
+              isVisible
+                ? "translate-y-0 opacity-100"
+                : "translate-y-4 opacity-0"
+            }
+          `}
           style={{
             transitionDelay: "1500ms",
           }}
         >
           Buka Dashboard
-
           <ArrowRight
             className="
-              h-3.5 w-3.5
+              h-3.5 w-3.5 2xl:h-4 2xl:w-4
               transition-transform duration-300
               group-hover:translate-x-0.5
             "

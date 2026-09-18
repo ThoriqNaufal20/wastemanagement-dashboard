@@ -62,12 +62,12 @@ export function AboutWhatWeDo() {
       ref={sectionRef}
       className="flex h-full w-full flex-col items-center justify-center bg-background px-4"
     >
-      <div className="mx-auto w-full max-w-[900px]">
+      <div className="mx-auto w-full max-w-[900px] 2xl:max-w-[1500px]">
 
         {/* Tentang kami */}
         <p
           className={`
-            mb-3 text-[11px] uppercase tracking-wide text-muted-foreground
+            mb-3 2xl:mb-4 text-[11px] 2xl:text-base uppercase tracking-wide text-muted-foreground
             transition-all duration-500 ease-out
             ${
               isVisible
@@ -82,7 +82,7 @@ export function AboutWhatWeDo() {
         {/* Heading */}
         <h2
           className={`
-            max-w-2xl text-xl font-medium text-foreground sm:text-2xl
+            max-w-2xl 2xl:max-w-4xl text-xl font-medium text-foreground sm:text-2xl 2xl:text-4xl 2xl:font-semibold
             transition-all duration-700 ease-out
             ${
               isVisible
@@ -97,7 +97,7 @@ export function AboutWhatWeDo() {
         {/* Description */}
         <p
           className={`
-            mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base
+            mt-4 2xl:mt-6 max-w-2xl 2xl:max-w-4xl text-sm 2xl:text-xl leading-relaxed 2xl:leading-relaxed text-muted-foreground sm:text-base
             transition-all duration-700 ease-out
             delay-150
             ${
@@ -118,7 +118,7 @@ export function AboutWhatWeDo() {
         {/* Yang kami lakukan */}
         <p
           className={`
-            mb-3 mt-9 text-[11px] uppercase tracking-wide text-muted-foreground
+            mb-3 mt-9 2xl:mb-5 2xl:mt-14 text-[11px] 2xl:text-base uppercase tracking-wide text-muted-foreground
             transition-all duration-500 ease-out
             delay-300
             ${
@@ -132,7 +132,7 @@ export function AboutWhatWeDo() {
         </p>
 
         {/* Cards */}
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 2xl:gap-6">
           {CAPABILITIES.map((item, index) => {
             const Icon = item.icon;
 
@@ -143,9 +143,9 @@ export function AboutWhatWeDo() {
                   transitionDelay: `${400 + index * 120}ms`,
                 }}
                 className={`
-                  group rounded-2xl bg-card p-5
+                  group rounded-2xl 2xl:rounded-3xl bg-card p-5 2xl:p-7 border border-border/40
                   transition-all duration-700 ease-out
-                  hover:-translate-y-1
+                  hover:-translate-y-1 hover:shadow-md
                   ${
                     isVisible
                       ? "translate-y-0 opacity-100"
@@ -159,7 +159,7 @@ export function AboutWhatWeDo() {
                     transitionDelay: `${550 + index * 120}ms`,
                   }}
                   className={`
-                    flex h-9 w-9 items-center justify-center rounded-xl
+                    flex h-9 w-9 2xl:h-14 2xl:w-14 items-center justify-center rounded-xl 2xl:rounded-2xl
                     bg-primary/10
                     transition-all duration-500
                     group-hover:scale-105
@@ -170,16 +170,16 @@ export function AboutWhatWeDo() {
                     }
                   `}
                 >
-                  <Icon className="h-4 w-4 text-primary" />
+                  <Icon className="h-4 w-4 2xl:h-7 2xl:w-7 text-primary" />
                 </div>
 
                 {/* Title */}
-                <p className="mt-2.5 text-sm font-medium text-foreground">
+                <p className="mt-2.5 2xl:mt-4 text-sm 2xl:text-lg font-medium 2xl:font-semibold text-foreground">
                   {item.title}
                 </p>
 
                 {/* Subtitle */}
-                <p className="mt-1 text-xs text-muted-foreground">
+                <p className="mt-1 2xl:mt-2 text-xs 2xl:text-sm text-muted-foreground">
                   {item.subtitle}
                 </p>
               </div>

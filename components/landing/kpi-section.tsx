@@ -98,22 +98,22 @@ export function KpiSection() {
       ref={sectionRef}
       className="flex h-full w-full flex-col items-center justify-center bg-background px-4"
     >
-      <div className="mx-auto w-full max-w-[900px] text-center">
-        <p className="mb-3 text-[11px] uppercase tracking-wide text-muted-foreground">
+      <div className="mx-auto w-full max-w-[900px] 2xl:max-w-[1500px] text-center px-4 2xl:px-8">
+        <p className="mb-3 2xl:mb-4 text-[11px] 2xl:text-base uppercase tracking-wide text-muted-foreground">
           Dampak yang terukur
         </p>
 
-        <h2 className="text-xl font-medium text-foreground sm:text-2xl">
+        <h2 className="text-xl sm:text-2xl 2xl:text-5xl font-medium 2xl:font-semibold text-foreground">
           Waste Management dalam Angka
         </h2>
 
-        <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
+        <div className="mt-8 2xl:mt-14 grid grid-cols-2 gap-4 sm:grid-cols-4 2xl:gap-8">
           {KPIS.map((kpi, index) => (
             <div
               key={kpi.label}
-              className="rounded-2xl bg-card px-4 py-8"
+              className="rounded-2xl 2xl:rounded-3xl bg-card px-4 py-8 2xl:px-8 2xl:py-14 shadow-sm border border-border/40 transition-transform duration-200 hover:scale-[1.02]"
             >
-              <p className="text-3xl font-semibold text-primary sm:text-4xl">
+              <p className="text-3xl sm:text-4xl 2xl:text-6xl font-semibold 2xl:font-bold text-primary tracking-tight">
                 <CountUp
                   end={kpi.value}
                   suffix={kpi.suffix}
@@ -122,14 +122,14 @@ export function KpiSection() {
                 />
               </p>
 
-              <p className="mt-2 text-xs text-muted-foreground sm:text-sm">
+              <p className="mt-2 2xl:mt-4 text-xs sm:text-sm 2xl:text-lg font-medium text-muted-foreground">
                 {kpi.label}
               </p>
             </div>
           ))}
         </div>
 
-        <p className="mt-5 text-[11px] italic text-muted-foreground">
+        <p className="mt-5 2xl:mt-8 text-[11px] 2xl:text-sm italic text-muted-foreground">
           Data contoh — akan diperbarui dengan angka aktual
         </p>
       </div>

@@ -11,18 +11,20 @@ interface LogoProps {
  * /public/LOGO ADIRA.png.
  */
 export function Logo({ size = 28, className = "" }: LogoProps) {
+  const hasCustomSize = className.includes("w-") || className.includes("h-");
+
   return (
     <div
-  className={`flex items-center justify-center overflow-hidden rounded-lg ${className}`}
-  style={{ width: size, height: size }}
->
-  <Image
-    src="/LOGO ADIRA.png"
-    alt="PT. Adira Semesta Industry"
-    width={size}
-    height={size}
-    className="h-full w-full object-contain"
-  />
-</div>
+      className={`relative flex shrink-0 items-center justify-center overflow-hidden rounded-lg ${className}`}
+      style={hasCustomSize ? undefined : { width: size, height: size }}
+    >
+      <Image
+        src="/LOGO ADIRA.png"
+        alt="PT. Adira Semesta Industry"
+        width={size * 2}
+        height={size * 2}
+        className="h-full w-full object-contain"
+      />
+    </div>
   );
 }
