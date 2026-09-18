@@ -5,6 +5,7 @@ import { AboutWhatWeDo } from "@/components/landing/about-what-we-do";
 import { KpiSection } from "@/components/landing/kpi-section";
 import { DashboardPreview } from "@/components/landing/dashboard-preview";
 import { TeamSection } from "@/components/landing/team-carousel";
+import { ArchiveSection } from "@/components/landing/archive-section";
 import { FullPageScroll } from "@/components/landing/full-page-scroll";
 
 export default function LandingPage() {
@@ -25,7 +26,10 @@ export default function LandingPage() {
       {/* 5. Team */}
       <TeamSection />
 
-      {/* 6. Contact & Footer */}
+      {/* 6. Archive & Publications */}
+      <ArchiveSection />
+
+      {/* 7. Contact & Footer */}
       <div className="flex h-full w-full flex-col items-center justify-center bg-background px-4 py-12">
         <div className="mx-auto w-full max-w-[850px] 2xl:max-w-[1400px] space-y-8 2xl:space-y-12 text-center">
           <div>
