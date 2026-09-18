@@ -8,8 +8,8 @@ import { FloatingThemeToggle } from "@/components/dashboard/floating-theme-toggl
 const publicSans = Public_Sans({ subsets: ["latin"], variable: "--font-sans" });
 
 export const metadata: Metadata = {
-  title: "Waste Management Dashboard",
-  description: "Dashboard operasional Waste Management Department",
+  title: "Waste Management",
+  description: "Departement Profile",
 };
 
 export default function RootLayout({

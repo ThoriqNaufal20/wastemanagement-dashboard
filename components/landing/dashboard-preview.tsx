@@ -33,7 +33,7 @@ const KPI_PREVIEW = [
   },
 ];
 
-const CHART_BARS = [50, 75, 60, 105, 95, 125, 70];
+const CHART_BARS = [40, 65, 50, 85, 75, 95, 70];
 
 export function DashboardPreview() {
   const sectionRef = useRef<HTMLDivElement>(null);

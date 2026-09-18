@@ -155,11 +155,11 @@ export function LandingHero() {
             className="animate-float-subtle mt-4 2xl:mt-6 text-sm 2xl:text-xl italic text-muted-foreground"
             style={{ animationDelay: "1.1s" }}
           >
-            "Tagline"
+            "GREY AREA SPECIALIST"
           </p>
 
           <p className="mt-5 2xl:mt-7 max-w-md 2xl:max-w-2xl text-sm 2xl:text-xl leading-relaxed text-muted-foreground sm:text-base">
-            Kami menggabungkan pengelolaan limbah yang bertanggung jawab, audit
+            Kami menggabungkan pengelolaan barang rijek yang bertanggung jawab, audit
             berkelanjutan, dan monitoring berbasis data untuk menciptakan
             dampak lingkungan yang nyata dan terukur.
           </p>
