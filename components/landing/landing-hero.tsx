@@ -194,7 +194,7 @@ export function LandingHero() {
             }
           >
             <div
-              className="animate-float flex items-center gap-2 2xl:gap-3 rounded-xl 2xl:rounded-2xl bg-card px-3.5 py-2.5 2xl:px-5 2xl:py-3.5 shadow-[0_2px_8px_rgba(0,0,0,0.08)] 2xl:shadow-[0_4px_18px_rgba(0,0,0,0.12)] border border-border/40"
+              className="animate-float flex items-center gap-2.5 sm:gap-3 2xl:gap-4 rounded-xl sm:rounded-2xl bg-card px-4.5 py-2.5 sm:px-5 sm:py-3 2xl:px-7 2xl:py-4 shadow-[0_3px_12px_rgba(0,0,0,0.08)] 2xl:shadow-[0_6px_22px_rgba(0,0,0,0.12)] border border-border/50"
               style={
                 {
                   "--chip-rotate": `${chip.rotate}deg`,
@@ -203,8 +203,8 @@ export function LandingHero() {
                 } as React.CSSProperties
               }
             >
-              <chip.icon className={`h-4 w-4 2xl:h-6 2xl:w-6 ${chip.colorClass}`} />
-              <span className="text-xs 2xl:text-base font-medium 2xl:font-semibold text-foreground">
+              <chip.icon className={`h-5 w-5 sm:h-5.5 sm:w-5.5 2xl:h-7 2xl:w-7 ${chip.colorClass}`} />
+              <span className="text-sm sm:text-base 2xl:text-lg font-medium 2xl:font-semibold text-foreground">
                 {chip.label}
               </span>
             </div>
