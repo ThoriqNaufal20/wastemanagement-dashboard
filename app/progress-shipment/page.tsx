@@ -1,59 +1,85 @@
 import { PageShell } from "@/components/dashboard/page-shell";
-import { Card, CardContent } from "@/components/ui/card";
-import { progressShipment } from "@/lib/mock-data";
-import { isFriday } from "@/lib/urgency";
+import { ProgressShipmentDetailClient } from "@/components/dashboard/progress-shipment-detail-client";
+import { getAllProgressShipmentData } from "@/lib/progress-shipment-data";
+import { headers } from "next/headers";
+import type {
+  ProgressShipmentChartItem,
+  ProgressShipmentSummary,
+  ProgressShipmentDetailItem,
+} from "@/lib/progress-shipment-types";
 
-export default function ProgressShipmentDetailPage() {
-  const total = progressShipment.hutangProduksi + progressShipment.hutangCarton;
+export const dynamic = "force-dynamic";
+
+async function loadProgressShipmentDirect() {
+  return getAllProgressShipmentData();
+}
+
+export default async function ProgressShipmentDetailPage() {
+  const headersList = await headers();
+  const host = headersList.get("host") || "localhost:3000";
+  const protocol = process.env.NODE_ENV === "development" ? "http" : "https";
+
+  let chartData: ProgressShipmentChartItem[] = [];
+  let summary: ProgressShipmentSummary = {
+    totalHutangProd: 0,
+    totalHutangCarton: 0,
+    totalHutang: 0,
+    cartonShare: 0,
+    isAttention: false,
+    totalInvoices: 0,
+  };
+  let details: ProgressShipmentDetailItem[] = [];
+  let loadedData: any = null;
+
+  // Di Vercel / Production: gunakan direct call
+  if (process.env.VERCEL || process.env.NODE_ENV === "production") {
+    try {
+      loadedData = await loadProgressShipmentDirect();
+    } catch (err) {
+      console.error("[ProgressShipment] Direct load error on Vercel:", err);
+    }
+  }
+
+  // Jika belum ada data (misal di local dev Windows): gunakan internal API
+  if (!loadedData) {
+    try {
+      const res = await fetch(`${protocol}://${host}/api/progress-shipment-data`, {
+        cache: "no-store",
+      });
+      if (res.ok) {
+        loadedData = await res.json();
+      }
+    } catch (err) {
+      console.error("[ProgressShipment] Internal API fetch failed:", err);
+    }
+  }
+
+  // Fallback terakhir jika API route gagal
+  if (!loadedData) {
+    try {
+      loadedData = await loadProgressShipmentDirect();
+    } catch (err) {
+      console.error("[ProgressShipment] Fallback direct load failed:", err);
+    }
+  }
+
+  if (loadedData) {
+    chartData = loadedData.chartData || [];
+    summary = loadedData.summary || summary;
+    details = loadedData.details || [];
+  }
 
   return (
     <PageShell
-      title="Progress shipment minggu depan"
-      description="Barang yang masih diproduksi dan masih packing untuk shipment minggu depan."
+      title="Progress Shipment Minggu Depan"
+      description="Monitoring hutang produksi dan hutang carton per minggu pengiriman berdasarkan data spreadsheet WEBProgressShipment."
+      maxWidth="max-w-[1360px]"
     >
-      <div className="grid grid-cols-3 gap-3">
-        <Card>
-          <CardContent className="pt-6">
-            <p className="text-xs text-muted-foreground">Hutang produksi</p>
-            <p className="text-2xl font-semibold text-foreground">
-              {progressShipment.hutangProduksi} <span className="text-xs font-normal text-muted-foreground">pcs</span>
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <p className="text-xs text-muted-foreground">Hutang carton</p>
-            <p className="text-2xl font-semibold text-foreground">
-              {progressShipment.hutangCarton} <span className="text-xs font-normal text-muted-foreground">pcs</span>
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <p className="text-xs text-muted-foreground">Threshold Jumat</p>
-            <p className="text-2xl font-semibold text-foreground">
-              {progressShipment.fridayThreshold} <span className="text-xs font-normal text-muted-foreground">pcs</span>
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Card>
-        <CardContent className="pt-6 text-sm text-muted-foreground">
-          <p>
-            Total belum kirim saat ini: <strong className="text-foreground">{total} pcs</strong>.
-            {isFriday()
-              ? " Hari ini Jumat — status akan urgent jika total melebihi threshold."
-              : " Hari ini bukan Jumat, sehingga status tidak urgent meski total tinggi."}
-          </p>
-          <p className="mt-3 font-medium text-foreground">Rencana konten lanjutan:</p>
-          <ul className="mt-2 list-inside list-disc space-y-1">
-            <li>Breakdown per style/PO yang belum shipment</li>
-            <li>Tren harian menjelang deadline shipment</li>
-            <li>Panel tanya AI kontekstual</li>
-          </ul>
-        </CardContent>
-      </Card>
+      <ProgressShipmentDetailClient
+        chartData={chartData}
+        summary={summary}
+        details={details}
+      />
     </PageShell>
   );
 }

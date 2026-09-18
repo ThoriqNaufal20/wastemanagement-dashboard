@@ -11,24 +11,54 @@ import {
   Tooltip,
   LabelList,
 } from "recharts";
-import { progressShipment } from "@/lib/mock-data";
 import { getUrgencyFlags } from "@/lib/urgency";
 import { StatusChip } from "@/components/dashboard/status-chip";
+import type {
+  ProgressShipmentChartItem,
+  ProgressShipmentSummary,
+} from "@/lib/progress-shipment-types";
 
-const chartData = [
-  { label: "Hutang prod", qty: progressShipment.hutangProduksi },
-  { label: "Hutang carton", qty: progressShipment.hutangCarton },
-];
-const maxQty = Math.max(...chartData.map((d) => d.qty));
-const cartonShare = Math.round(
-  (progressShipment.hutangCarton /
-    (progressShipment.hutangProduksi + progressShipment.hutangCarton)) *
-    100
-);
+interface ProgressShipmentCardProps {
+  data?: ProgressShipmentChartItem[];
+  summary?: ProgressShipmentSummary;
+}
 
-export function ProgressShipmentCard() {
+function formatCompact(val: any): string {
+  const num = Number(val);
+  if (isNaN(num) || num === 0) return "0";
+  if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
+  if (num >= 1000) return `${(num / 1000).toFixed(0)}k`;
+  return String(num);
+}
+
+export function ProgressShipmentCard({
+  data = [],
+  summary,
+}: ProgressShipmentCardProps) {
   const { progressShipment: urgency } = getUrgencyFlags();
-  const isAttention = urgency.status === "attention";
+  const isAttention = summary?.isAttention ?? urgency.status === "attention";
+
+  const chartData = data.length > 0
+    ? data
+    : [
+        {
+          week: "W39",
+          rawW: "39",
+          hutangProd: 0,
+          hutangCarton: 0,
+          totalHutang: 0,
+        },
+      ];
+
+  const maxVal = Math.max(
+    ...chartData.map((d) => Math.max(d.hutangProd, d.hutangCarton)),
+    100
+  );
+
+  const totalProd = summary?.totalHutangProd ?? chartData.reduce((acc, d) => acc + d.hutangProd, 0);
+  const totalCarton = summary?.totalHutangCarton ?? chartData.reduce((acc, d) => acc + d.hutangCarton, 0);
+  const totalAll = totalProd + totalCarton;
+  const cartonShare = summary?.cartonShare ?? (totalAll > 0 ? Math.round((totalCarton / totalAll) * 100) : 0);
 
   return (
     <Link
@@ -45,27 +75,50 @@ export function ProgressShipmentCard() {
         </div>
       </div>
 
-      <p className="mb-2 line-clamp-2 text-xs text-muted-foreground">
-        Carton berkontribusi <span className="font-medium text-foreground">{cartonShare}%</span> dari total shipment yang belum kirim
+      <p className="mb-1.5 line-clamp-2 text-xs text-muted-foreground">
+        Carton berkontribusi{" "}
+        <span className="font-medium text-foreground">{cartonShare}%</span> dari
+        total shipment yang belum kirim
       </p>
+
+      {/* Mini Legend */}
+      <div className="mb-1 flex items-center gap-3 text-[11px] text-muted-foreground">
+        <span className="inline-flex items-center gap-1">
+          <span className="h-2 w-2 rounded-sm bg-blue-500" />
+          Hutang prod
+        </span>
+        <span className="inline-flex items-center gap-1">
+          <span className="h-2 w-2 rounded-sm bg-amber-500" />
+          Hutang carton
+        </span>
+      </div>
 
       <div className="min-h-0 flex-1">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={chartData} margin={{ top: 20, right: 4, left: -20, bottom: 0 }}>
+          <BarChart
+            data={chartData}
+            barGap={6}
+            margin={{ top: 20, right: 8, left: -20, bottom: 0 }}
+          >
             <XAxis
-              dataKey="label"
+              dataKey="week"
               axisLine={false}
               tickLine={false}
-              tick={{ fill: "var(--color-muted-foreground)", fontSize: 10 }}
+              tick={{ fill: "var(--color-muted-foreground)", fontSize: 11 }}
             />
             <YAxis
-              domain={[0, maxQty * 1.2]}
+              domain={[0, Math.ceil(maxVal * 1.25)]}
               axisLine={false}
               tickLine={false}
               tick={{ fill: "var(--color-muted-foreground)", fontSize: 10 }}
+              tickFormatter={formatCompact}
             />
             <Tooltip
-              formatter={(value) => [`${value} pcs`, ""]}
+              formatter={(value: any, name: any) => [
+                `${Number(value || 0).toLocaleString()} pcs`,
+                name === "hutangProd" ? "Hutang Prod" : "Hutang Carton",
+              ]}
+              labelFormatter={(label) => `Minggu ${label}`}
               contentStyle={{
                 backgroundColor: "var(--color-card)",
                 border: "1px solid var(--color-border)",
@@ -74,17 +127,31 @@ export function ProgressShipmentCard() {
               }}
             />
             <Bar
-              dataKey="qty"
+              dataKey="hutangProd"
+              name="hutangProd"
               radius={[4, 4, 0, 0]}
-              maxBarSize={44}
-              fill={
-                isAttention ? "var(--color-status-warning)" : "var(--color-primary)"
-              }
+              maxBarSize={36}
+              fill="#3b82f6"
             >
               <LabelList
-                dataKey="qty"
+                dataKey="hutangProd"
                 position="top"
-                style={{ fill: "var(--color-foreground)", fontSize: 11 }}
+                formatter={formatCompact}
+                style={{ fill: "var(--color-foreground)", fontSize: 10 }}
+              />
+            </Bar>
+            <Bar
+              dataKey="hutangCarton"
+              name="hutangCarton"
+              radius={[4, 4, 0, 0]}
+              maxBarSize={36}
+              fill="#f59e0b"
+            >
+              <LabelList
+                dataKey="hutangCarton"
+                position="top"
+                formatter={formatCompact}
+                style={{ fill: "var(--color-foreground)", fontSize: 10 }}
               />
             </Bar>
           </BarChart>

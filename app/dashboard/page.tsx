@@ -64,6 +64,14 @@ import { getGloveActiveSummary } from "@/lib/glove-3r-data";
 import { getTimbangan3RSummary } from "@/lib/timbangan-3r-data";
 import { getWipKulitSummary, getKelolosanChartData } from "@/lib/timbangan-3r-kulit-data";
 import { getWipSewingSummary } from "@/lib/wip-sewing-data";
+import {
+  getProgressShipmentChartData,
+  getProgressShipmentSummary,
+} from "@/lib/progress-shipment-data";
+import type {
+  ProgressShipmentChartItem,
+  ProgressShipmentSummary,
+} from "@/lib/progress-shipment-types";
 import { prefetchNamedRanges } from "@/lib/google-sheets";
 
 const DASHBOARD_NAMED_RANGES = [
@@ -73,6 +81,7 @@ const DASHBOARD_NAMED_RANGES = [
   "WEBTimbangan3R",
   "WEBTimbangan3RKulit",
   "WEBWIPSewing7Hari",
+  "WEBProgressShipment",
 ];
 
 async function loadDashboardDataDirect() {
@@ -85,6 +94,8 @@ async function loadDashboardDataDirect() {
     wipKulit,
     kelolosanData,
     wipSewingData,
+    progressShipmentChart,
+    progressShipmentSummary,
   ] = await Promise.all([
     getAllScorecardData(),
     getAllDashboardDeptData(),
@@ -93,6 +104,8 @@ async function loadDashboardDataDirect() {
     getWipKulitSummary(),
     getKelolosanChartData(),
     getWipSewingSummary(),
+    getProgressShipmentChartData("next week"),
+    getProgressShipmentSummary("next week"),
   ]);
 
   return {
@@ -103,6 +116,8 @@ async function loadDashboardDataDirect() {
     wipKulit,
     kelolosanData,
     wipSewingData,
+    progressShipmentChart,
+    progressShipmentSummary,
   };
 }
 
@@ -123,6 +138,8 @@ export default async function DashboardPage() {
   let wipKulit = { late: 0, total: 0 };
   let kelolosanData: any[] = [];
   let wipSewingData: any[] = [];
+  let progressShipmentChart: ProgressShipmentChartItem[] = [];
+  let progressShipmentSummary: ProgressShipmentSummary | undefined = undefined;
 
   let loadedData: any = null;
 
@@ -166,6 +183,8 @@ export default async function DashboardPage() {
     wipKulit = loadedData.wipKulit || wipKulit;
     kelolosanData = loadedData.kelolosanData || [];
     wipSewingData = loadedData.wipSewingData || [];
+    progressShipmentChart = loadedData.progressShipmentChart || [];
+    progressShipmentSummary = loadedData.progressShipmentSummary || undefined;
   }
 
   const urgency = getUrgencyFlags();
@@ -339,7 +358,10 @@ export default async function DashboardPage() {
           </p>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <ScrollReveal>
-              <ProgressShipmentCard />
+              <ProgressShipmentCard
+                data={progressShipmentChart}
+                summary={progressShipmentSummary}
+              />
             </ScrollReveal>
             <ScrollReveal>
               <WipSewingCard data={wipSewingData} />

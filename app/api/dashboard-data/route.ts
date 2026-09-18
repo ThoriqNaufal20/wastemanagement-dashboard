@@ -6,6 +6,10 @@ import { getGloveActiveSummary } from "@/lib/glove-3r-data";
 import { getTimbangan3RSummary } from "@/lib/timbangan-3r-data";
 import { getWipKulitSummary, getKelolosanChartData } from "@/lib/timbangan-3r-kulit-data";
 import { getWipSewingSummary } from "@/lib/wip-sewing-data";
+import {
+  getProgressShipmentChartData,
+  getProgressShipmentSummary,
+} from "@/lib/progress-shipment-data";
 
 export const dynamic = "force-dynamic";
 
@@ -16,6 +20,7 @@ const DASHBOARD_NAMED_RANGES = [
   "WEBTimbangan3R",
   "WEBTimbangan3RKulit",
   "WEBWIPSewing7Hari",
+  "WEBProgressShipment",
 ];
 
 export async function GET() {
@@ -30,6 +35,8 @@ export async function GET() {
       wipKulit,
       kelolosanData,
       wipSewingData,
+      progressShipmentChart,
+      progressShipmentSummary,
     ] = await Promise.all([
       getAllScorecardData(),
       getAllDashboardDeptData(),
@@ -38,6 +45,8 @@ export async function GET() {
       getWipKulitSummary(),
       getKelolosanChartData(),
       getWipSewingSummary(),
+      getProgressShipmentChartData("next week"),
+      getProgressShipmentSummary("next week"),
     ]);
 
     return NextResponse.json({
@@ -48,6 +57,8 @@ export async function GET() {
       wipKulit,
       kelolosanData,
       wipSewingData,
+      progressShipmentChart,
+      progressShipmentSummary,
     });
   } catch (error: any) {
     console.error("Dashboard API error:", error);
