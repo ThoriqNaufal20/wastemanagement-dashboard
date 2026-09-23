@@ -154,3 +154,85 @@ export async function getNamedRangeData(
   inFlightRequests.set(namedRange, fetchPromise);
   return fetchPromise;
 }
+
+/**
+ * Membaca named range dengan metadata kaya: otomatis mengekstrak URL asli dari
+ * Google Smart Chips (richLinkProperties.uri), cell hyperlink, maupun teks biasa.
+ */
+export async function getNamedRangeDataWithLinks(
+  namedRange: string
+): Promise<Record<string, string>[]> {
+  const cacheKey = `${namedRange}_links`;
+  const now = Date.now();
+  const cached = memoryCache.get(cacheKey);
+  if (cached && now - cached.timestamp < CACHE_TTL_MS) {
+    return cached.data;
+  }
+
+  if (inFlightRequests.has(cacheKey)) {
+    return inFlightRequests.get(cacheKey)!;
+  }
+
+  const fetchPromise = (async () => {
+    try {
+      const sheets = getSheetsClient();
+      const response = await sheets.spreadsheets.get({
+        spreadsheetId: getSpreadsheetId(),
+        ranges: [namedRange],
+        fields:
+          "sheets(data(rowData(values(formattedValue,hyperlink,chipRuns,textFormatRuns))))",
+      });
+
+      const sheet = response.data.sheets?.[0];
+      const rowData = sheet?.data?.[0]?.rowData;
+      if (!rowData || rowData.length === 0) return [];
+
+      const headers =
+        rowData[0].values?.map((v) => (v.formattedValue || "").trim()) || [];
+      if (headers.length === 0) return [];
+
+      const data = rowData.slice(1).map((r) => {
+        const obj: Record<string, string> = {};
+        headers.forEach((h, i) => {
+          const cell = r.values ? r.values[i] : null;
+          if (!cell) {
+            obj[h] = "";
+            return;
+          }
+
+          // Prioritas 1: Smart Chips Google Drive (richLinkProperties.uri)
+          const chipUri =
+            cell.chipRuns?.[0]?.chip?.richLinkProperties?.uri || "";
+
+          // Prioritas 2: Cell hyperlink langsung
+          const cellLink = cell.hyperlink || "";
+
+          // Prioritas 3: Text format run link
+          const textRunLink =
+            cell.textFormatRuns?.[0]?.format?.link?.uri || "";
+
+          const text = cell.formattedValue || "";
+
+          const isLinkColumn =
+            h.toLowerCase().includes("link") ||
+            h.toLowerCase().includes("url");
+
+          if (isLinkColumn) {
+            obj[h] = chipUri || cellLink || textRunLink || text;
+          } else {
+            obj[h] = text;
+          }
+        });
+        return obj;
+      });
+
+      memoryCache.set(cacheKey, { data, timestamp: Date.now() });
+      return data;
+    } finally {
+      inFlightRequests.delete(cacheKey);
+    }
+  })();
+
+  inFlightRequests.set(cacheKey, fetchPromise);
+  return fetchPromise;
+}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useMemo } from "react";
+import { useState, useRef, useMemo, useEffect } from "react";
 import {
   FileText,
   BarChart3,
@@ -15,30 +15,76 @@ import {
   FolderArchive,
 } from "lucide-react";
 import {
-  ARCHIVE_ITEMS,
+  DEFAULT_ARCHIVE_ITEMS,
   ARCHIVE_CATEGORIES,
 } from "@/lib/archive-data";
 import type { ArchiveCategory, ArchiveItem } from "@/lib/archive-types";
 
-export function ArchiveSection() {
+interface ArchiveSectionProps {
+  initialItems?: ArchiveItem[];
+}
+
+export function ArchiveSection({ initialItems }: ArchiveSectionProps) {
+  const [items, setItems] = useState<ArchiveItem[]>(
+    initialItems && initialItems.length > 0 ? initialItems : DEFAULT_ARCHIVE_ITEMS
+  );
   const [activeCategory, setActiveCategory] = useState<ArchiveCategory>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const carouselRef = useRef<HTMLDivElement>(null);
 
+  // Background fetch jika dibuka di client
+  useEffect(() => {
+    let isMounted = true;
+    fetch("/api/archive-data")
+      .then((res) => res.json())
+      .then((data) => {
+        if (isMounted && data.items && data.items.length > 0) {
+          setItems(data.items);
+        }
+      })
+      .catch((err) => {
+        console.warn("[ArchiveSection] Gagal memuat data live dari API, memakai data awal:", err);
+      });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   const filteredItems = useMemo(() => {
-    return ARCHIVE_ITEMS.filter((item) => {
+    return items.filter((item) => {
+      const typeLower = item.typeBadge.toLowerCase();
       const matchesCategory =
-        activeCategory === "all" || item.category === activeCategory;
+        activeCategory === "all" ||
+        item.category === activeCategory ||
+        (activeCategory === "video" && (item.iconType === "video" || typeLower.includes("video"))) ||
+        (activeCategory === "slides" &&
+          (item.iconType === "presentation" ||
+            typeLower.includes("slide") ||
+            typeLower.includes("ppt"))) ||
+        (activeCategory === "poster" &&
+          (item.iconType === "image" ||
+            typeLower.includes("canva") ||
+            typeLower.includes("poster"))) ||
+        (activeCategory === "meeting" &&
+          (item.iconType === "pdf" || typeLower.includes("pdf"))) ||
+        (activeCategory === "data" &&
+          (item.category === "data" ||
+            item.iconType === "sheets" ||
+            typeLower.includes("sheet") ||
+            typeLower.includes("project")));
+
       const q = searchQuery.toLowerCase().trim();
       const matchesSearch =
         !q ||
         item.title.toLowerCase().includes(q) ||
         item.description.toLowerCase().includes(q) ||
-        item.categoryLabel.toLowerCase().includes(q);
+        item.categoryLabel.toLowerCase().includes(q) ||
+        item.typeBadge.toLowerCase().includes(q) ||
+        (item.periodOrDuration && item.periodOrDuration.toLowerCase().includes(q));
 
       return matchesCategory && matchesSearch;
     });
-  }, [activeCategory, searchQuery]);
+  }, [items, activeCategory, searchQuery]);
 
   const handleScroll = (direction: "prev" | "next") => {
     if (!carouselRef.current) return;

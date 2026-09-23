@@ -1,15 +1,16 @@
-export type ArchiveCategory =
-  | "all"
+export type ArchiveItemCategory =
   | "meeting"
   | "data"
   | "poster"
   | "slides"
   | "video";
 
+export type ArchiveCategory = "all" | ArchiveItemCategory;
+
 export interface ArchiveItem {
   id: string;
   title: string;
-  category: "meeting" | "data" | "poster" | "slides" | "video";
+  category: ArchiveItemCategory;
   categoryLabel: string;
   typeBadge: string;
   badgeColorClass: string;
@@ -21,4 +22,3 @@ export interface ArchiveItem {
   externalUrl: string;
   actionLabel: string;
 }
-

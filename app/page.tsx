@@ -7,8 +7,16 @@ import { DashboardPreview } from "@/components/landing/dashboard-preview";
 import { TeamSection } from "@/components/landing/team-carousel";
 import { ArchiveSection } from "@/components/landing/archive-section";
 import { FullPageScroll } from "@/components/landing/full-page-scroll";
+import { getArchiveItems, DEFAULT_ARCHIVE_ITEMS } from "@/lib/archive-data";
 
-export default function LandingPage() {
+export default async function LandingPage() {
+  let archiveItems = DEFAULT_ARCHIVE_ITEMS;
+  try {
+    archiveItems = await getArchiveItems();
+  } catch (err) {
+    console.warn("[LandingPage] Error loading archive items:", err);
+  }
+
   return (
     <FullPageScroll>
       {/* 1. Hero */}
@@ -27,7 +35,7 @@ export default function LandingPage() {
       <TeamSection />
 
       {/* 6. Archive & Publications */}
-      <ArchiveSection />
+      <ArchiveSection initialItems={archiveItems} />
 
       {/* 7. Contact & Footer */}
       <div className="flex h-full w-full flex-col items-center justify-center bg-background px-4 py-12">
