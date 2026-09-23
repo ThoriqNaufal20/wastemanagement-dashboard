@@ -38,6 +38,12 @@ export function ProgressShipmentCard({
   const { progressShipment: urgency } = getUrgencyFlags();
   const isAttention = summary?.isAttention ?? urgency.status === "attention";
 
+  // Aturan warna: Hari Jumat -> Keduanya MERAH (#ef4444)
+  // Bukan Jumat -> Hutang Produksi = ORANYE (#f97316), Hutang Packing = KUNING (#eab308)
+  const isFridayToday = new Date().getDay() === 5;
+  const prodBarColor = isFridayToday ? "#ef4444" : "#f97316";
+  const cartonBarColor = isFridayToday ? "#ef4444" : "#eab308";
+
   const chartData = data.length > 0
     ? data
     : [
@@ -76,21 +82,34 @@ export function ProgressShipmentCard({
       </div>
 
       <p className="mb-1.5 line-clamp-2 text-xs text-muted-foreground">
-        Carton berkontribusi{" "}
+        Packing berkontribusi{" "}
         <span className="font-medium text-foreground">{cartonShare}%</span> dari
         total shipment yang belum kirim
       </p>
 
       {/* Mini Legend */}
-      <div className="mb-1 flex items-center gap-3 text-[11px] text-muted-foreground">
-        <span className="inline-flex items-center gap-1">
-          <span className="h-2 w-2 rounded-sm bg-blue-500" />
-          Hutang prod
-        </span>
-        <span className="inline-flex items-center gap-1">
-          <span className="h-2 w-2 rounded-sm bg-amber-500" />
-          Hutang carton
-        </span>
+      <div className="mb-1 flex items-center justify-between text-[11px] text-muted-foreground">
+        <div className="flex items-center gap-3">
+          <span className="inline-flex items-center gap-1">
+            <span
+              className="h-2 w-2 rounded-sm"
+              style={{ backgroundColor: prodBarColor }}
+            />
+            Hutang prod
+          </span>
+          <span className="inline-flex items-center gap-1">
+            <span
+              className="h-2 w-2 rounded-sm"
+              style={{ backgroundColor: cartonBarColor }}
+            />
+            Hutang packing
+          </span>
+        </div>
+        {isFridayToday && (
+          <span className="text-[10px] font-semibold text-red-500">
+            Jumat (Urgent)
+          </span>
+        )}
       </div>
 
       <div className="min-h-0 flex-1">
@@ -116,7 +135,7 @@ export function ProgressShipmentCard({
             <Tooltip
               formatter={(value: any, name: any) => [
                 `${Number(value || 0).toLocaleString()} pcs`,
-                name === "hutangProd" ? "Hutang Prod" : "Hutang Carton",
+                name === "hutangProd" ? "Hutang Produksi" : "Hutang Packing",
               ]}
               labelFormatter={(label) => `Minggu ${label}`}
               contentStyle={{
@@ -131,7 +150,7 @@ export function ProgressShipmentCard({
               name="hutangProd"
               radius={[4, 4, 0, 0]}
               maxBarSize={36}
-              fill="#3b82f6"
+              fill={prodBarColor}
             >
               <LabelList
                 dataKey="hutangProd"
@@ -145,7 +164,7 @@ export function ProgressShipmentCard({
               name="hutangCarton"
               radius={[4, 4, 0, 0]}
               maxBarSize={36}
-              fill="#f59e0b"
+              fill={cartonBarColor}
             >
               <LabelList
                 dataKey="hutangCarton"

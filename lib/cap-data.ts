@@ -137,6 +137,16 @@ export async function getAllCapItems(): Promise<CapItem[]> {
       });
     });
 
+    // Urutkan default dari terbaru ke terlama (Z-A descending)
+    items.sort((a, b) => {
+      const dateA = a.isoDate || "";
+      const dateB = b.isoDate || "";
+      if (dateA !== dateB) {
+        return dateB.localeCompare(dateA);
+      }
+      return b.id.localeCompare(a.id, undefined, { numeric: true });
+    });
+
     return items;
   } catch (err) {
     console.error("[CAP Data] Gagal memuat named range WEBCAP:", err);

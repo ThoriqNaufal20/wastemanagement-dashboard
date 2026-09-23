@@ -58,6 +58,10 @@ export function ProgressShipmentDetailClient({
   const [selectedWeekFilter, setSelectedWeekFilter] = useState<string>("next week");
   const [searchQuery, setSearchQuery] = useState("");
 
+  const isFridayToday = new Date().getDay() === 5;
+  const prodBarColor = isFridayToday ? "#ef4444" : "#f97316";
+  const cartonBarColor = isFridayToday ? "#ef4444" : "#eab308";
+
   // Filter items berdasarkan Filter Week & Search
   const filteredItems = useMemo(() => {
     return details.filter((item) => {
@@ -259,13 +263,24 @@ export function ProgressShipmentDetailClient({
           </div>
           <div className="flex items-center gap-4 text-xs text-muted-foreground">
             <span className="inline-flex items-center gap-1.5">
-              <span className="h-3 w-3 rounded-sm bg-blue-500" />
+              <span
+                className="h-3 w-3 rounded-sm"
+                style={{ backgroundColor: prodBarColor }}
+              />
               Hutang Prod
             </span>
             <span className="inline-flex items-center gap-1.5">
-              <span className="h-3 w-3 rounded-sm bg-amber-500" />
-              Hutang Carton
+              <span
+                className="h-3 w-3 rounded-sm"
+                style={{ backgroundColor: cartonBarColor }}
+              />
+              Hutang Packing
             </span>
+            {isFridayToday && (
+              <span className="text-[11px] font-semibold text-red-500">
+                (Hari Jumat - Urgent)
+              </span>
+            )}
           </div>
         </div>
 
@@ -293,7 +308,7 @@ export function ProgressShipmentDetailClient({
                 <Tooltip
                   formatter={(value: any, name: any) => [
                     `${Number(value || 0).toLocaleString()} pcs`,
-                    name === "hutangProd" ? "Hutang Produksi" : "Hutang Carton",
+                    name === "hutangProd" ? "Hutang Produksi" : "Hutang Packing",
                   ]}
                   labelFormatter={(label) => `Minggu ${label}`}
                   contentStyle={{
@@ -306,7 +321,7 @@ export function ProgressShipmentDetailClient({
                 <Bar
                   dataKey="hutangProd"
                   name="hutangProd"
-                  fill="#3b82f6"
+                  fill={prodBarColor}
                   radius={[4, 4, 0, 0]}
                   maxBarSize={48}
                 >
@@ -320,7 +335,7 @@ export function ProgressShipmentDetailClient({
                 <Bar
                   dataKey="hutangCarton"
                   name="hutangCarton"
-                  fill="#f59e0b"
+                  fill={cartonBarColor}
                   radius={[4, 4, 0, 0]}
                   maxBarSize={48}
                 >

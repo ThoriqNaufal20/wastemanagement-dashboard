@@ -124,6 +124,14 @@ export function CapDetailClient({ initialItems }: CapDetailClientProps) {
       }
 
       return true;
+    }).sort((a, b) => {
+      // Urutkan dari terbaru ke terlama (Z-A descending)
+      const dateA = a.isoDate || "";
+      const dateB = b.isoDate || "";
+      if (dateA !== dateB) {
+        return dateB.localeCompare(dateA);
+      }
+      return b.id.localeCompare(a.id, undefined, { numeric: true });
     });
   }, [
     initialItems,
@@ -234,13 +242,13 @@ export function CapDetailClient({ initialItems }: CapDetailClientProps) {
             )}
           </div>
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {/* Quick Year Selection */}
+          {/* Baris 1: Filter Cepat Tahun & Pencarian */}
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
+              <label className="mb-1.5 block text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                 Tahun Temuan
               </label>
-              <div className="flex flex-wrap gap-1.5">
+              <div className="flex flex-wrap items-center gap-1.5">
                 <button
                   onClick={() => {
                     setSelectedYear("all");
@@ -248,7 +256,7 @@ export function CapDetailClient({ initialItems }: CapDetailClientProps) {
                     setEndDate("");
                     setCurrentPage(1);
                   }}
-                  className={`rounded-lg px-2.5 py-1 text-xs font-medium transition ${
+                  className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${
                     selectedYear === "all" && !startDate && !endDate
                       ? "bg-primary text-primary-foreground shadow-sm"
                       : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground"
@@ -269,7 +277,7 @@ export function CapDetailClient({ initialItems }: CapDetailClientProps) {
                         setEndDate("");
                         setCurrentPage(1);
                       }}
-                      className={`rounded-lg px-2.5 py-1 text-xs font-medium transition ${
+                      className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${
                         isSelected
                           ? "bg-primary text-primary-foreground shadow-sm"
                           : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground"
@@ -282,75 +290,114 @@ export function CapDetailClient({ initialItems }: CapDetailClientProps) {
               </div>
             </div>
 
-            {/* Custom Date Range */}
-            <div>
-              <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
-                Rentang Tanggal Custom
-              </label>
-              <div className="flex items-center gap-1.5">
-                <input
-                  type="date"
-                  value={startDate}
-                  onChange={(e) => {
-                    setStartDate(e.target.value);
-                    setCurrentPage(1);
-                  }}
-                  className="w-full rounded-lg border border-border bg-card px-2 py-1 text-xs text-foreground focus:border-primary focus:outline-none"
-                  title="Tanggal Awal"
-                />
-                <span className="text-xs text-muted-foreground">-</span>
-                <input
-                  type="date"
-                  value={endDate}
-                  onChange={(e) => {
-                    setEndDate(e.target.value);
-                    setCurrentPage(1);
-                  }}
-                  className="w-full rounded-lg border border-border bg-card px-2 py-1 text-xs text-foreground focus:border-primary focus:outline-none"
-                  title="Tanggal Akhir"
-                />
-              </div>
-            </div>
-
-            {/* Klasifikasi Masalah Filter */}
-            <div>
-              <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
-                Klasifikasi Masalah
-              </label>
-              <select
-                value={selectedClassification}
-                onChange={(e) => {
-                  setSelectedClassification(e.target.value);
-                  setCurrentPage(1);
-                }}
-                className="w-full rounded-lg border border-border bg-card px-2.5 py-1.5 text-xs text-foreground focus:border-primary focus:outline-none"
-              >
-                <option value="all">Semua Klasifikasi</option>
-                {availableClassifications.map((k) => (
-                  <option key={k} value={k}>
-                    {k}
-                  </option>
-                ))}
-              </select>
-            </div>
-
             {/* Search Box */}
-            <div>
-              <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
+            <div className="w-full md:w-80">
+              <label className="mb-1.5 block text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                 Cari Kasus / Order / Temuan
               </label>
               <div className="relative">
-                <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+                <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
                 <input
                   type="text"
-                  placeholder="Ketik kata kunci..."
+                  placeholder="Ketik kata kunci temuan, order, dept..."
                   value={searchQuery}
                   onChange={(e) => {
                     setSearchQuery(e.target.value);
                     setCurrentPage(1);
                   }}
-                  className="w-full rounded-lg border border-border bg-card py-1.5 pl-8 pr-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
+                  className="w-full rounded-lg border border-border bg-card py-1.5 pl-9 pr-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition"
                 />
+              </div>
+            </div>
+          </div>
+
+          {/* Baris 2: Rentang Tanggal Custom & Klasifikasi Masalah */}
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-t border-border/50 pt-3">
+            {/* Rentang Tanggal Custom */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">
+                Rentang Tanggal:
+              </span>
+              <div className="flex items-center gap-2">
+                <div className="relative">
+                  <input
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => {
+                      setStartDate(e.target.value);
+                      setCurrentPage(1);
+                    }}
+                    className="w-[140px] rounded-lg border border-border bg-card px-2.5 py-1.5 text-xs text-foreground focus:border-primary focus:outline-none"
+                    title="Tanggal Awal"
+                  />
+                </div>
+                <span className="text-xs text-muted-foreground font-medium">-</span>
+                <div className="relative">
+                  <input
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => {
+                      setEndDate(e.target.value);
+                      setCurrentPage(1);
+                    }}
+                    className="w-[140px] rounded-lg border border-border bg-card px-2.5 py-1.5 text-xs text-foreground focus:border-primary focus:outline-none"
+                    title="Tanggal Akhir"
+                  />
+                </div>
+                {(startDate || endDate) && (
+                  <button
+                    onClick={() => {
+                      setStartDate("");
+                      setEndDate("");
+                      setCurrentPage(1);
+                    }}
+                    className="text-xs text-muted-foreground hover:text-foreground underline ml-1"
+                  >
+                    Reset
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Klasifikasi Masalah & Status Filters */}
+            <div className="flex flex-wrap items-center gap-4">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">
+                  Klasifikasi:
+                </span>
+                <select
+                  value={selectedClassification}
+                  onChange={(e) => {
+                    setSelectedClassification(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  className="rounded-lg border border-border bg-card px-3 py-1.5 text-xs text-foreground focus:border-primary focus:outline-none min-w-[160px]"
+                >
+                  <option value="all">Semua Klasifikasi</option>
+                  {availableClassifications.map((k) => (
+                    <option key={k} value={k}>
+                      {k}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">
+                  Status:
+                </span>
+                <select
+                  value={selectedStatus}
+                  onChange={(e) => {
+                    setSelectedStatus(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  className="rounded-lg border border-border bg-card px-3 py-1.5 text-xs text-foreground focus:border-primary focus:outline-none min-w-[130px]"
+                >
+                  <option value="all">Semua Status</option>
+                  <option value="done">Done</option>
+                  <option value="in progress">In Progress / Pending</option>
+                </select>
               </div>
             </div>
           </div>
