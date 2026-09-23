@@ -124,7 +124,7 @@ export function ArchiveSection({ initialItems }: ArchiveSectionProps) {
               Gudang Arsip & Publikasi
             </h2>
             <p className="mt-1 text-xs sm:text-sm 2xl:text-base text-muted-foreground">
-              Pusat penyimpanan laporan rapat, project data-driven, materi awareness, slides, dan video edukasi.
+              Pusat penyimpanan laporan , project, materi, slides, dan video.
             </p>
           </div>
 

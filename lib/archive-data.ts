@@ -66,7 +66,7 @@ function getCategoryConfig(
   ) {
     return {
       categoryLabel:
-        category === "data" ? "Project Data Driven" : "Video Dokumentasi",
+        category === "data" ? "Project" : "Video Dokumentasi",
       typeBadge: rawType || "Video",
       badgeColorClass: "bg-rose-600/80 text-white",
       gradientClass: "from-red-950 via-rose-900 to-purple-950",
@@ -83,7 +83,7 @@ function getCategoryConfig(
   ) {
     return {
       categoryLabel:
-        category === "data" ? "Project Data Driven" : "Presentasi Slides",
+        category === "data" ? "Project" : "Presentasi Slides",
       typeBadge: rawType || "Google Slides",
       badgeColorClass: "bg-amber-500/80 text-white",
       gradientClass: "from-amber-800 via-orange-900 to-yellow-950",

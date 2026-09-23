@@ -102,8 +102,8 @@ export const DEFAULT_ARCHIVE_ITEMS: ArchiveItem[] = [
 export const ARCHIVE_CATEGORIES = [
   { id: "all", label: "Semua" },
   { id: "meeting", label: "Laporan Rapat" },
-  { id: "data", label: "Data Driven" },
-  { id: "poster", label: "Poster & Canva" },
+  { id: "data", label: "Data" },
+  { id: "poster", label: "Poster" },
   { id: "slides", label: "Google Slides" },
   { id: "video", label: "Video Edukasi" },
 ] as const;
