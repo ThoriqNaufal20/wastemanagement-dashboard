@@ -72,6 +72,8 @@ import type {
   ProgressShipmentChartItem,
   ProgressShipmentSummary,
 } from "@/lib/progress-shipment-types";
+import { getCapDashboardData } from "@/lib/cap-data";
+import type { CapDashboardData } from "@/lib/cap-types";
 import { prefetchNamedRanges } from "@/lib/google-sheets";
 
 const DASHBOARD_NAMED_RANGES = [
@@ -82,6 +84,7 @@ const DASHBOARD_NAMED_RANGES = [
   "WEBTimbangan3RKulit",
   "WEBWIPSewing7Hari",
   "WEBProgressShipment",
+  "WEBCAP",
 ];
 
 async function loadDashboardDataDirect() {
@@ -96,6 +99,7 @@ async function loadDashboardDataDirect() {
     wipSewingData,
     progressShipmentChart,
     progressShipmentSummary,
+    capData,
   ] = await Promise.all([
     getAllScorecardData(),
     getAllDashboardDeptData(),
@@ -106,6 +110,7 @@ async function loadDashboardDataDirect() {
     getWipSewingSummary(),
     getProgressShipmentChartData("next week"),
     getProgressShipmentSummary("next week"),
+    getCapDashboardData(2026),
   ]);
 
   return {
@@ -118,6 +123,7 @@ async function loadDashboardDataDirect() {
     wipSewingData,
     progressShipmentChart,
     progressShipmentSummary,
+    capData,
   };
 }
 
@@ -140,6 +146,7 @@ export default async function DashboardPage() {
   let wipSewingData: any[] = [];
   let progressShipmentChart: ProgressShipmentChartItem[] = [];
   let progressShipmentSummary: ProgressShipmentSummary | undefined = undefined;
+  let capData: CapDashboardData | undefined = undefined;
 
   let loadedData: any = null;
 
@@ -185,6 +192,7 @@ export default async function DashboardPage() {
     wipSewingData = loadedData.wipSewingData || [];
     progressShipmentChart = loadedData.progressShipmentChart || [];
     progressShipmentSummary = loadedData.progressShipmentSummary || undefined;
+    capData = loadedData.capData || undefined;
   }
 
   const urgency = getUrgencyFlags();
@@ -370,7 +378,7 @@ export default async function DashboardPage() {
               <KelolosanChartCard data={kelolosanData} />
             </ScrollReveal>
             <ScrollReveal>
-              <CorrectiveActionPlanCard />
+              <CorrectiveActionPlanCard data={capData} />
             </ScrollReveal>
           </div>
         </section>

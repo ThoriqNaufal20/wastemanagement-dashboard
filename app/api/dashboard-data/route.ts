@@ -10,6 +10,7 @@ import {
   getProgressShipmentChartData,
   getProgressShipmentSummary,
 } from "@/lib/progress-shipment-data";
+import { getCapDashboardData } from "@/lib/cap-data";
 
 export const dynamic = "force-dynamic";
 
@@ -21,6 +22,7 @@ const DASHBOARD_NAMED_RANGES = [
   "WEBTimbangan3RKulit",
   "WEBWIPSewing7Hari",
   "WEBProgressShipment",
+  "WEBCAP",
 ];
 
 export async function GET() {
@@ -37,6 +39,7 @@ export async function GET() {
       wipSewingData,
       progressShipmentChart,
       progressShipmentSummary,
+      capData,
     ] = await Promise.all([
       getAllScorecardData(),
       getAllDashboardDeptData(),
@@ -47,6 +50,7 @@ export async function GET() {
       getWipSewingSummary(),
       getProgressShipmentChartData("next week"),
       getProgressShipmentSummary("next week"),
+      getCapDashboardData(2026),
     ]);
 
     return NextResponse.json({
@@ -59,6 +63,7 @@ export async function GET() {
       wipSewingData,
       progressShipmentChart,
       progressShipmentSummary,
+      capData,
     });
   } catch (error: any) {
     console.error("Dashboard API error:", error);
