@@ -17,7 +17,7 @@ import {
 import {
   DEFAULT_ARCHIVE_ITEMS,
   ARCHIVE_CATEGORIES,
-} from "@/lib/archive-data";
+} from "@/lib/archive-constants";
 import type { ArchiveCategory, ArchiveItem } from "@/lib/archive-types";
 
 interface ArchiveSectionProps {
