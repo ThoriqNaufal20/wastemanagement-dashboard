@@ -1,7 +1,12 @@
 import "server-only";
-import { getNamedRangeData } from "@/lib/google-sheets";
+import { getNamedRangeData, prefetchNamedRanges } from "@/lib/google-sheets";
 import { internalAuditRows as mockInternalAuditRows } from "@/lib/mock-data";
-import type { InternalAuditRow } from "@/lib/internal-audit-types";
+import type {
+  InternalAuditRow,
+  OtsInternalAuditAreaRow,
+  OtsInternalAuditDetailRow,
+  InternalAuditFullData,
+} from "@/lib/internal-audit-types";
 
 /**
  * Format average score:
@@ -18,7 +23,6 @@ function formatAvgScore(val: string | undefined): { text: string; num: number } 
   }
   const n = parseFloat(clean);
   if (isNaN(n)) return { text: clean, num: 0 };
-  // Jika dalam skala 0..1 (desimal rasio)
   if (n <= 1.0 && n > 0) {
     const pct = n * 100;
     return { text: `${pct.toFixed(2)}%`, num: pct };
@@ -26,6 +30,9 @@ function formatAvgScore(val: string | undefined): { text: string; num: number } 
   return { text: `${n.toFixed(2)}%`, num: n };
 }
 
+/**
+ * 1. Data Ringkasan Utama Per Pabrik (WEBInternalAuditMain)
+ */
 export async function getInternalAuditMainData(): Promise<InternalAuditRow[]> {
   try {
     const rows = await getNamedRangeData("WEBInternalAuditMain");
@@ -39,14 +46,13 @@ export async function getInternalAuditMainData(): Promise<InternalAuditRow[]> {
     const items: InternalAuditRow[] = [];
 
     rows.forEach((row) => {
-      // Normalisasi key (case-insensitive & trim)
       const cleanRow: Record<string, string> = {};
       Object.keys(row).forEach((k) => {
         cleanRow[k.trim().toUpperCase()] = (row[k] || "").trim();
       });
 
       const fact = cleanRow["FACT"] || "";
-      if (!fact) return; // Lewati baris kosong
+      if (!fact) return;
 
       const period =
         cleanRow["PERIOD (L)"] ||
@@ -108,5 +114,215 @@ export async function getInternalAuditMainData(): Promise<InternalAuditRow[]> {
       avgScoreRaw: parseFloat(r.avgScore.replace("%", "")),
     }));
   }
+}
+
+/**
+ * 2. Data Rekap Per Area & PIC (WEBOTSInternalAudit)
+ * Kolom: PERIOD, FACT., AREA, OTS FINDING, IN PROGRESS, NO CAP, HOLD, PIC
+ */
+export async function getOtsInternalAuditAreaRows(): Promise<OtsInternalAuditAreaRow[]> {
+  try {
+    const rows = await getNamedRangeData("WEBOTSInternalAudit");
+    if (!rows || rows.length === 0) return [];
+
+    const items: OtsInternalAuditAreaRow[] = [];
+
+    rows.forEach((row) => {
+      const cleanRow: Record<string, string> = {};
+      Object.keys(row).forEach((k) => {
+        cleanRow[k.trim().toUpperCase()] = (row[k] || "").trim();
+      });
+
+      const period = cleanRow["PERIOD"] || "";
+      const fact = cleanRow["FACT."] || cleanRow["FACT"] || "";
+      const area = cleanRow["AREA"] || "";
+
+      // Lewati baris kosong di Google Sheet
+      if (!period || !fact || !area) return;
+
+      const otsFinding =
+        parseInt((cleanRow["OTS FINDING"] || "0").replace(/[^0-9]/g, ""), 10) || 0;
+      const inProgress =
+        parseInt((cleanRow["IN PROGRESS"] || "0").replace(/[^0-9]/g, ""), 10) || 0;
+      const noCap =
+        parseInt((cleanRow["NO CAP"] || "0").replace(/[^0-9]/g, ""), 10) || 0;
+      const hold =
+        parseInt((cleanRow["HOLD"] || "0").replace(/[^0-9]/g, ""), 10) || 0;
+      const pic = cleanRow["PIC"] || "";
+
+      items.push({
+        period,
+        fact,
+        area,
+        otsFinding,
+        inProgress,
+        noCap,
+        hold,
+        pic,
+      });
+    });
+
+    return items;
+  } catch (err) {
+    console.error("[InternalAudit] Gagal memuat named range WEBOTSInternalAudit:", err);
+    return [];
+  }
+}
+
+/**
+ * 3. Data Detail Rincian Temuan (WEBOTSInternalAuditDetail)
+ * Kolom: FACT., PERIOD, AREA, ASPECT, AUDIT POINT, PHOTO, FINDINGS,
+ *        CONTINUOUS IMPROVEMENT, STATUS, PIC, CAP, TARGET FIN, ACTUAL FIN,
+ *        PHOTO (AFTER), Ontime?, VALIDASI AUDITOR, NOTE
+ */
+export async function getOtsInternalAuditDetailRows(): Promise<OtsInternalAuditDetailRow[]> {
+  try {
+    const rows = await getNamedRangeData("WEBOTSInternalAuditDetail");
+    if (!rows || rows.length === 0) return [];
+
+    const items: OtsInternalAuditDetailRow[] = [];
+
+    rows.forEach((row, idx) => {
+      const cleanRow: Record<string, string> = {};
+      Object.keys(row).forEach((k) => {
+        cleanRow[k.trim().toUpperCase()] = (row[k] || "").trim();
+      });
+
+      const fact = cleanRow["FACT."] || cleanRow["FACT"] || "";
+      const period = cleanRow["PERIOD"] || "";
+      const area = cleanRow["AREA"] || "";
+
+      // Lewati jika fact, period, dan area semuanya kosong
+      if (!fact && !period && !area) return;
+
+      const aspect = cleanRow["ASPECT"] || "";
+      const auditPoint = cleanRow["AUDIT POINT"] || cleanRow["AUDIT_POINT"] || "";
+      const photoUrl = cleanRow["PHOTO"] || cleanRow["FOTO"] || "";
+      const findings = cleanRow["FINDINGS"] || cleanRow["TEMUAN"] || "";
+      const continuousImprovement =
+        cleanRow["CONTINUOUS IMPROVEMENT"] ||
+        cleanRow["CONTINUOUS_IMPROVEMENT"] ||
+        cleanRow["CI"] ||
+        "";
+
+      const rawStatus = cleanRow["STATUS"] || "";
+      const statusUpper = rawStatus.toUpperCase();
+      let status = "OPEN";
+      if (statusUpper.includes("PROG")) {
+        status = "IN PROGRESS";
+      } else if (statusUpper === "DONE") {
+        status = "DONE";
+      } else if (statusUpper === "HOLD") {
+        status = "HOLD";
+      } else if (statusUpper === "BLANK" || !statusUpper) {
+        status = "OPEN";
+      } else {
+        status = rawStatus;
+      }
+
+      const pic = cleanRow["PIC"] || "";
+      const cap = cleanRow["CAP"] || "";
+      const targetFin = cleanRow["TARGET FIN"] || cleanRow["TARGET_FIN"] || "";
+      const actualFin = cleanRow["ACTUAL FIN"] || cleanRow["ACTUAL_FIN"] || "";
+      const photoAfterUrl =
+        cleanRow["PHOTO (AFTER)"] ||
+        cleanRow["PHOTO AFTER"] ||
+        cleanRow["FOTO SETELAH"] ||
+        "";
+      const ontime = cleanRow["ONTIME?"] || cleanRow["ONTIME"] || "";
+      const validasiAuditor =
+        cleanRow["VALIDASI AUDITOR"] || cleanRow["VALIDASI_AUDITOR"] || "";
+      const note = cleanRow["NOTE"] || cleanRow["CATATAN"] || "";
+
+      // Sesuai rumus COUNTIFS di Google Sheets user:
+      // Temuan dihitung OTS jika (FINDINGS != '' OR CI != '') AND VALIDASI != 'OK' AND STATUS != 'DONE'
+      const hasIssue = findings !== "" || continuousImprovement !== "";
+      const isOts =
+        hasIssue &&
+        validasiAuditor.toUpperCase() !== "OK" &&
+        status !== "DONE";
+
+      items.push({
+        id: `${fact}-${period}-${area}-${idx}`,
+        fact,
+        period,
+        area,
+        aspect,
+        auditPoint,
+        photoUrl,
+        findings,
+        continuousImprovement,
+        status,
+        pic,
+        cap,
+        targetFin,
+        actualFin,
+        photoAfterUrl,
+        ontime,
+        validasiAuditor,
+        note,
+        isOts,
+      });
+    });
+
+    return items;
+  } catch (err) {
+    console.error("[InternalAudit] Gagal memuat named range WEBOTSInternalAuditDetail:", err);
+    return [];
+  }
+}
+
+/**
+ * 4. Mengambil Seluruh Data Terkait Internal Audit Secara Batch
+ */
+export async function getInternalAuditFullData(): Promise<InternalAuditFullData> {
+  await prefetchNamedRanges([
+    "WEBInternalAuditMain",
+    "WEBOTSInternalAudit",
+    "WEBOTSInternalAuditDetail",
+  ]);
+
+  const [mainRows, areaRows, detailRows] = await Promise.all([
+    getInternalAuditMainData(),
+    getOtsInternalAuditAreaRows(),
+    getOtsInternalAuditDetailRows(),
+  ]);
+
+  // Hitung KPI keseluruhan
+  let totalOts = 0;
+  let totalInProgress = 0;
+  let totalNoCap = 0;
+  let totalHold = 0;
+
+  if (areaRows.length > 0) {
+    areaRows.forEach((r) => {
+      totalOts += r.otsFinding;
+      totalInProgress += r.inProgress;
+      totalNoCap += r.noCap;
+      totalHold += r.hold;
+    });
+  } else {
+    totalOts = detailRows.filter((d) => d.isOts).length;
+    totalInProgress = detailRows.filter((d) => d.status === "IN PROGRESS").length;
+    totalNoCap = detailRows.filter((d) => d.isOts && !d.cap).length;
+    totalHold = detailRows.filter((d) => d.status === "HOLD").length;
+  }
+
+  const totalDone = detailRows.filter((d) => d.status === "DONE").length;
+  const totalChecked = detailRows.length;
+
+  return {
+    mainRows,
+    areaRows,
+    detailRows,
+    kpi: {
+      totalOts,
+      totalInProgress,
+      totalNoCap,
+      totalHold,
+      totalDone,
+      totalChecked,
+    },
+  };
 }
 
