@@ -74,6 +74,8 @@ import type {
 } from "@/lib/progress-shipment-types";
 import { getCapDashboardData } from "@/lib/cap-data";
 import type { CapDashboardData } from "@/lib/cap-types";
+import { getInternalAuditMainData } from "@/lib/internal-audit-data";
+import type { InternalAuditRow } from "@/lib/internal-audit-types";
 import { prefetchNamedRanges } from "@/lib/google-sheets";
 
 const DASHBOARD_NAMED_RANGES = [
@@ -85,6 +87,7 @@ const DASHBOARD_NAMED_RANGES = [
   "WEBWIPSewing7Hari",
   "WEBProgressShipment",
   "WEBCAP",
+  "WEBInternalAuditMain",
 ];
 
 async function loadDashboardDataDirect() {
@@ -100,6 +103,7 @@ async function loadDashboardDataDirect() {
     progressShipmentChart,
     progressShipmentSummary,
     capData,
+    internalAuditData,
   ] = await Promise.all([
     getAllScorecardData(),
     getAllDashboardDeptData(),
@@ -111,6 +115,7 @@ async function loadDashboardDataDirect() {
     getProgressShipmentChartData("next week"),
     getProgressShipmentSummary("next week"),
     getCapDashboardData(2026),
+    getInternalAuditMainData(),
   ]);
 
   return {
@@ -124,6 +129,7 @@ async function loadDashboardDataDirect() {
     progressShipmentChart,
     progressShipmentSummary,
     capData,
+    internalAuditData,
   };
 }
 
@@ -147,6 +153,7 @@ export default async function DashboardPage() {
   let progressShipmentChart: ProgressShipmentChartItem[] = [];
   let progressShipmentSummary: ProgressShipmentSummary | undefined = undefined;
   let capData: CapDashboardData | undefined = undefined;
+  let internalAuditData: InternalAuditRow[] = [];
 
   let loadedData: any = null;
 
@@ -193,9 +200,10 @@ export default async function DashboardPage() {
     progressShipmentChart = loadedData.progressShipmentChart || [];
     progressShipmentSummary = loadedData.progressShipmentSummary || undefined;
     capData = loadedData.capData || undefined;
+    internalAuditData = loadedData.internalAuditData || [];
   }
 
-  const urgency = getUrgencyFlags();
+  const urgency = getUrgencyFlags(new Date(), internalAuditData);
 
   const scorecardAllDept = buildAllDepartmentsAverage(scorecardData);
   const dashboardDeptAllDept = buildAllDepartmentsAverage(dashboardDeptData);
@@ -384,7 +392,7 @@ export default async function DashboardPage() {
         </section>
 
         <section>
-          <InternalAuditTable />
+          <InternalAuditTable data={internalAuditData} />
         </section>
       </div>
     </div>

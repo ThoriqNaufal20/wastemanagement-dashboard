@@ -1,20 +1,27 @@
 import { PageShell } from "@/components/dashboard/page-shell";
 import { Card, CardContent } from "@/components/ui/card";
-import { internalAuditRows, internalAuditUrgentThreshold } from "@/lib/mock-data";
+import { internalAuditUrgentThreshold } from "@/lib/mock-data";
+import { getInternalAuditMainData } from "@/lib/internal-audit-data";
+import { InternalAuditTable } from "@/components/dashboard/internal-audit-table";
 
-export default function InternalAuditDetailPage() {
+export default async function InternalAuditDetailPage() {
+  const auditRows = await getInternalAuditMainData();
+
   return (
     <PageShell
       title="Internal audit"
       description="Detail outstanding finding per factory, seluruh periode."
     >
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        {internalAuditRows.map((row) => (
+        {auditRows.map((row) => (
           <Card key={row.fact}>
             <CardContent className="pt-6">
-              <p className="text-xs text-muted-foreground">Factory {row.fact}</p>
+              <div className="flex items-center justify-between">
+                <p className="text-xs text-muted-foreground">Factory {row.fact}</p>
+                <span className="text-[11px] font-medium text-muted-foreground">{row.avgScore}</span>
+              </div>
               <p
-                className={`text-2xl font-semibold ${
+                className={`mt-1 text-2xl font-semibold ${
                   row.otsFinding > internalAuditUrgentThreshold
                     ? "text-status-critical"
                     : "text-foreground"
@@ -22,17 +29,19 @@ export default function InternalAuditDetailPage() {
               >
                 {row.otsFinding}
               </p>
-              <p className="text-[11px] text-muted-foreground">OTS finding</p>
+              <p className="text-[11px] text-muted-foreground">OTS finding ({row.period})</p>
             </CardContent>
           </Card>
         ))}
       </div>
 
+      <InternalAuditTable data={auditRows} />
+
       <Card>
         <CardContent className="pt-6 text-sm text-muted-foreground">
           <p className="font-medium text-foreground">Rencana konten lanjutan:</p>
           <ul className="mt-2 list-inside list-disc space-y-1">
-            <li>Breakdown temuan per area/kategori masalah</li>
+            <li>Breakdown temuan per area/kategori masalah (siap disambungkan dengan tabel detail berikutnya)</li>
             <li>Tren outstanding finding antar periode audit</li>
             <li>Panel tanya AI kontekstual (akan diaktifkan setelah sumber data detail final)</li>
           </ul>
@@ -41,3 +50,4 @@ export default function InternalAuditDetailPage() {
     </PageShell>
   );
 }
+

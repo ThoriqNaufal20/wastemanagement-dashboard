@@ -1,8 +1,15 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { internalAuditRows } from "@/lib/mock-data";
 import { StatusChip } from "@/components/dashboard/status-chip";
+import type { InternalAuditRow } from "@/lib/internal-audit-types";
 
-export function InternalAuditTable() {
+interface InternalAuditTableProps {
+  data?: InternalAuditRow[];
+}
+
+export function InternalAuditTable({ data }: InternalAuditTableProps) {
+  const rows = data && data.length > 0 ? data : internalAuditRows;
+
   return (
     <div className="rounded-2xl bg-card p-4">
       <p className="mb-3 text-sm font-semibold text-foreground">
@@ -23,7 +30,7 @@ export function InternalAuditTable() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {internalAuditRows.map((row, i) => {
+            {rows.map((row, i) => {
               const isLate = row.otsFinding > 0;
               return (
                 <TableRow key={i}>

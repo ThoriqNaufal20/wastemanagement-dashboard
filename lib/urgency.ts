@@ -23,12 +23,20 @@ function taskStatus(lateCount: number, inProgressTotal: number): MetricStatus {
   return { status: null };
 }
 
-export function getUrgencyFlags(now: Date = new Date()) {
+export function getUrgencyFlags(
+  now: Date = new Date(),
+  customInternalAuditRows?: Array<{ fact: string; otsFinding: number }>
+) {
   // ---------- Internal Audit ----------
   // Proxy sementara: OTS finding > 0 dianggap "belum semua tervalidasi" → LATE.
   // Nanti begitu tabel temuan+validasi auditor tersedia, ganti logic ini
   // supaya baca status validasi per-temuan yang sebenarnya.
-  const highestAuditRow = internalAuditRows.reduce((max, row) =>
+  const auditRows =
+    customInternalAuditRows && customInternalAuditRows.length > 0
+      ? customInternalAuditRows
+      : internalAuditRows;
+
+  const highestAuditRow = auditRows.reduce((max, row) =>
     row.otsFinding > max.otsFinding ? row : max
   );
   const internalAudit = {
