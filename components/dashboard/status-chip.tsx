@@ -1,4 +1,10 @@
-export type StatusLevel = "late" | "overdue" | "attention" | "on_progress" | "pending";
+export type StatusLevel =
+  | "late"
+  | "overdue"
+  | "attention"
+  | "on_progress"
+  | "pending"
+  | "done";
 
 const STATUS_CONFIG: Record<StatusLevel, { label: string; className: string }> = {
   late: {
@@ -22,6 +28,10 @@ const STATUS_CONFIG: Record<StatusLevel, { label: string; className: string }> =
   pending: {
     label: "PENDING",
     className: "bg-status-warning/10 text-status-warning",
+  },
+  done: {
+    label: "DONE",
+    className: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-semibold",
   },
 };
 

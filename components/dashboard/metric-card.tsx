@@ -18,6 +18,7 @@ const CARD_TINT: Record<StatusLevel, string> = {
   on_progress: "bg-card",
   // Pending sekarang tint warning juga, konsisten sama chip-nya.
   pending: "bg-status-warning/[0.06]",
+  done: "bg-card",
 };
 
 const ICON_CHIP_TINT: Record<StatusLevel, string> = {
@@ -26,6 +27,7 @@ const ICON_CHIP_TINT: Record<StatusLevel, string> = {
   attention: "bg-status-warning/15 text-status-warning",
   on_progress: "bg-primary/10 text-primary",
   pending: "bg-status-warning/15 text-status-warning",
+  done: "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400",
 };
 
 const PULSE_COLOR: Record<StatusLevel, string> = {
@@ -34,6 +36,7 @@ const PULSE_COLOR: Record<StatusLevel, string> = {
   attention: "bg-status-warning",
   on_progress: "",
   pending: "",
+  done: "",
 };
 
 // Cuma status yang benar-benar "butuh perhatian aktif" yang pulse.

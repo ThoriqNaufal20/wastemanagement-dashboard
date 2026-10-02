@@ -100,3 +100,29 @@ export function isAuditLate(
   return now.getTime() > parsed.getTime();
 }
 
+import type { StatusLevel } from "@/components/dashboard/status-chip";
+
+/**
+ * Aturan status baris Internal Audit di tabel:
+ * - DONE: jika sudah tidak ada area yang belum diaudit (areaBelumAudit === 0)
+ * - LATE: jika sudah melewati end date tetapi masih ada area yang belum diaudit (areaBelumAudit > 0 && now > endDate)
+ * - ON PROGRESS: terdapat area yang belum diaudit tetapi belum melewati end date (areaBelumAudit > 0 && now <= endDate)
+ */
+export function getAuditRowStatus(
+  endDateStr: string,
+  areaBelumAudit: number,
+  now: Date = new Date()
+): StatusLevel {
+  if (areaBelumAudit <= 0) {
+    return "done";
+  }
+
+  const parsed = parseAuditDate(endDateStr);
+  if (parsed && now.getTime() > parsed.getTime()) {
+    return "late";
+  }
+
+  return "on_progress";
+}
+
+

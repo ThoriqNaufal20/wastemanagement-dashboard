@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/table";
 import { internalAuditRows } from "@/lib/mock-data";
 import { StatusChip } from "@/components/dashboard/status-chip";
-import { isAuditLate } from "@/lib/internal-audit-utils";
+import { getAuditRowStatus } from "@/lib/internal-audit-utils";
 import type { InternalAuditRow } from "@/lib/internal-audit-types";
 
 interface InternalAuditTableProps {
@@ -75,8 +75,13 @@ export function InternalAuditTable({
           </TableHeader>
           <TableBody>
             {rows.map((row, i) => {
-              // Late adalah jika sudah melewati end date tetapi masih ada area yg belum di audit
-              const isLate = isAuditLate(row.endDate, row.areaBelumAudit);
+              // Status aturan:
+              // - DONE: sudah tidak ada area yg belum audit (areaBelumAudit === 0)
+              // - ON PROGRESS: terdapat area yg belum audit tetapi belum melewati end date
+              // - LATE: sudah melewati end date tetapi masih ada area yg belum diaudit
+              const status = getAuditRowStatus(row.endDate, row.areaBelumAudit);
+              const hasOts = row.otsFinding > 0;
+
               return (
                 <TableRow
                   key={i}
@@ -94,7 +99,9 @@ export function InternalAuditTable({
                   </TableCell>
                   <TableCell
                     className={`text-right font-medium ${
-                      isLate ? "font-bold text-status-critical" : ""
+                      hasOts
+                        ? "font-bold text-status-critical"
+                        : "text-muted-foreground"
                     }`}
                   >
                     {row.otsFinding}
@@ -116,7 +123,7 @@ export function InternalAuditTable({
                     {row.endDate}
                   </TableCell>
                   <TableCell>
-                    <StatusChip status={isLate ? "late" : "on_progress"} />
+                    <StatusChip status={status} />
                   </TableCell>
                 </TableRow>
               );

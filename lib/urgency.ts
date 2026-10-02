@@ -48,11 +48,8 @@ export function getUrgencyFlags(
     (row.otsFinding || 0) > (max.otsFinding || 0) ? row : max
   );
 
-  const internalAuditStatus: StatusLevel | null = anyLate
-    ? "late"
-    : totalOts > 0
-    ? "on_progress"
-    : null;
+  // Scorecard Internal Audit tetap di urgency merah (late) selama ada OTS finding > 0
+  const internalAuditStatus: StatusLevel | null = totalOts > 0 ? "late" : null;
 
   const internalAudit = {
     row: highestAuditRow,
