@@ -27,3 +27,18 @@ export interface WipSewingDetailItem {
   timeRange: string;
 }
 
+export interface WipSewingGroupedItem {
+  key: string;
+  fact: string;
+  spo: string;
+  style: string;
+  size: string;
+  totalQty: number;
+  totalBox: number;
+  scanDst: string;
+  overdueWorkdays: number;
+  lines: string[];
+  boxList: string[];
+}
+
+
