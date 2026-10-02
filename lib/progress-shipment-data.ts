@@ -51,7 +51,8 @@ export async function getProgressShipmentChartData(
 
     data.hutangProd += hp;
     data.hutangCarton += hc;
-    data.totalHutang += hp + hc;
+    // Hutang Carton adalah total beban shipment / total belum kirim
+    data.totalHutang += hc;
   });
 
   const result: ProgressShipmentChartItem[] = [];
@@ -92,8 +93,10 @@ export async function getProgressShipmentSummary(
 
   const totalHutangProd = chartData.reduce((acc, curr) => acc + curr.hutangProd, 0);
   const totalHutangCarton = chartData.reduce((acc, curr) => acc + curr.hutangCarton, 0);
-  const totalHutang = totalHutangProd + totalHutangCarton;
-  const cartonShare = totalHutang > 0 ? Math.round((totalHutangCarton / totalHutang) * 100) : 0;
+  // Hutang carton adalah total beban shipment / total belum kirim
+  const totalHutang = totalHutangCarton;
+  const prodShare = totalHutangCarton > 0 ? Math.round((totalHutangProd / totalHutangCarton) * 100) : 0;
+  const cartonShare = 100;
   const isAttention = totalHutang > 0 && isFriday();
 
   return {
@@ -101,6 +104,7 @@ export async function getProgressShipmentSummary(
     totalHutangCarton,
     totalHutang,
     cartonShare,
+    prodShare,
     isAttention,
     totalInvoices: matchingRows.length,
   };

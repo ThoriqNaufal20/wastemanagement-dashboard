@@ -11,6 +11,7 @@ export interface ProgressShipmentSummary {
   totalHutangCarton: number;
   totalHutang: number;
   cartonShare: number;
+  prodShare?: number;
   isAttention: boolean;
   totalInvoices: number;
 }

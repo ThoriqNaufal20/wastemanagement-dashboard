@@ -164,7 +164,8 @@ export function ProgressShipmentDetailClient({
       const data = weekMap.get(rawW)!;
       data.hutangProd += row.hutangProd;
       data.hutangCarton += row.hutangCarton;
-      data.totalHutang += row.hutangProd + row.hutangCarton;
+      // Hutang Carton adalah total beban shipment / total belum kirim
+      data.totalHutang += row.hutangCarton;
     });
 
     const result: ProgressShipmentChartItem[] = [];
@@ -196,11 +197,14 @@ export function ProgressShipmentDetailClient({
     () => filteredItems.reduce((acc, curr) => acc + curr.hutangCarton, 0),
     [filteredItems]
   );
-  const activeTotalHutang = activeTotalProd + activeTotalCarton;
-  const activeCartonShare =
+  // Hutang carton adalah total beban shipment / total belum kirim
+  const activeTotalHutang = activeTotalCarton;
+  const activeProdShare =
     activeTotalHutang > 0
-      ? Math.round((activeTotalCarton / activeTotalHutang) * 100)
+      ? Math.round((activeTotalProd / activeTotalHutang) * 100)
       : 0;
+  const activeReadyPacking = Math.max(0, activeTotalCarton - activeTotalProd);
+  const activeReadyShare = Math.max(0, 100 - activeProdShare);
 
   const maxVal = Math.max(
     ...dynamicChartData.map((d) => Math.max(d.hutangProd, d.hutangCarton)),
@@ -217,7 +221,7 @@ export function ProgressShipmentDetailClient({
               <span className="text-xs font-medium text-muted-foreground">
                 Hutang Produksi
               </span>
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/10 text-blue-500">
+              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-500/10 text-orange-500">
                 <Box className="h-4 w-4" />
               </span>
             </div>
@@ -228,7 +232,7 @@ export function ProgressShipmentDetailClient({
               <span className="ml-1 text-xs text-muted-foreground">pcs</span>
             </div>
             <p className="mt-1 text-[11px] text-muted-foreground">
-              Barang masih dalam proses produksi
+              {activeProdShare}% dari total belum kirim
             </p>
           </CardContent>
         </Card>
@@ -237,20 +241,20 @@ export function ProgressShipmentDetailClient({
           <CardContent className="p-5">
             <div className="flex items-center justify-between">
               <span className="text-xs font-medium text-muted-foreground">
-                Hutang Carton
+                Selesai Produksi (Siap Packing)
               </span>
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/10 text-amber-500">
+              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
                 <Layers className="h-4 w-4" />
               </span>
             </div>
             <div className="mt-3">
               <span className="text-2xl font-bold tracking-tight text-foreground">
-                {activeTotalCarton.toLocaleString()}
+                {activeReadyPacking.toLocaleString()}
               </span>
               <span className="ml-1 text-xs text-muted-foreground">pcs</span>
             </div>
             <p className="mt-1 text-[11px] text-muted-foreground">
-              Porsi carton: <strong className="text-foreground">{activeCartonShare}%</strong>
+              {activeReadyShare}% sudah di area packing / gudang
             </p>
           </CardContent>
         </Card>
@@ -272,7 +276,7 @@ export function ProgressShipmentDetailClient({
               <span className="ml-1 text-xs text-muted-foreground">pcs</span>
             </div>
             <p className="mt-1 text-[11px] text-muted-foreground">
-              Total hutang prod + carton
+              Total beban shipment (Hutang Carton)
             </p>
           </CardContent>
         </Card>

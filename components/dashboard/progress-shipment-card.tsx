@@ -61,8 +61,7 @@ export function ProgressShipmentCard({
 
   const totalProd = summary?.totalHutangProd ?? chartData.reduce((acc, d) => acc + d.hutangProd, 0);
   const totalCarton = summary?.totalHutangCarton ?? chartData.reduce((acc, d) => acc + d.hutangCarton, 0);
-  const totalAll = totalProd + totalCarton;
-  const cartonShare = summary?.cartonShare ?? (totalAll > 0 ? Math.round((totalCarton / totalAll) * 100) : 0);
+  const totalBelumKirim = totalCarton;
 
   return (
     <Link
@@ -80,9 +79,11 @@ export function ProgressShipmentCard({
       </div>
 
       <p className="mb-1.5 line-clamp-2 text-xs text-muted-foreground">
-        Packing berkontribusi{" "}
-        <span className="font-medium text-foreground">{cartonShare}%</span> dari
-        total shipment yang belum kirim
+        Total belum kirim:{" "}
+        <span className="font-semibold text-foreground">
+          {totalBelumKirim.toLocaleString()} pcs
+        </span>{" "}
+        ({totalProd.toLocaleString()} pcs masih proses produksi)
       </p>
 
       {/* Mini Legend */}
