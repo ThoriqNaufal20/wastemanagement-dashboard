@@ -1,20 +1,64 @@
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+"use client";
+
+import { useRouter } from "next/navigation";
+import { ChevronRight } from "lucide-react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { internalAuditRows } from "@/lib/mock-data";
 import { StatusChip } from "@/components/dashboard/status-chip";
+import { isAuditLate } from "@/lib/internal-audit-utils";
 import type { InternalAuditRow } from "@/lib/internal-audit-types";
 
 interface InternalAuditTableProps {
   data?: InternalAuditRow[];
+  isNavigable?: boolean;
 }
 
-export function InternalAuditTable({ data }: InternalAuditTableProps) {
+export function InternalAuditTable({
+  data,
+  isNavigable = true,
+}: InternalAuditTableProps) {
+  const router = useRouter();
   const rows = data && data.length > 0 ? data : internalAuditRows;
 
+  const handleNavigate = () => {
+    if (isNavigable) {
+      router.push("/internal-audit");
+    }
+  };
+
   return (
-    <div className="rounded-2xl bg-card p-4">
-      <p className="mb-3 text-sm font-semibold text-foreground">
-        Internal audit — detail lengkap
-      </p>
+    <div
+      onClick={handleNavigate}
+      className={`group rounded-2xl bg-card p-4 transition-all duration-200 ${
+        isNavigable
+          ? "cursor-pointer border border-border/40 hover:border-primary/40 hover:shadow-[0_2px_4px_rgba(16,24,40,0.06),0_4px_8px_rgba(16,24,40,0.08)]"
+          : ""
+      }`}
+    >
+      <div className="mb-3 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <p className="text-sm font-semibold text-foreground">
+            Internal audit — rekap
+          </p>
+          <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">
+            Rekap Pabrik
+          </span>
+        </div>
+        {isNavigable && (
+          <div className="flex items-center gap-1 text-xs text-muted-foreground transition-colors group-hover:text-primary">
+            <span>Lihat detail & temuan</span>
+            <ChevronRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+          </div>
+        )}
+      </div>
+
       <div className="overflow-x-auto">
         <Table>
           <TableHeader>
@@ -31,20 +75,46 @@ export function InternalAuditTable({ data }: InternalAuditTableProps) {
           </TableHeader>
           <TableBody>
             {rows.map((row, i) => {
-              const isLate = row.otsFinding > 0;
+              // Late adalah jika sudah melewati end date tetapi masih ada area yg belum di audit
+              const isLate = isAuditLate(row.endDate, row.areaBelumAudit);
               return (
-                <TableRow key={i}>
-                  <TableCell className="text-muted-foreground">{row.period}</TableCell>
-                  <TableCell className="font-medium">{row.fact}</TableCell>
+                <TableRow
+                  key={i}
+                  className={
+                    isNavigable
+                      ? "cursor-pointer transition-colors hover:bg-muted/50"
+                      : ""
+                  }
+                >
+                  <TableCell className="text-muted-foreground">
+                    {row.period}
+                  </TableCell>
+                  <TableCell className="font-semibold text-foreground">
+                    {row.fact}
+                  </TableCell>
                   <TableCell
-                    className={`text-right font-medium ${isLate ? "text-status-critical" : ""}`}
+                    className={`text-right font-medium ${
+                      isLate ? "font-bold text-status-critical" : ""
+                    }`}
                   >
                     {row.otsFinding}
                   </TableCell>
                   <TableCell className="text-right">{row.avgScore}</TableCell>
-                  <TableCell className="text-right">{row.areaBelumAudit}</TableCell>
-                  <TableCell className="text-muted-foreground">{row.startDate}</TableCell>
-                  <TableCell className="text-muted-foreground">{row.endDate}</TableCell>
+                  <TableCell
+                    className={`text-right ${
+                      row.areaBelumAudit > 0
+                        ? "font-semibold text-amber-500"
+                        : "text-muted-foreground"
+                    }`}
+                  >
+                    {row.areaBelumAudit}
+                  </TableCell>
+                  <TableCell className="text-muted-foreground">
+                    {row.startDate}
+                  </TableCell>
+                  <TableCell className="text-muted-foreground">
+                    {row.endDate}
+                  </TableCell>
                   <TableCell>
                     <StatusChip status={isLate ? "late" : "on_progress"} />
                   </TableCell>
@@ -57,3 +127,4 @@ export function InternalAuditTable({ data }: InternalAuditTableProps) {
     </div>
   );
 }
+

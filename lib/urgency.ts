@@ -7,6 +7,7 @@ import {
   wipSewingThreshold,
   threeR,
 } from "@/lib/mock-data";
+import { isAuditLate } from "@/lib/internal-audit-utils";
 
 export function isFriday(date: Date = new Date()): boolean {
   return date.getDay() === 5;
@@ -25,23 +26,39 @@ function taskStatus(lateCount: number, inProgressTotal: number): MetricStatus {
 
 export function getUrgencyFlags(
   now: Date = new Date(),
-  customInternalAuditRows?: Array<{ fact: string; otsFinding: number }>
+  customInternalAuditRows?: Array<any>
 ) {
   // ---------- Internal Audit ----------
-  // Proxy sementara: OTS finding > 0 dianggap "belum semua tervalidasi" → LATE.
-  // Nanti begitu tabel temuan+validasi auditor tersedia, ganti logic ini
-  // supaya baca status validasi per-temuan yang sebenarnya.
+  // Late jika sudah melewati end date tetapi masih ada area yang belum diaudit.
   const auditRows =
     customInternalAuditRows && customInternalAuditRows.length > 0
       ? customInternalAuditRows
       : internalAuditRows;
 
-  const highestAuditRow = auditRows.reduce((max, row) =>
-    row.otsFinding > max.otsFinding ? row : max
+  const totalOts = auditRows.reduce(
+    (acc, row) => acc + (Number(row.otsFinding) || 0),
+    0
   );
+
+  const anyLate = auditRows.some((row: any) =>
+    isAuditLate(row.endDate || "", Number(row.areaBelumAudit || 0), now)
+  );
+
+  const highestAuditRow = auditRows.reduce((max, row) =>
+    (row.otsFinding || 0) > (max.otsFinding || 0) ? row : max
+  );
+
+  const internalAuditStatus: StatusLevel | null = anyLate
+    ? "late"
+    : totalOts > 0
+    ? "on_progress"
+    : null;
+
   const internalAudit = {
     row: highestAuditRow,
-    status: (highestAuditRow.otsFinding > 0 ? "late" : null) as StatusLevel | null,
+    totalOts,
+    isLate: anyLate,
+    status: internalAuditStatus,
   };
 
   // ---------- Audit Supportive Dept ----------

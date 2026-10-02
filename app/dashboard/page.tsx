@@ -219,13 +219,13 @@ export default async function DashboardPage() {
   const problemItems: RingkasanItem[] = [
     {
       key: "internal-audit",
-      label: `Audit ${urgency.internalAudit.row.fact} · OTS finding`,
-      value: urgency.internalAudit.row.otsFinding,
+      label: "Internal audit · OTS finding",
+      value: urgency.internalAudit.totalOts,
       suffix: undefined,
       status: urgency.internalAudit.status ?? undefined,
       icon: ClipboardList,
       href: "/internal-audit",
-      hasData: urgency.internalAudit.status !== null,
+      hasData: urgency.internalAudit.totalOts > 0,
     },
     {
       key: "audit-support",

@@ -731,7 +731,7 @@ export function InternalAuditView({ initialData }: InternalAuditViewProps) {
       {/* 6. Tab 3: Ringkasan Pabrik (WEBInternalAuditMain) */}
       {activeTab === "main" && (
         <div className="space-y-4">
-          <InternalAuditTable data={initialData.mainRows} />
+          <InternalAuditTable data={initialData.mainRows} isNavigable={false} />
         </div>
       )}
 
