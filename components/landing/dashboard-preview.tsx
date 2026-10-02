@@ -1,12 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
 import {
   ClipboardList,
   Recycle,
   TrendingUp,
-  ArrowRight,
 } from "lucide-react";
 
 const KPI_PREVIEW = [
@@ -204,35 +202,6 @@ export function DashboardPreview() {
             ))}
           </div>
         </div>
-
-        {/* Button */}
-        <Link
-          href="/login"
-          className={`
-            group mt-7 2xl:mt-10 inline-flex items-center gap-1.5 rounded-full
-            bg-primary px-6 py-2.5 2xl:px-8 2xl:py-3.5 text-sm 2xl:text-base font-medium
-            text-primary-foreground shadow-sm
-            transition-all duration-300
-            hover:scale-[1.02] hover:opacity-90
-            ${
-              isVisible
-                ? "translate-y-0 opacity-100"
-                : "translate-y-4 opacity-0"
-            }
-          `}
-          style={{
-            transitionDelay: "1500ms",
-          }}
-        >
-          Buka Dashboard
-          <ArrowRight
-            className="
-              h-3.5 w-3.5 2xl:h-4 2xl:w-4
-              transition-transform duration-300
-              group-hover:translate-x-0.5
-            "
-          />
-        </Link>
       </div>
     </div>
   );

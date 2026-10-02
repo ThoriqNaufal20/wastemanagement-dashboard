@@ -16,14 +16,28 @@ interface FullPageScrollProps {
   transitionMs?: number;
 }
 
-const FullPageScrollContext = createContext<((index: number) => void) | null>(null);
+interface FullPageScrollContextType {
+  goTo: (index: number) => void;
+  activeIndex: number;
+}
+
+const FullPageScrollContext = createContext<FullPageScrollContextType>({
+  goTo: () => {},
+  activeIndex: 0,
+});
+
+export function useFullPageScroll() {
+  return useContext(FullPageScrollContext);
+}
 
 /** Dipakai di dalam section manapun untuk lompat ke section lain, misal
  * tombol "Tentang Kami" di hero yang lompat ke section About Us. */
 export function useFullPageGoTo() {
-  const goTo = useContext(FullPageScrollContext);
-  return goTo ?? (() => {});
+  const { goTo } = useContext(FullPageScrollContext);
+  return goTo;
 }
+
+import { LandingNavbar } from "@/components/landing/landing-navbar";
 
 export function FullPageScroll({ children, transitionMs = 750 }: FullPageScrollProps) {
   const sections = Children.toArray(children).filter(isValidElement);
@@ -104,8 +118,11 @@ export function FullPageScroll({ children, transitionMs = 750 }: FullPageScrollP
   }, [activeIndex, goTo]);
 
   return (
-    <FullPageScrollContext.Provider value={goTo}>
+    <FullPageScrollContext.Provider value={{ goTo, activeIndex }}>
       <div ref={containerRef} className="fixed inset-0 overflow-hidden bg-background">
+        {/* Menu bar fixed di atas untuk seluruh section */}
+        <LandingNavbar />
+
         {sections.map((section, i) => (
           <div
             key={i}

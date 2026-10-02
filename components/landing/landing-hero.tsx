@@ -1,9 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
-import { Recycle, LineChart, ClipboardCheck, Leaf, ArrowRight } from "lucide-react";
-import { Logo } from "@/components/dashboard/logo";
+import { Recycle, LineChart, ClipboardCheck, Leaf } from "lucide-react";
 import { ScrambleText } from "@/components/dashboard/scramble-text";
 import { useFullPageGoTo } from "@/components/landing/full-page-scroll";
 
@@ -71,35 +69,7 @@ export function LandingHero() {
   const goTo = useFullPageGoTo();
 
   return (
-    <div className="relative flex h-full w-full flex-col overflow-hidden bg-background">
-      {/* Nav - Mengisi lebar layar TV dengan proporsi elegan */}
-      <div className="relative z-20 mx-auto flex w-full max-w-[1440px] 2xl:max-w-[1760px] items-center justify-between px-6 py-5 sm:px-10 2xl:px-16 2xl:py-8">
-        <div className="flex items-center gap-2.5 2xl:gap-3.5">
-          <Logo size={32} className="h-8 w-8 2xl:h-11 2xl:w-11" />
-          <span className="text-sm font-medium text-foreground 2xl:text-lg">
-            Waste Management Departement
-          </span>
-        </div>
-        <div className="flex items-center gap-5 2xl:gap-8 text-sm 2xl:text-base text-muted-foreground">
-          <button onClick={() => goTo(1)} className="hidden sm:inline hover:text-foreground">
-            Tentang
-          </button>
-          <button onClick={() => goTo(4)} className="hidden sm:inline hover:text-foreground">
-            Tim
-          </button>
-          <button onClick={() => goTo(5)} className="hidden sm:inline hover:text-foreground">
-            Arsip
-          </button>
-          <Link
-            href="/login"
-            className="flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 2xl:px-6 2xl:py-3 font-medium text-primary-foreground transition-all hover:scale-[1.02] hover:opacity-90"
-          >
-            Dashboard
-            <ArrowRight className="h-3.5 w-3.5 2xl:h-4 2xl:w-4" />
-          </Link>
-        </div>
-      </div>
-
+    <div className="relative flex h-full w-full flex-col overflow-hidden bg-background pt-16 sm:pt-20">
       {/* Ilustrasi blob + headline */}
       <div className="relative mx-auto w-full max-w-[1440px] 2xl:max-w-[1760px] flex-1 px-6 sm:px-10 2xl:px-16">
         {BLOBS.map((blob, i) => (
@@ -168,16 +138,9 @@ export function LandingHero() {
           </p>
 
           <div className="mt-7 2xl:mt-10 flex flex-wrap items-center justify-center gap-3 2xl:gap-5">
-            <Link
-              href="/login"
-              className="flex items-center gap-1.5 rounded-full bg-primary px-6 py-2.5 2xl:px-8 2xl:py-3.5 text-sm 2xl:text-base font-medium text-primary-foreground transition-all hover:scale-[1.02] hover:opacity-90 shadow-sm"
-            >
-              Lihat Dashboard
-              <ArrowRight className="h-3.5 w-3.5 2xl:h-4 2xl:w-4" />
-            </Link>
             <button
               onClick={() => goTo(1)}
-              className="rounded-full border border-border px-6 py-2.5 2xl:px-8 2xl:py-3.5 text-sm 2xl:text-base font-medium text-foreground transition-colors hover:bg-muted"
+              className="rounded-full border border-border bg-card/80 px-7 py-2.5 2xl:px-9 2xl:py-3.5 text-sm 2xl:text-base font-medium text-foreground transition-all hover:bg-muted hover:border-primary/40 shadow-xs"
             >
               Tentang Kami
             </button>

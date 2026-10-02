@@ -1,5 +1,4 @@
-import Link from "next/link";
-import { Mail, Phone, MapPin, Lock, ArrowRight } from "lucide-react";
+import { Mail, Phone, MapPin } from "lucide-react";
 import { LandingHero } from "@/components/landing/landing-hero";
 import { AboutWhatWeDo } from "@/components/landing/about-what-we-do";
 import { KpiSection } from "@/components/landing/kpi-section";
@@ -106,25 +105,7 @@ export default async function LandingPage() {
             </div>
           </div>
 
-          {/* Action Links */}
-          <div className="flex flex-wrap items-center justify-center gap-3 2xl:gap-5 pt-2">
-            <Link
-              href="/dashboard"
-              className="flex items-center gap-1.5 rounded-full bg-primary px-5 py-2.5 2xl:px-8 2xl:py-3.5 text-xs 2xl:text-base font-medium text-primary-foreground shadow-sm transition-opacity hover:opacity-90"
-            >
-              Buka Dashboard
-              <ArrowRight className="h-3.5 w-3.5 2xl:h-4 2xl:w-4" />
-            </Link>
-            <Link
-              href="/login"
-              className="flex items-center gap-1.5 rounded-full border border-border bg-background px-5 py-2.5 2xl:px-8 2xl:py-3.5 text-xs 2xl:text-base font-medium text-foreground transition-colors hover:bg-muted"
-            >
-              <Lock className="h-3.5 w-3.5 2xl:h-4 2xl:w-4" />
-              Login Admin
-            </Link>
-          </div>
-
-          <p className="text-[11px] 2xl:text-sm text-muted-foreground">
+          <p className="text-[11px] 2xl:text-sm text-muted-foreground pt-4">
             © 2026 Waste Management Department, PT. Adira Semesta Industry. All rights reserved.
           </p>
         </div>
