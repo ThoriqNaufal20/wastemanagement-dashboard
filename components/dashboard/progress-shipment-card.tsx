@@ -38,11 +38,9 @@ export function ProgressShipmentCard({
   const { progressShipment: urgency } = getUrgencyFlags();
   const isAttention = summary?.isAttention ?? urgency.status === "attention";
 
-  // Aturan warna: Hari Jumat -> Keduanya MERAH (#ef4444)
-  // Bukan Jumat -> Hutang Produksi = ORANYE (#f97316), Hutang Packing = KUNING (#eab308)
-  const isFridayToday = new Date().getDay() === 5;
-  const prodBarColor = isFridayToday ? "#ef4444" : "#f97316";
-  const cartonBarColor = isFridayToday ? "#ef4444" : "#eab308";
+  // Aturan warna: Hutang Produksi = ORANYE (#f97316 / attention), Hutang Packing = KUNING (#eab308)
+  const prodBarColor = "#f97316";
+  const cartonBarColor = "#eab308";
 
   const chartData = data.length > 0
     ? data
@@ -105,9 +103,9 @@ export function ProgressShipmentCard({
             Hutang packing
           </span>
         </div>
-        {isFridayToday && (
-          <span className="text-[10px] font-semibold text-red-500">
-            Jumat (Urgent)
+        {isAttention && (
+          <span className="text-[10px] font-semibold text-amber-500">
+            Next week (Attention)
           </span>
         )}
       </div>

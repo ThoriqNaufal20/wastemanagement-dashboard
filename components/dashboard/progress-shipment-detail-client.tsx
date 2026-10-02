@@ -22,6 +22,7 @@ import {
 import {
   BarChart,
   Bar,
+  Cell,
   XAxis,
   YAxis,
   ResponsiveContainer,
@@ -50,6 +51,66 @@ function formatCompact(val: any): string {
   return String(num);
 }
 
+// Helper menentukan level urgensi week:
+// Minggu sekarang (40) -> "current" (Merah / urgent)
+// Minggu depan (41) -> "next" (Oranye / attention)
+// Minggu-minggu kedepannya (42+) -> "future" (Kuning)
+function getWeekUrgencyLevel(
+  rawW: string,
+  items: ProgressShipmentDetailItem[]
+): "current" | "next" | "future" {
+  const num = parseInt(rawW.replace(/\D/g, ""), 10);
+
+  const matchingItem = items.find(
+    (it) => parseInt(it.w.replace(/\D/g, ""), 10) === num
+  );
+  const fw = matchingItem?.filterWeek?.trim().toLowerCase();
+
+  const currentWeekItem = items.find(
+    (it) => it.filterWeek?.trim().toLowerCase() === "this week"
+  );
+  const currentWeekNum = currentWeekItem
+    ? parseInt(currentWeekItem.w.replace(/\D/g, ""), 10)
+    : 40;
+
+  if (fw === "this week" || num === currentWeekNum) {
+    return "current"; // W40 -> Merah
+  }
+  if (fw === "next week" || num === currentWeekNum + 1) {
+    return "next"; // W41 -> Oranye
+  }
+  return "future"; // W42+ -> Kuning
+}
+
+function getBarColor(
+  rawW: string,
+  type: "prod" | "carton",
+  isAllWeeks: boolean,
+  items: ProgressShipmentDetailItem[]
+): string {
+  // Jika sedang menampilkan single week (Next Week / This Week / 2 Week):
+  // Default: Hutang Produksi = Oranye (#f97316), Hutang Packing = Kuning (#eab308)
+  if (!isAllWeeks) {
+    return type === "prod" ? "#f97316" : "#eab308";
+  }
+
+  // Jika sedang menampilkan SEMUA WEEK:
+  const level = getWeekUrgencyLevel(rawW, items);
+
+  if (level === "current") {
+    // Minggu sekarang (40) -> MERAH
+    return type === "prod" ? "#ef4444" : "#f87171";
+  }
+
+  if (level === "next") {
+    // Minggu depan (41) -> ORANYE
+    return type === "prod" ? "#f97316" : "#fb923c";
+  }
+
+  // Minggu-minggu kedepannya (42+) -> KUNING
+  return type === "prod" ? "#eab308" : "#facc15";
+}
+
 export function ProgressShipmentDetailClient({
   chartData,
   summary,
@@ -58,9 +119,8 @@ export function ProgressShipmentDetailClient({
   const [selectedWeekFilter, setSelectedWeekFilter] = useState<string>("next week");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const isFridayToday = new Date().getDay() === 5;
-  const prodBarColor = isFridayToday ? "#ef4444" : "#f97316";
-  const cartonBarColor = isFridayToday ? "#ef4444" : "#eab308";
+  const prodBarColor = "#f97316";
+  const cartonBarColor = "#eab308";
 
   // Filter items berdasarkan Filter Week & Search
   const filteredItems = useMemo(() => {
@@ -261,27 +321,42 @@ export function ProgressShipmentDetailClient({
               Sumbu X: Minggu pengiriman (W) · Batang: Hutang Produksi & Hutang Carton
             </p>
           </div>
-          <div className="flex items-center gap-4 text-xs text-muted-foreground">
-            <span className="inline-flex items-center gap-1.5">
-              <span
-                className="h-3 w-3 rounded-sm"
-                style={{ backgroundColor: prodBarColor }}
-              />
-              Hutang Prod
-            </span>
-            <span className="inline-flex items-center gap-1.5">
-              <span
-                className="h-3 w-3 rounded-sm"
-                style={{ backgroundColor: cartonBarColor }}
-              />
-              Hutang Packing
-            </span>
-            {isFridayToday && (
-              <span className="text-[11px] font-semibold text-red-500">
-                (Hari Jumat - Urgent)
+          {selectedWeekFilter === "all" ? (
+            <div className="flex flex-wrap items-center gap-3 text-xs">
+              <span className="inline-flex items-center gap-1.5 font-medium">
+                <span className="h-3 w-3 rounded-sm bg-[#ef4444]" />
+                <span className="text-foreground">W40</span> (Minggu sekarang - Merah)
               </span>
-            )}
-          </div>
+              <span className="inline-flex items-center gap-1.5 font-medium">
+                <span className="h-3 w-3 rounded-sm bg-[#f97316]" />
+                <span className="text-foreground">W41</span> (Minggu depan - Oranye)
+              </span>
+              <span className="inline-flex items-center gap-1.5 font-medium">
+                <span className="h-3 w-3 rounded-sm bg-[#eab308]" />
+                <span className="text-foreground">W42+</span> (Kedepannya - Kuning)
+              </span>
+              <span className="text-[11px] text-muted-foreground">
+                (Gelap: Prod, Terang: Packing)
+              </span>
+            </div>
+          ) : (
+            <div className="flex items-center gap-4 text-xs text-muted-foreground">
+              <span className="inline-flex items-center gap-1.5">
+                <span
+                  className="h-3 w-3 rounded-sm"
+                  style={{ backgroundColor: prodBarColor }}
+                />
+                Hutang Prod (Oranye)
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <span
+                  className="h-3 w-3 rounded-sm"
+                  style={{ backgroundColor: cartonBarColor }}
+                />
+                Hutang Packing (Kuning)
+              </span>
+            </div>
+          )}
         </div>
 
         <div className="h-[280px] w-full">
@@ -310,7 +385,13 @@ export function ProgressShipmentDetailClient({
                     `${Number(value || 0).toLocaleString()} pcs`,
                     name === "hutangProd" ? "Hutang Produksi" : "Hutang Packing",
                   ]}
-                  labelFormatter={(label) => `Minggu ${label}`}
+                  labelFormatter={(label) => {
+                    const num = parseInt(String(label).replace(/\D/g, ""), 10);
+                    if (num === 40) return `Minggu ${label} · Minggu Sekarang (Urgent/Merah)`;
+                    if (num === 41) return `Minggu ${label} · Minggu Depan (Attention/Oranye)`;
+                    if (num >= 42) return `Minggu ${label} · Minggu Kedepannya (Kuning)`;
+                    return `Minggu ${label}`;
+                  }}
                   contentStyle={{
                     backgroundColor: "var(--color-card)",
                     border: "1px solid var(--color-border)",
@@ -325,6 +406,17 @@ export function ProgressShipmentDetailClient({
                   radius={[4, 4, 0, 0]}
                   maxBarSize={48}
                 >
+                  {dynamicChartData.map((entry, index) => (
+                    <Cell
+                      key={`cell-prod-${index}`}
+                      fill={getBarColor(
+                        entry.rawW,
+                        "prod",
+                        selectedWeekFilter === "all",
+                        details
+                      )}
+                    />
+                  ))}
                   <LabelList
                     dataKey="hutangProd"
                     position="top"
@@ -339,6 +431,17 @@ export function ProgressShipmentDetailClient({
                   radius={[4, 4, 0, 0]}
                   maxBarSize={48}
                 >
+                  {dynamicChartData.map((entry, index) => (
+                    <Cell
+                      key={`cell-carton-${index}`}
+                      fill={getBarColor(
+                        entry.rawW,
+                        "carton",
+                        selectedWeekFilter === "all",
+                        details
+                      )}
+                    />
+                  ))}
                   <LabelList
                     dataKey="hutangCarton"
                     position="top"
@@ -428,9 +531,20 @@ export function ProgressShipmentDetailClient({
                       className="border-border/60 hover:bg-muted/40"
                     >
                       <TableCell className="font-semibold text-foreground">
-                        <span className="inline-flex rounded bg-primary/10 px-1.5 py-0.5 text-[11px] font-medium text-primary">
-                          W{item.w}
-                        </span>
+                        {(() => {
+                          const level = getWeekUrgencyLevel(item.w, details);
+                          const wClass =
+                            level === "current"
+                              ? "bg-red-500/10 text-red-500 font-bold"
+                              : level === "next"
+                              ? "bg-orange-500/10 text-orange-500 font-bold"
+                              : "bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 font-medium";
+                          return (
+                            <span className={`inline-flex rounded px-1.5 py-0.5 text-[11px] ${wClass}`}>
+                              W{item.w}
+                            </span>
+                          );
+                        })()}
                       </TableCell>
                       <TableCell className="font-mono text-xs text-foreground">
                         {item.inv}
@@ -462,17 +576,22 @@ export function ProgressShipmentDetailClient({
                         {item.hutangEnvelope.toLocaleString()}
                       </TableCell>
                       <TableCell className="text-center text-xs">
-                        <span
-                          className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-medium ${
-                            item.filterWeek === "next week"
-                              ? "bg-amber-500/10 text-amber-500"
-                              : item.filterWeek === "this week"
-                              ? "bg-blue-500/10 text-blue-500"
-                              : "bg-muted text-muted-foreground"
-                          }`}
-                        >
-                          {item.filterWeek || "-"}
-                        </span>
+                        {(() => {
+                          const level = getWeekUrgencyLevel(item.w, details);
+                          const fwClass =
+                            level === "current"
+                              ? "bg-red-500/10 text-red-500 font-semibold"
+                              : level === "next"
+                              ? "bg-orange-500/10 text-orange-500 font-semibold"
+                              : "bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 font-semibold";
+                          return (
+                            <span
+                              className={`inline-flex rounded-full px-2 py-0.5 text-[10px] ${fwClass}`}
+                            >
+                              {item.filterWeek || `W${item.w}`}
+                            </span>
+                          );
+                        })()}
                       </TableCell>
                     </TableRow>
                   );
