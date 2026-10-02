@@ -28,8 +28,8 @@ const KPI_PREVIEW = [
     value: "78%",
     label: "Scorecard",
     icon: TrendingUp,
-    iconClass: "text-status-warning",
-    bgClass: "bg-status-warning/10",
+    iconClass: "text-primary",
+    bgClass: "bg-primary/10",
   },
 ];
 

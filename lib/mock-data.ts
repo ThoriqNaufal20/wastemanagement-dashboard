@@ -19,10 +19,10 @@ export const dashboardDeptScore = { value: 71, redBelow: 80 };
 // ---------- Corrective Action Plan ----------
 // Tetap versi historis (belum real-time status "belum done").
 export const correctiveActionPlan = [
-  { name: "Material", value: 57.8, color: "var(--color-primary)" },
-  { name: "Man", value: 27.3, color: "var(--color-secondary)" },
-  { name: "Method", value: 12.1, color: "var(--color-status-warning)" },
-  { name: "Machine", value: 2.8, color: "var(--color-status-success)" },
+  { name: "Material", value: 57.8, color: "#2563eb" },
+  { name: "Man", value: 27.3, color: "#0d9488" },
+  { name: "Method", value: 12.1, color: "#6366f1" },
+  { name: "Machine", value: 2.8, color: "#0891b2" },
 ];
 
 // ---------- Internal Audit ----------

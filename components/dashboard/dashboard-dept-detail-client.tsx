@@ -29,15 +29,15 @@ interface DashboardDeptDetailClientProps {
 const ALL_DEPT_KEY = "__ALL__";
 
 const ASPECT_COLORS = [
-  "var(--color-primary)",
-  "var(--color-secondary)",
-  "var(--color-status-warning)",
-  "var(--color-status-success)",
-  "var(--color-status-critical)",
-  "#0EA5E9",
-  "#A855F7",
-  "#F97316",
-  "#14B8A6",
+  "#2563EB", // Royal Blue
+  "#0D9488", // Teal
+  "#6366F1", // Indigo
+  "#0EA5E9", // Sky Blue
+  "#8B5CF6", // Violet
+  "#14B8A6", // Mint Teal
+  "#0284C7", // Cyan
+  "#64748B", // Slate
+  "#475569", // Dark Slate
 ];
 
 function TrendBadge({

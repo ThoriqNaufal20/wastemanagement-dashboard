@@ -98,13 +98,13 @@ export function WipSewingCard({ data }: WipSewingCardProps) {
             />
             <ReferenceLine
               y={WIP_SEWING_THRESHOLD}
-              stroke="var(--color-status-warning)"
+              stroke="#64748b"
               strokeDasharray="4 3"
               strokeWidth={1.5}
               label={{
                 value: "Target",
                 position: "insideTopRight",
-                fill: "var(--color-status-warning)",
+                fill: "#64748b",
                 fontSize: 10,
               }}
             />

@@ -35,7 +35,7 @@ const CHIPS = [
   {
     label: "Berkelanjutan",
     icon: Leaf,
-    colorClass: "text-status-warning",
+    colorClass: "text-emerald-500",
     position: "bottom-[22%] right-[5%] sm:right-[10%] 2xl:right-[8%] 2xl:bottom-[20%]",
     rotate: -5,
     delay: 450,
@@ -60,7 +60,7 @@ const BLOBS = [
   {
     className: "right-[-6%] bottom-[-22%] h-[42%] w-[24%]",
     gradient:
-      "radial-gradient(circle, var(--color-status-warning) 0%, transparent 70%)",
+      "radial-gradient(circle, #0ea5e9 0%, transparent 70%)",
     opacity: 0.2,
     delay: "3s",
   },

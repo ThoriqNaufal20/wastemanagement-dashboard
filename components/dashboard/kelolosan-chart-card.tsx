@@ -17,12 +17,25 @@ interface KelolosanChartCardProps {
   data: KelolosanWeekPoint[];
 }
 
-const SERIES_COLORS = [
-  "var(--color-secondary)",
-  "var(--color-primary)",
-  "var(--color-status-warning)",
-  "var(--color-status-success)",
+const FACTORY_COLORS: Record<string, string> = {
+  "Fact A": "#0d9488", // Teal
+  "Fact B": "#6366f1", // Indigo
+  "Fact F": "#7c3aed", // Violet
+  "Fact K": "#0284c7", // Sky / Deep Blue
+};
+
+const DEFAULT_SERIES_COLORS = [
+  "#0d9488", // Teal
+  "#0284c7", // Sky Blue
+  "#6366f1", // Indigo
+  "#7c3aed", // Violet
+  "#0891b2", // Cyan
+  "#64748b", // Slate
 ];
+
+function getKelolosanBarColor(key: string, index: number): string {
+  return FACTORY_COLORS[key] || DEFAULT_SERIES_COLORS[index % DEFAULT_SERIES_COLORS.length];
+}
 
 export function KelolosanChartCard({ data }: KelolosanChartCardProps) {
   const seriesKeys =
@@ -89,7 +102,7 @@ export function KelolosanChartCard({ data }: KelolosanChartCardProps) {
                 key={key}
                 dataKey={key}
                 name={key}
-                fill={SERIES_COLORS[i % SERIES_COLORS.length]}
+                fill={getKelolosanBarColor(key, i)}
                 radius={[4, 4, 0, 0]}
                 maxBarSize={28}
               />
