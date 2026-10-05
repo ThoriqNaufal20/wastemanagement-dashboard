@@ -20,6 +20,7 @@ import { WipSewingCard } from "@/components/dashboard/wip-sewing-card";
 import { KelolosanChartCard } from "@/components/dashboard/kelolosan-chart-card";
 import { CorrectiveActionPlanCard } from "@/components/dashboard/corrective-action-plan-card";
 import { InternalAuditTable } from "@/components/dashboard/internal-audit-table";
+import { InternalAuditSupportTable } from "@/components/dashboard/internal-audit-support-table";
 import { auditSupportiveDept } from "@/lib/mock-data";
 import { getUrgencyFlags } from "@/lib/urgency";
 import { computeTrend, buildAllDepartmentsAverage } from "@/lib/scorecard-types";
@@ -78,6 +79,8 @@ import { getCapDashboardData } from "@/lib/cap-data";
 import type { CapDashboardData } from "@/lib/cap-types";
 import { getInternalAuditMainData } from "@/lib/internal-audit-data";
 import type { InternalAuditRow } from "@/lib/internal-audit-types";
+import { getInternalAuditSupportData } from "@/lib/internal-audit-support-data";
+import type { InternalAuditSupportData } from "@/lib/internal-audit-support-types";
 import { prefetchNamedRanges } from "@/lib/google-sheets";
 
 const DASHBOARD_NAMED_RANGES = [
@@ -90,6 +93,7 @@ const DASHBOARD_NAMED_RANGES = [
   "WEBProgressShipment",
   "WEBCAP",
   "WEBInternalAuditMain",
+  "WEBInternalAuditSupportTeam",
 ];
 
 async function loadDashboardDataDirect() {
@@ -106,6 +110,7 @@ async function loadDashboardDataDirect() {
     progressShipmentSummary,
     capData,
     internalAuditData,
+    internalAuditSupportData,
   ] = await Promise.all([
     getAllScorecardData(),
     getAllDashboardDeptData(),
@@ -118,6 +123,7 @@ async function loadDashboardDataDirect() {
     getProgressShipmentSummary("next week"),
     getCapDashboardData(2026),
     getInternalAuditMainData(),
+    getInternalAuditSupportData(),
   ]);
 
   return {
@@ -132,6 +138,7 @@ async function loadDashboardDataDirect() {
     progressShipmentSummary,
     capData,
     internalAuditData,
+    internalAuditSupportData,
   };
 }
 
@@ -156,6 +163,14 @@ export default async function DashboardPage() {
   let progressShipmentSummary: ProgressShipmentSummary | undefined = undefined;
   let capData: CapDashboardData | undefined = undefined;
   let internalAuditData: InternalAuditRow[] = [];
+  let internalAuditSupportData: InternalAuditSupportData = {
+    rows: [],
+    factSummaries: [],
+    totalOts: 0,
+    totalDone: 0,
+    totalShared: 0,
+    totalRows: 0,
+  };
 
   let loadedData: any = null;
 
@@ -203,6 +218,8 @@ export default async function DashboardPage() {
     progressShipmentSummary = loadedData.progressShipmentSummary || undefined;
     capData = loadedData.capData || undefined;
     internalAuditData = loadedData.internalAuditData || [];
+    internalAuditSupportData =
+      loadedData.internalAuditSupportData || internalAuditSupportData;
   }
 
   const urgency = getUrgencyFlags(new Date(), internalAuditData);
@@ -231,13 +248,13 @@ export default async function DashboardPage() {
     },
     {
       key: "audit-support",
-      label: "Audit support · overdue",
-      value: auditSupportiveDept.overdue,
-      suffix: `/ ${auditSupportiveDept.inProgress} in-progress`,
-      status: urgency.auditSupportiveDept.status ?? undefined,
+      label: "Audit support · OTS finding",
+      value: internalAuditSupportData.totalOts,
+      suffix: `/ ${internalAuditSupportData.totalRows} temuan`,
+      status: (internalAuditSupportData.totalOts > 0 ? "overdue" : "done") as StatusLevel,
       icon: Users,
       href: "/audit-supportive-dept",
-      hasData: urgency.auditSupportiveDept.status !== null,
+      hasData: internalAuditSupportData.totalRows > 0,
     },
     // ---------- 3R Glove Active — data ASLI dari WEBGlove3R (Opsi C: teks biasa, bukan pecahan) ----------
     {
@@ -397,7 +414,18 @@ export default async function DashboardPage() {
         </section>
 
         <section>
-          <InternalAuditTable data={internalAuditData} />
+          <div className="grid grid-cols-1 gap-4 xl:grid-cols-12">
+            <div className="xl:col-span-8">
+              <InternalAuditTable data={internalAuditData} />
+            </div>
+            <div className="xl:col-span-4">
+              <InternalAuditSupportTable
+                summaries={internalAuditSupportData.factSummaries}
+                totalOts={internalAuditSupportData.totalOts}
+                totalRows={internalAuditSupportData.totalRows}
+              />
+            </div>
+          </div>
         </section>
       </div>
     </div>
