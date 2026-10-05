@@ -57,6 +57,7 @@ type RingkasanItem = {
   icon: LucideIcon;
   href: string;
   hasData: boolean;
+  note?: string;
 };
 
 import { getAllScorecardData } from "@/lib/scorecard-data";
@@ -321,13 +322,14 @@ export default async function DashboardPage() {
   const infoItems: RingkasanItem[] = [
     {
       key: "scorecard",
-      label: "Scorecard",
+      label: "Scorecard dept",
       value: scorecardValue !== null ? `${scorecardValue}%` : "-",
       suffix: undefined,
       status: undefined,
       icon: FileText,
       href: "/scorecard",
       hasData: scorecardValue !== null,
+      note: "Penilaian ini adalah kuartal 2",
     },
     {
       key: "dashboard-dept",
@@ -338,6 +340,7 @@ export default async function DashboardPage() {
       icon: LayoutDashboard,
       href: "/dashboard-departement",
       hasData: dashboardDeptValue !== null,
+      note: "Penilaian ini adalah kuartal 2",
     },
   ].filter((item) => item.hasData);
 
@@ -364,6 +367,7 @@ export default async function DashboardPage() {
                 status={item.status}
                 icon={item.icon}
                 href={item.href}
+                note={item.note}
               />
             ))}
           </div>

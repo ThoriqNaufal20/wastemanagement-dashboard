@@ -9,6 +9,7 @@ interface MetricCardProps {
   status?: StatusLevel; // kosong = card informatif, tanpa chip/pulse
   icon: LucideIcon;
   href: string;
+  note?: string;
 }
 
 const CARD_TINT: Record<StatusLevel, string> = {
@@ -50,6 +51,7 @@ export function MetricCard({
   status,
   icon: Icon,
   href,
+  note,
 }: MetricCardProps) {
   const shouldPulse = status ? PULSING_STATUSES.includes(status) : false;
   const cardTint = status ? CARD_TINT[status] : "bg-card";
@@ -92,6 +94,11 @@ export function MetricCard({
       </div>
 
       {status && <StatusChip status={status} />}
+      {!status && note && (
+        <p className="text-[10px] leading-tight text-muted-foreground">
+          {note}
+        </p>
+      )}
     </Link>
   );
 }

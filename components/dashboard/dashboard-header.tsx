@@ -1,4 +1,5 @@
 import { LiveClock } from "@/components/dashboard/live-clock";
+import { CurrentQuarterBadge } from "@/components/dashboard/current-quarter-badge";
 import { Logo } from "@/components/dashboard/logo";
 import { companyInfo } from "@/lib/mock-data";
 
@@ -19,9 +20,7 @@ export function DashboardHeader() {
 
       <div className="flex items-center gap-3">
         <LiveClock />
-        <span className="rounded-full bg-secondary/40 px-3 py-1 text-xs font-medium text-primary">
-          {companyInfo.period}
-        </span>
+        <CurrentQuarterBadge />
       </div>
     </header>
   );
