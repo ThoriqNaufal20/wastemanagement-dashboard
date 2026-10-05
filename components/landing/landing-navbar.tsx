@@ -6,10 +6,7 @@ import {
   LayoutGrid,
   ChevronDown,
   LayoutDashboard,
-  Recycle,
   ClipboardCheck,
-  FolderArchive,
-  ArrowRight,
 } from "lucide-react";
 import { Logo } from "@/components/dashboard/logo";
 import { useFullPageScroll } from "@/components/landing/full-page-scroll";
@@ -119,119 +116,23 @@ export function LandingNavbar() {
 
           {/* Apps Dropdown Menu Panel */}
           {appsOpen && (
-            <div className="absolute right-0 top-full mt-2 w-80 sm:w-96 rounded-2xl border border-border bg-card/95 p-3 shadow-2xl backdrop-blur-xl animate-in fade-in zoom-in-95 duration-150 z-50">
-              <div className="border-b border-border/60 px-3 py-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold text-foreground">
-                    Waste Management Apps
-                  </span>
-                  <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">
-                    Ekosistem
-                  </span>
-                </div>
-                <p className="mt-0.5 text-[11px] text-muted-foreground">
-                  Portal integrasi aplikasi & sistem operasional
-                </p>
-              </div>
-
-              {/* Apps List */}
-              <div className="mt-2 space-y-1">
-                {/* 1. Dashboard Utama (Aktif) */}
-                <Link
-                  href="/dashboard"
-                  onClick={() => setAppsOpen(false)}
-                  className="group flex items-start gap-3 rounded-xl p-2.5 transition-all hover:bg-muted/80 border border-transparent hover:border-border"
-                >
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-xs group-hover:scale-105 transition-transform">
-                    <LayoutDashboard className="h-5 w-5" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-semibold text-foreground group-hover:text-primary transition-colors">
-                        Dashboard Utama
-                      </span>
-                      <span className="rounded-full bg-emerald-500/10 px-1.5 py-0.5 text-[10px] font-medium text-emerald-600 dark:text-emerald-400">
-                        Aktif
-                      </span>
-                    </div>
-                    <p className="mt-0.5 text-[11px] text-muted-foreground line-clamp-2">
-                      Monitoring KPI, scorecard, progress shipment, audit, & 3R
-                    </p>
-                  </div>
-                  <ArrowRight className="h-3.5 w-3.5 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 self-center" />
-                </Link>
-
-                {/* 2. 3R Material & Waste Tracking */}
-                <div className="flex items-start gap-3 rounded-xl p-2.5 opacity-80 hover:opacity-100 transition-opacity">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
-                    <Recycle className="h-5 w-5" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-semibold text-foreground">
-                        3R Material Tracking
-                      </span>
-                      <span className="rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
-                        Segera Hadir
-                      </span>
-                    </div>
-                    <p className="mt-0.5 text-[11px] text-muted-foreground line-clamp-2">
-                      Pencatatan timbangan limbah, reuse glove, & recovery kulit
-                    </p>
-                  </div>
-                </div>
-
-                {/* 3. Internal Audit & Compliance */}
-                <div className="flex items-start gap-3 rounded-xl p-2.5 opacity-80 hover:opacity-100 transition-opacity">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400">
-                    <ClipboardCheck className="h-5 w-5" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-semibold text-foreground">
-                        Audit & Compliance
-                      </span>
-                      <span className="rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
-                        Segera Hadir
-                      </span>
-                    </div>
-                    <p className="mt-0.5 text-[11px] text-muted-foreground line-clamp-2">
-                      Checklist temuan OTS, status CAP, & continuous improvement
-                    </p>
-                  </div>
-                </div>
-
-                {/* 4. Knowledge & Digital Archive Hub */}
-                <button
-                  onClick={() => {
-                    setAppsOpen(false);
-                    goTo(5); // Jump to section Arsip
-                  }}
-                  className="flex w-full items-start gap-3 rounded-xl p-2.5 text-left transition-all hover:bg-muted/80 border border-transparent hover:border-border"
-                >
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400">
-                    <FolderArchive className="h-5 w-5" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-semibold text-foreground">
-                        Arsip & Dokumentasi
-                      </span>
-                      <span className="rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] font-medium text-primary">
-                        Buka
-                      </span>
-                    </div>
-                    <p className="mt-0.5 text-[11px] text-muted-foreground line-clamp-2">
-                      Repositori video edukasi, presentasi, & dokumen proyek
-                    </p>
-                  </div>
-                </button>
-              </div>
-
-              {/* Footer info */}
-              <div className="mt-2 border-t border-border/60 pt-2 text-center text-[10px] text-muted-foreground">
-                PT. Adira Semesta Industry · Waste Management Ecosystem
-              </div>
+            <div className="absolute right-0 top-full mt-2 w-48 rounded-xl border border-border bg-card/95 p-1.5 shadow-xl backdrop-blur-xl animate-in fade-in zoom-in-95 duration-150 z-50">
+              <Link
+                href="/dashboard"
+                onClick={() => setAppsOpen(false)}
+                className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs 2xl:text-sm font-medium text-foreground transition-colors hover:bg-muted hover:text-primary"
+              >
+                <LayoutDashboard className="h-4 w-4 text-primary" />
+                <span>Dashboard</span>
+              </Link>
+              <Link
+                href="/internal-audit"
+                onClick={() => setAppsOpen(false)}
+                className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs 2xl:text-sm font-medium text-foreground transition-colors hover:bg-muted hover:text-primary"
+              >
+                <ClipboardCheck className="h-4 w-4 text-primary" />
+                <span>Internal Audit</span>
+              </Link>
             </div>
           )}
         </div>
