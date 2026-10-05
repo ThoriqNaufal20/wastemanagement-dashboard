@@ -7,9 +7,14 @@ import {
   ChevronDown,
   LayoutDashboard,
   ClipboardCheck,
+  ExternalLink,
 } from "lucide-react";
 import { Logo } from "@/components/dashboard/logo";
 import { useFullPageScroll } from "@/components/landing/full-page-scroll";
+
+// Template link URL untuk aplikasi eksternal Internal Audit (dapat diganti langsung di sini atau via NEXT_PUBLIC_INTERNAL_AUDIT_URL di .env.local)
+export const INTERNAL_AUDIT_APP_URL =
+  process.env.NEXT_PUBLIC_INTERNAL_AUDIT_URL || "https://example.com/internal-audit";
 
 const NAV_ITEMS = [
   { label: "Beranda", index: 0 },
@@ -125,14 +130,19 @@ export function LandingNavbar() {
                 <LayoutDashboard className="h-4 w-4 text-primary" />
                 <span>Dashboard</span>
               </Link>
-              <Link
-                href="/internal-audit"
+              <a
+                href={INTERNAL_AUDIT_APP_URL}
+                target="_blank"
+                rel="noopener noreferrer"
                 onClick={() => setAppsOpen(false)}
-                className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs 2xl:text-sm font-medium text-foreground transition-colors hover:bg-muted hover:text-primary"
+                className="flex items-center justify-between rounded-lg px-3 py-2 text-xs 2xl:text-sm font-medium text-foreground transition-colors hover:bg-muted hover:text-primary"
               >
-                <ClipboardCheck className="h-4 w-4 text-primary" />
-                <span>Internal Audit</span>
-              </Link>
+                <div className="flex items-center gap-2.5">
+                  <ClipboardCheck className="h-4 w-4 text-primary" />
+                  <span>Internal Audit</span>
+                </div>
+                <ExternalLink className="h-3.5 w-3.5 text-muted-foreground/60" />
+              </a>
             </div>
           )}
         </div>
