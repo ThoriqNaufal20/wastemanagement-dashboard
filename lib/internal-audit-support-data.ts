@@ -3,6 +3,7 @@ import { getNamedRangeData } from "@/lib/google-sheets";
 import type {
   InternalAuditSupportRow,
   InternalAuditSupportFactSummary,
+  InternalAuditSupportDeptSummary,
   InternalAuditSupportData,
 } from "@/lib/internal-audit-support-types";
 
@@ -81,6 +82,15 @@ const FALLBACK_FACT_SUMMARIES: InternalAuditSupportFactSummary[] = [
   { fact: "K", ots: 15, late: 0, inProgress: 15, total: 18, done: 0, shared: 3 },
 ];
 
+const FALLBACK_DEPT_SUMMARIES: InternalAuditSupportDeptSummary[] = [
+  { department: "Maintenance Facility", late: 0, inProgress: 20, ots: 20, done: 10, shared: 8, total: 38 },
+  { department: "MT", late: 0, inProgress: 13, ots: 13, done: 0, shared: 1, total: 14 },
+  { department: "Quality", late: 0, inProgress: 6, ots: 6, done: 0, shared: 2, total: 8 },
+  { department: "HSE Compliance", late: 0, inProgress: 3, ots: 3, done: 3, shared: 3, total: 9 },
+  { department: "HR", late: 0, inProgress: 4, ots: 4, done: 0, shared: 0, total: 4 },
+  { department: "IT", late: 0, inProgress: 1, ots: 1, done: 0, shared: 0, total: 1 },
+];
+
 export async function getInternalAuditSupportData(): Promise<InternalAuditSupportData> {
   const now = new Date();
   try {
@@ -92,6 +102,7 @@ export async function getInternalAuditSupportData(): Promise<InternalAuditSuppor
       return {
         rows: [],
         factSummaries: FALLBACK_FACT_SUMMARIES,
+        deptSummaries: FALLBACK_DEPT_SUMMARIES,
         totalOts,
         totalLate,
         totalInProgress,
@@ -103,6 +114,7 @@ export async function getInternalAuditSupportData(): Promise<InternalAuditSuppor
 
     const rows: InternalAuditSupportRow[] = [];
     const factMap: Record<string, InternalAuditSupportFactSummary> = {};
+    const deptMap: Record<string, InternalAuditSupportDeptSummary> = {};
 
     rawRows.forEach((r) => {
       // Normalisasi header
@@ -174,6 +186,31 @@ export async function getInternalAuditSupportData(): Promise<InternalAuditSuppor
       }
       if (isDone) factMap[fact].done++;
       if (isShared) factMap[fact].shared++;
+
+      // Agregasi per Departemen Support
+      const deptName = supportiveDepartment || "Lainnya";
+      if (!deptMap[deptName]) {
+        deptMap[deptName] = {
+          department: deptName,
+          late: 0,
+          inProgress: 0,
+          ots: 0,
+          total: 0,
+          done: 0,
+          shared: 0,
+        };
+      }
+      deptMap[deptName].total++;
+      if (ots) {
+        deptMap[deptName].ots++;
+        if (late) {
+          deptMap[deptName].late++;
+        } else {
+          deptMap[deptName].inProgress++;
+        }
+      }
+      if (isDone) deptMap[deptName].done++;
+      if (isShared) deptMap[deptName].shared++;
     });
 
     // Urutkan pabrik sesuai urutan tabel audit utama: F, B, A, K
@@ -187,6 +224,13 @@ export async function getInternalAuditSupportData(): Promise<InternalAuditSuppor
       return a.fact.localeCompare(b.fact);
     });
 
+    // Urutkan dept: yang late terbanyak dulu, lalu ots terbanyak, lalu total
+    const deptSummaries = Object.values(deptMap).sort((a, b) => {
+      if (b.late !== a.late) return b.late - a.late;
+      if (b.ots !== a.ots) return b.ots - a.ots;
+      return b.total - a.total;
+    });
+
     const totalOts = factSummaries.reduce((acc, f) => acc + f.ots, 0);
     const totalLate = factSummaries.reduce((acc, f) => acc + f.late, 0);
     const totalInProgress = totalOts;
@@ -197,6 +241,7 @@ export async function getInternalAuditSupportData(): Promise<InternalAuditSuppor
     return {
       rows,
       factSummaries,
+      deptSummaries,
       totalOts,
       totalLate,
       totalInProgress,
@@ -212,6 +257,7 @@ export async function getInternalAuditSupportData(): Promise<InternalAuditSuppor
     return {
       rows: [],
       factSummaries: FALLBACK_FACT_SUMMARIES,
+      deptSummaries: FALLBACK_DEPT_SUMMARIES,
       totalOts,
       totalLate,
       totalInProgress,

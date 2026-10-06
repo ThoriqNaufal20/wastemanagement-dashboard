@@ -9,6 +9,8 @@ import {
   AlertCircle,
   Building2,
   Image as ImageIcon,
+  X,
+  Clock,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -19,6 +21,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { cn } from "@/lib/utils";
 import type { InternalAuditSupportData } from "@/lib/internal-audit-support-types";
 
 interface AuditSupportViewProps {
@@ -27,16 +30,95 @@ interface AuditSupportViewProps {
 
 export function AuditSupportView({ initialData }: AuditSupportViewProps) {
   const [selectedFact, setSelectedFact] = useState<string>("ALL");
+  const [selectedDept, setSelectedDept] = useState<string>("ALL");
   const [selectedStatus, setSelectedStatus] = useState<string>("ALL");
   const [searchQuery, setSearchQuery] = useState<string>("");
 
   const rows = initialData.rows || [];
+
+  // Rangkuman per Departemen Support (Late / In Progress)
+  const deptSummaries = useMemo(() => {
+    const relevantRows =
+      selectedFact === "ALL"
+        ? rows
+        : rows.filter((r) => r.fact.toUpperCase() === selectedFact.toUpperCase());
+
+    const map: Record<
+      string,
+      {
+        department: string;
+        late: number;
+        inProgress: number;
+        ots: number;
+        done: number;
+        shared: number;
+        total: number;
+      }
+    > = {};
+
+    // Inisialisasi awal dengan departemen yang ada dari initialData agar susunan kartu konsisten
+    (initialData.deptSummaries || []).forEach((d) => {
+      map[d.department] = {
+        department: d.department,
+        late: 0,
+        inProgress: 0,
+        ots: 0,
+        done: 0,
+        shared: 0,
+        total: 0,
+      };
+    });
+
+    relevantRows.forEach((r) => {
+      const dept = r.supportiveDepartment?.trim() || "Lainnya";
+      if (!map[dept]) {
+        map[dept] = {
+          department: dept,
+          late: 0,
+          inProgress: 0,
+          ots: 0,
+          done: 0,
+          shared: 0,
+          total: 0,
+        };
+      }
+      map[dept].total++;
+      if (r.status.trim().toLowerCase() === "done") map[dept].done++;
+      else if (
+        r.status.trim().replace(/\s+/g, " ").toLowerCase() === "shared with team"
+      )
+        map[dept].shared++;
+
+      if (r.isOts) {
+        map[dept].ots++;
+        if (r.isLate) {
+          map[dept].late++;
+        } else {
+          map[dept].inProgress++;
+        }
+      }
+    });
+
+    return Object.values(map).sort((a, b) => {
+      if (b.late !== a.late) return b.late - a.late;
+      if (b.ots !== a.ots) return b.ots - a.ots;
+      return b.total - a.total;
+    });
+  }, [rows, selectedFact, initialData.deptSummaries]);
 
   // Filtered rows
   const filteredRows = useMemo(() => {
     return rows.filter((r) => {
       // Filter Fact
       if (selectedFact !== "ALL" && r.fact.toUpperCase() !== selectedFact.toUpperCase()) {
+        return false;
+      }
+
+      // Filter Department
+      if (
+        selectedDept !== "ALL" &&
+        r.supportiveDepartment.toUpperCase() !== selectedDept.toUpperCase()
+      ) {
         return false;
       }
 
@@ -66,7 +148,7 @@ export function AuditSupportView({ initialData }: AuditSupportViewProps) {
 
       return true;
     });
-  }, [rows, selectedFact, selectedStatus, searchQuery]);
+  }, [rows, selectedFact, selectedDept, selectedStatus, searchQuery]);
 
   return (
     <div className="space-y-6">
@@ -188,7 +270,119 @@ export function AuditSupportView({ initialData }: AuditSupportViewProps) {
         </div>
       </div>
 
-      {/* 3. Filter Controls */}
+      {/* 3. Supportive Department Progress Cards (Late / In Progress) */}
+      <div className="rounded-2xl border border-border/40 bg-card p-4">
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Progress per Supportive Department
+            </p>
+            <p className="text-[11px] text-muted-foreground/80">
+              Rasio Late / In Progress {selectedFact !== "ALL" ? `(Factory ${selectedFact})` : "(Semua Pabrik)"}
+            </p>
+          </div>
+          {selectedDept !== "ALL" && (
+            <button
+              onClick={() => setSelectedDept("ALL")}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-primary/30 bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary transition-colors hover:bg-primary/20"
+            >
+              <span>Filter Dept: {selectedDept}</span>
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+          {deptSummaries.map((d) => {
+            const isSelected = selectedDept.toUpperCase() === d.department.toUpperCase();
+            const isLate = d.late > 0;
+            const hasOts = d.ots > 0;
+
+            return (
+              <button
+                key={d.department}
+                onClick={() =>
+                  setSelectedDept(isSelected ? "ALL" : d.department)
+                }
+                className={cn(
+                  "flex flex-col justify-between rounded-xl border p-3 text-left transition-all",
+                  isSelected
+                    ? "border-primary bg-primary/10 shadow-xs ring-1 ring-primary/40"
+                    : "border-border/60 bg-muted/20 hover:border-primary/40 hover:bg-muted/40"
+                )}
+              >
+                <div>
+                  <div className="flex items-start justify-between gap-1">
+                    <span
+                      className="text-xs font-bold text-foreground line-clamp-1"
+                      title={d.department}
+                    >
+                      {d.department}
+                    </span>
+                    {isLate ? (
+                      <span className="shrink-0 rounded-full bg-status-critical/15 px-1.5 py-0.5 text-[9px] font-bold text-status-critical">
+                        LATE
+                      </span>
+                    ) : hasOts ? (
+                      <span className="shrink-0 rounded-full bg-amber-500/15 px-1.5 py-0.5 text-[9px] font-semibold text-amber-600 dark:text-amber-400">
+                        PROGRESS
+                      </span>
+                    ) : (
+                      <span className="shrink-0 rounded-full bg-emerald-500/15 px-1.5 py-0.5 text-[9px] font-semibold text-emerald-600 dark:text-emerald-400">
+                        DONE
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Late / In Progress display */}
+                  <div className="mt-2.5">
+                    <div className="flex items-baseline gap-1">
+                      <span
+                        className={cn(
+                          "text-2xl font-bold font-mono tracking-tight",
+                          isLate ? "text-status-critical" : "text-foreground"
+                        )}
+                      >
+                        {d.late}
+                      </span>
+                      <span className="text-sm font-semibold text-muted-foreground/50">
+                        /
+                      </span>
+                      <span
+                        className={cn(
+                          "text-2xl font-bold font-mono tracking-tight",
+                          d.inProgress > 0
+                            ? "text-amber-500 dark:text-amber-400"
+                            : "text-muted-foreground"
+                        )}
+                      >
+                        {d.inProgress}
+                      </span>
+                    </div>
+                    <span className="text-[10px] text-muted-foreground">
+                      Late / In Progress
+                    </span>
+                  </div>
+                </div>
+
+                <div className="mt-3 flex items-center justify-between border-t border-border/40 pt-2 text-[10px] text-muted-foreground">
+                  <span>
+                    OTS:{" "}
+                    <strong
+                      className={hasOts ? "text-foreground" : "text-muted-foreground"}
+                    >
+                      {d.ots}
+                    </strong>
+                  </span>
+                  <span>Total: {d.total}</span>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* 4. Filter Controls */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-wrap items-center gap-1.5">
           <button
@@ -214,6 +408,18 @@ export function AuditSupportView({ initialData }: AuditSupportViewProps) {
               Fact {f.fact} ({f.ots})
             </button>
           ))}
+          {selectedDept !== "ALL" && (
+            <span className="inline-flex items-center gap-1 rounded-lg border border-primary/40 bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary">
+              Dept: {selectedDept}
+              <button
+                onClick={() => setSelectedDept("ALL")}
+                className="hover:opacity-75"
+                title="Hapus filter departemen"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </span>
+          )}
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
@@ -324,8 +530,10 @@ export function AuditSupportView({ initialData }: AuditSupportViewProps) {
                     badgeColor = "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-semibold";
                   } else if (isShared) {
                     badgeColor = "bg-sky-500/15 text-sky-600 dark:text-sky-400 font-semibold";
+                  } else if (row.isLate) {
+                    badgeColor = "bg-status-critical/15 text-status-critical font-bold";
                   } else if (isOts) {
-                    badgeColor = "bg-rose-500/15 text-rose-600 dark:text-rose-400 font-semibold";
+                    badgeColor = "bg-amber-500/15 text-amber-600 dark:text-amber-400 font-semibold";
                   }
 
                   return (
@@ -340,11 +548,18 @@ export function AuditSupportView({ initialData }: AuditSupportViewProps) {
                         {row.area}
                       </TableCell>
                       <TableCell>
-                        <span
-                          className={`inline-block rounded-full px-2 py-0.5 text-[10px] ${badgeColor}`}
-                        >
-                          {row.status || "No Status"}
-                        </span>
+                        <div className="flex items-center gap-1">
+                          <span
+                            className={`inline-block rounded-full px-2 py-0.5 text-[10px] ${badgeColor}`}
+                          >
+                            {row.status || "No Status"}
+                          </span>
+                          {row.isLate && (
+                            <span className="rounded-full bg-status-critical/15 px-1.5 py-0.5 text-[9px] font-bold text-status-critical">
+                              Late
+                            </span>
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell className="text-xs text-foreground">
                         {row.finding}
@@ -355,8 +570,17 @@ export function AuditSupportView({ initialData }: AuditSupportViewProps) {
                       <TableCell className="text-xs text-muted-foreground">
                         {row.cap || "-"}
                       </TableCell>
-                      <TableCell className="text-xs text-muted-foreground">
-                        {row.targetFin || "-"}
+                      <TableCell className="text-xs">
+                        {row.isLate ? (
+                          <span className="inline-flex items-center gap-1 font-semibold text-status-critical">
+                            <Clock className="h-3 w-3 shrink-0" />
+                            {row.targetFin || "-"}
+                          </span>
+                        ) : (
+                          <span className="text-muted-foreground">
+                            {row.targetFin || "-"}
+                          </span>
+                        )}
                       </TableCell>
                       <TableCell className="text-xs text-muted-foreground">
                         {row.actualFin || "-"}

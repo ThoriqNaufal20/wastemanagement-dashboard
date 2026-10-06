@@ -166,6 +166,7 @@ export default async function DashboardPage() {
   let internalAuditSupportData: InternalAuditSupportData = {
     rows: [],
     factSummaries: [],
+    deptSummaries: [],
     totalOts: 0,
     totalLate: 0,
     totalInProgress: 0,

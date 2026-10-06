@@ -24,9 +24,20 @@ export interface InternalAuditSupportFactSummary {
   shared: number;
 }
 
+export interface InternalAuditSupportDeptSummary {
+  department: string;
+  late: number;
+  inProgress: number;
+  ots: number;
+  total: number;
+  done: number;
+  shared: number;
+}
+
 export interface InternalAuditSupportData {
   rows: InternalAuditSupportRow[];
   factSummaries: InternalAuditSupportFactSummary[];
+  deptSummaries: InternalAuditSupportDeptSummary[];
   totalOts: number;
   totalLate: number;
   totalInProgress: number;
