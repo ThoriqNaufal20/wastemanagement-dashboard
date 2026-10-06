@@ -167,6 +167,8 @@ export default async function DashboardPage() {
     rows: [],
     factSummaries: [],
     totalOts: 0,
+    totalLate: 0,
+    totalInProgress: 0,
     totalDone: 0,
     totalShared: 0,
     totalRows: 0,
@@ -248,13 +250,17 @@ export default async function DashboardPage() {
     },
     {
       key: "audit-support",
-      label: "Audit support · OTS finding",
-      value: internalAuditSupportData.totalOts,
-      suffix: `/ ${internalAuditSupportData.totalRows} temuan`,
-      status: (internalAuditSupportData.totalOts > 0 ? "overdue" : "done") as StatusLevel,
+      label: "Audit support · late",
+      value: internalAuditSupportData.totalLate,
+      suffix: `/ ${internalAuditSupportData.totalInProgress} in-progress`,
+      status: (internalAuditSupportData.totalLate > 0
+        ? "late"
+        : internalAuditSupportData.totalInProgress > 0
+          ? "on_progress"
+          : undefined) as StatusLevel | undefined,
       icon: Users,
       href: "/audit-supportive-dept",
-      hasData: internalAuditSupportData.totalRows > 0,
+      hasData: internalAuditSupportData.totalInProgress > 0 || internalAuditSupportData.totalLate > 0,
     },
     // ---------- 3R Glove Active — data ASLI dari WEBGlove3R (Opsi C: teks biasa, bukan pecahan) ----------
     {
@@ -414,15 +420,16 @@ export default async function DashboardPage() {
         </section>
 
         <section>
-          <div className="grid grid-cols-1 gap-4 xl:grid-cols-12">
-            <div className="xl:col-span-8">
-              <InternalAuditTable data={internalAuditData} />
+          <div className="grid grid-cols-1 items-stretch gap-4 xl:grid-cols-12">
+            <div className="flex flex-col xl:col-span-8">
+              <InternalAuditTable data={internalAuditData} className="h-full flex-1" />
             </div>
-            <div className="xl:col-span-4">
+            <div className="flex flex-col xl:col-span-4">
               <InternalAuditSupportTable
                 summaries={internalAuditSupportData.factSummaries}
                 totalOts={internalAuditSupportData.totalOts}
                 totalRows={internalAuditSupportData.totalRows}
+                className="h-full flex-1"
               />
             </div>
           </div>

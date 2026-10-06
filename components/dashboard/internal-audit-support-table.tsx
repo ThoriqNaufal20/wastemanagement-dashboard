@@ -11,6 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { cn } from "@/lib/utils";
 import type { InternalAuditSupportFactSummary } from "@/lib/internal-audit-support-types";
 
 interface InternalAuditSupportTableProps {
@@ -18,6 +19,7 @@ interface InternalAuditSupportTableProps {
   totalOts?: number;
   totalRows?: number;
   isNavigable?: boolean;
+  className?: string;
 }
 
 export function InternalAuditSupportTable({
@@ -25,6 +27,7 @@ export function InternalAuditSupportTable({
   totalOts,
   totalRows,
   isNavigable = true,
+  className,
 }: InternalAuditSupportTableProps) {
   const router = useRouter();
 
@@ -42,11 +45,13 @@ export function InternalAuditSupportTable({
   return (
     <div
       onClick={handleNavigate}
-      className={`group flex h-full flex-col justify-between rounded-2xl bg-card p-4 transition-all duration-200 ${
+      className={cn(
+        "group flex h-full flex-col justify-between rounded-2xl bg-card p-4 transition-all duration-200",
         isNavigable
           ? "cursor-pointer border border-border/40 hover:border-primary/40 hover:shadow-[0_2px_4px_rgba(16,24,40,0.06),0_4px_8px_rgba(16,24,40,0.08)]"
-          : ""
-      }`}
+          : "",
+        className
+      )}
     >
       <div>
         <div className="mb-3 flex items-center justify-between">
@@ -91,11 +96,10 @@ export function InternalAuditSupportTable({
                   return (
                     <TableRow
                       key={row.fact}
-                      className={
-                        isNavigable
-                          ? "cursor-pointer transition-colors hover:bg-muted/50"
-                          : ""
-                      }
+                      className={cn(
+                        "h-11",
+                        isNavigable ? "cursor-pointer transition-colors hover:bg-muted/50" : ""
+                      )}
                     >
                       <TableCell className="font-semibold text-foreground">
                         {row.fact}
@@ -119,7 +123,7 @@ export function InternalAuditSupportTable({
             </TableBody>
             {summaries.length > 0 && (
               <TableFooter>
-                <TableRow className="bg-muted/30 font-semibold">
+                <TableRow className="bg-muted/30 font-semibold h-11">
                   <TableCell className="font-semibold text-foreground">
                     Total
                   </TableCell>

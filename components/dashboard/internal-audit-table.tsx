@@ -6,10 +6,12 @@ import {
   Table,
   TableBody,
   TableCell,
+  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { cn } from "@/lib/utils";
 import { internalAuditRows } from "@/lib/mock-data";
 import { StatusChip } from "@/components/dashboard/status-chip";
 import { getAuditRowStatus } from "@/lib/internal-audit-utils";
@@ -18,14 +20,32 @@ import type { InternalAuditRow } from "@/lib/internal-audit-types";
 interface InternalAuditTableProps {
   data?: InternalAuditRow[];
   isNavigable?: boolean;
+  className?: string;
 }
 
 export function InternalAuditTable({
   data,
   isNavigable = true,
+  className,
 }: InternalAuditTableProps) {
   const router = useRouter();
   const rows = data && data.length > 0 ? data : internalAuditRows;
+
+  const totalOts = rows.reduce(
+    (acc, row) => acc + (Number(row.otsFinding) || 0),
+    0
+  );
+  const totalAreaBelumAudit = rows.reduce(
+    (acc, row) => acc + (Number(row.areaBelumAudit) || 0),
+    0
+  );
+  const validScores = rows
+    .map((r) => parseFloat(r.avgScore.replace("%", "").trim()))
+    .filter((n) => !isNaN(n));
+  const avgScoreFormatted =
+    validScores.length > 0
+      ? (validScores.reduce((a, b) => a + b, 0) / validScores.length).toFixed(2) + "%"
+      : "-";
 
   const handleNavigate = () => {
     if (isNavigable) {
@@ -36,11 +56,13 @@ export function InternalAuditTable({
   return (
     <div
       onClick={handleNavigate}
-      className={`group rounded-2xl bg-card p-4 transition-all duration-200 ${
+      className={cn(
+        "group flex h-full flex-col justify-between rounded-2xl bg-card p-4 transition-all duration-200",
         isNavigable
           ? "cursor-pointer border border-border/40 hover:border-primary/40 hover:shadow-[0_2px_4px_rgba(16,24,40,0.06),0_4px_8px_rgba(16,24,40,0.08)]"
-          : ""
-      }`}
+          : "",
+        className
+      )}
     >
       <div className="mb-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -85,11 +107,10 @@ export function InternalAuditTable({
               return (
                 <TableRow
                   key={i}
-                  className={
-                    isNavigable
-                      ? "cursor-pointer transition-colors hover:bg-muted/50"
-                      : ""
-                  }
+                  className={cn(
+                    "h-11",
+                    isNavigable ? "cursor-pointer transition-colors hover:bg-muted/50" : ""
+                  )}
                 >
                   <TableCell className="text-muted-foreground">
                     {row.period}
@@ -129,6 +150,26 @@ export function InternalAuditTable({
               );
             })}
           </TableBody>
+          <TableFooter>
+            <TableRow className="bg-muted/30 font-semibold h-11">
+              <TableCell className="font-semibold text-foreground">Total</TableCell>
+              <TableCell className="text-muted-foreground">-</TableCell>
+              <TableCell className="text-right font-bold text-status-critical">
+                {totalOts}
+              </TableCell>
+              <TableCell className="text-right font-semibold text-foreground">
+                {avgScoreFormatted}
+              </TableCell>
+              <TableCell className="text-right text-muted-foreground">
+                {totalAreaBelumAudit}
+              </TableCell>
+              <TableCell className="text-muted-foreground">-</TableCell>
+              <TableCell className="text-muted-foreground">-</TableCell>
+              <TableCell>
+                <StatusChip status={totalAreaBelumAudit === 0 ? "done" : "on_progress"} />
+              </TableCell>
+            </TableRow>
+          </TableFooter>
         </Table>
       </div>
     </div>
