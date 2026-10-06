@@ -61,7 +61,8 @@ export function ProgressShipmentCard({
 
   const totalProd = summary?.totalHutangProd ?? chartData.reduce((acc, d) => acc + d.hutangProd, 0);
   const totalCarton = summary?.totalHutangCarton ?? chartData.reduce((acc, d) => acc + d.hutangCarton, 0);
-  const totalBelumKirim = totalCarton;
+  const totalBeban = totalProd + totalCarton;
+  const cartonShare = summary?.cartonShare ?? (totalBeban > 0 ? Math.round((totalCarton / totalBeban) * 100) : 0);
 
   return (
     <Link
@@ -79,11 +80,11 @@ export function ProgressShipmentCard({
       </div>
 
       <p className="mb-1.5 line-clamp-2 text-xs text-muted-foreground">
-        Total belum kirim:{" "}
+        Total beban:{" "}
         <span className="font-semibold text-foreground">
-          {totalBelumKirim.toLocaleString()} pcs
+          {totalBeban.toLocaleString()} pcs
         </span>{" "}
-        ({totalProd.toLocaleString()} pcs masih proses produksi)
+        (Hutang Prod {totalProd.toLocaleString()} pcs, Pack {totalCarton.toLocaleString()} pcs)
       </p>
 
       {/* Mini Legend */}
@@ -101,7 +102,7 @@ export function ProgressShipmentCard({
               className="h-2 w-2 rounded-sm"
               style={{ backgroundColor: cartonBarColor }}
             />
-            Hutang packing
+            Hutang pack
           </span>
         </div>
         {isAttention && (
