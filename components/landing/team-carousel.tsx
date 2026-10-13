@@ -159,7 +159,7 @@ export function TeamSection() {
                 <div
                   key={i}
                   onClick={() => item.src && setSelectedPhoto(item)}
-                  className={`group/photo relative flex h-36 w-56 sm:h-44 sm:w-72 2xl:h-56 2xl:w-96 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-muted shadow-sm ring-1 ring-border/60 transition-all duration-300 hover:shadow-xl hover:ring-primary/40 ${
+                  className={`group/photo relative flex h-28 w-44 sm:h-32 sm:w-52 2xl:h-44 2xl:w-64 shrink-0 items-center justify-center overflow-hidden rounded-xl 2xl:rounded-2xl bg-muted shadow-sm ring-1 ring-border/60 transition-all duration-300 hover:shadow-lg hover:ring-primary/40 ${
                     item.src ? "cursor-pointer" : ""
                   }`}
                   title={item.src ? "Klik untuk melihat ukuran penuh" : undefined}
@@ -209,13 +209,13 @@ export function TeamSection() {
 
           {/* Image & Caption Container */}
           <div
-            className="relative flex max-h-[92vh] max-w-[94vw] flex-col items-center overflow-hidden rounded-2xl bg-card/10 p-2 sm:p-3 shadow-2xl ring-1 ring-white/15"
+            className="relative flex max-h-[88vh] max-w-[88vw] flex-col items-center overflow-hidden rounded-2xl bg-card/10 p-2 sm:p-3 shadow-2xl ring-1 ring-white/15"
             onClick={(e) => e.stopPropagation()}
           >
             <img
               src={selectedPhoto.src}
               alt={selectedPhoto.alt || "Momen Tim Waste Management"}
-              className="max-h-[82vh] max-w-[90vw] rounded-xl object-contain shadow-2xl"
+              className="max-h-[75vh] max-w-[85vw] rounded-xl object-contain shadow-2xl"
             />
             {selectedPhoto.alt && (
               <div className="mt-3 px-4 pb-1 text-center">
