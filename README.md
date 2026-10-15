@@ -1,36 +1,65 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🌿 Waste Management Dashboard & Profile
+**PT. Adira Semesta Industry**
 
-## Getting Started
+Aplikasi profil departemen dan dashboard operasional terintegrasi Waste Management berbasis Next.js App Router, Tailwind CSS v4, dan Google Sheets Realtime API.
 
-First, run the development server:
+---
 
+## 📖 Dokumentasi Lengkap
+Untuk panduan mendetail mengenai arsitektur, seluruh file proyek, logika bisnis tiap modul, cara mengganti icon website, menambah foto carousel, serta konfigurasi Google Sheets, silakan baca:
+👉 [**PROJECT_DOCUMENTATION.md**](./PROJECT_DOCUMENTATION.md)
+
+---
+
+## 🚀 Memulai (Quick Start)
+
+### 1. Prasyarat
+- Node.js versi 20+
+- npm versi 10+
+
+### 2. Instalasi Dependensi
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 3. Konfigurasi Lingkungan (`.env.local`)
+Salin file `.env.example` atau buat file `.env.local` di root direktori:
+```env
+GOOGLE_SHEETS_CLIENT_EMAIL="service-account@project.iam.gserviceaccount.com"
+GOOGLE_SHEETS_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
+GOOGLE_SHEETS_SPREADSHEET_ID="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms"
+NEXT_PUBLIC_INTERNAL_AUDIT_URL="https://your-internal-audit-system.com"
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 4. Menjalankan Server Development
+```bash
+npm run dev
+```
+Buka browser di [http://localhost:3000](http://localhost:3000).
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## 🛠️ Ringkasan Teknologi
+- **Framework**: Next.js 16 (App Router), React 19, TypeScript
+- **Styling**: Tailwind CSS v4, Lucide Icons, tw-animate-css
+- **Visualisasi**: Recharts (Bar Charts, Line Charts, Tooltips)
+- **Data Live**: Google Sheets API (`googleapis`) via Service Account JWT & Named Ranges
+- **Tema**: Light & Dark mode support (`next-themes`)
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 📂 Struktur Rute Halaman
+- `/` : Landing Page Profil Departemen (Full Page Scroll, Hero, About, KPI, Tim, Arsip, Kontak)
+- `/dashboard` : Main Operational Dashboard (Realtime Quarter Badge, Problem Items, Charts, Tables)
+- `/internal-audit` : Detail Temuan Internal Audit (OTS status, per-factory breakdown)
+- `/audit-supportive-dept` : Detail Internal Audit Support Team (Progress per dept: Late / In-Progress)
+- `/progress-shipment` : Detail Progress Shipment (Hutang Prod, Pack/Carton, Total Beban, Friday Attention)
+- `/wip-sewing` : Detail WIP Sewing (Tabel per Box & Tabel Grouping Fact/SPO/Style/Size)
+- `/three-r` : Detail Penimbangan 3R & Permintaan Sarung Tangan
+- `/scorecard` : Skor Evaluasi Antar Departemen
+- `/dashboard-departement` : Rating & Indikator Performa Departemen
+- `/corrective-action-plan` : Corrective Action Plan (CAP)
+- `/kelolosan-sampah-kulit` : Tren Kelolosan Sampah Kulit per Bulan
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+*Silakan buka [PROJECT_DOCUMENTATION.md](./PROJECT_DOCUMENTATION.md) untuk panduan teknis lengkap.*

@@ -159,7 +159,7 @@ export function TeamSection() {
                 <div
                   key={i}
                   onClick={() => item.src && setSelectedPhoto(item)}
-                  className={`group/photo relative flex h-28 w-44 sm:h-32 sm:w-52 2xl:h-44 2xl:w-64 shrink-0 items-center justify-center overflow-hidden rounded-xl 2xl:rounded-2xl bg-muted shadow-sm ring-1 ring-border/60 transition-all duration-300 hover:shadow-lg hover:ring-primary/40 ${
+                  className={`group/photo relative flex h-28 w-44 sm:h-28 sm:w-48 2xl:h-44 2xl:w-64 shrink-0 items-center justify-center overflow-hidden rounded-xl 2xl:rounded-2xl bg-muted shadow-sm ring-1 ring-border/60 transition-all duration-300 hover:shadow-lg hover:ring-primary/40 ${
                     item.src ? "cursor-pointer" : ""
                   }`}
                   title={item.src ? "Klik untuk melihat ukuran penuh" : undefined}
