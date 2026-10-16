@@ -160,6 +160,52 @@ export function parseArchiveDateToTimestamp(
   return 0;
 }
 
+/**
+ * Mengekstrak URL preview thumbnail nyata dari berbagai sumber media:
+ * - Google Drive File / Video / Image -> https://drive.google.com/thumbnail?id={id}&sz=w800
+ * - Google Slides -> https://docs.google.com/presentation/d/{id}/export/png
+ * - YouTube Video -> https://img.youtube.com/vi/{id}/hqdefault.jpg
+ * - URL Gambar langsung (.png, .jpg, .webp, dll)
+ */
+export function extractThumbnailUrl(url?: string): string | undefined {
+  if (!url || url === "#") return undefined;
+
+  const cleanUrl = url.trim();
+
+  // 1. Google Drive File (Video, Gambar, Dokumen)
+  const driveMatch =
+    cleanUrl.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) ||
+    cleanUrl.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+  if (driveMatch && driveMatch[1]) {
+    const fileId = driveMatch[1];
+    return `https://drive.google.com/thumbnail?id=${fileId}&sz=w800`;
+  }
+
+  // 2. Google Slides Presentation
+  const slidesMatch =
+    cleanUrl.match(/\/presentation\/[ud]\/(?:[0-9]+\/)?d\/([a-zA-Z0-9_-]+)/) ||
+    cleanUrl.match(/\/presentation\/d\/([a-zA-Z0-9_-]+)/);
+  if (slidesMatch && slidesMatch[1]) {
+    const presentationId = slidesMatch[1];
+    return `https://docs.google.com/presentation/d/${presentationId}/export/png`;
+  }
+
+  // 3. YouTube Video
+  const ytMatch = cleanUrl.match(
+    /(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([a-zA-Z0-9_-]{11})/
+  );
+  if (ytMatch && ytMatch[1]) {
+    return `https://img.youtube.com/vi/${ytMatch[1]}/hqdefault.jpg`;
+  }
+
+  // 4. File gambar langsung
+  if (cleanUrl.match(/\.(jpeg|jpg|png|webp|svg)(\?.*)?$/i)) {
+    return cleanUrl;
+  }
+
+  return undefined;
+}
+
 function normalizeCategory(
   rawCat: string | undefined,
   rawType: string | undefined
@@ -372,6 +418,7 @@ export async function getArchiveItems(): Promise<ArchiveItem[]> {
       const fileMeta = (row["Meta File"] || row["Meta"] || "").trim();
 
       const timestamp = parseArchiveDateToTimestamp(rawDate, rawPeriod);
+      const thumbnailUrl = extractThumbnailUrl(externalUrl);
 
       items.push({
         id: `archive-${index + 1}`,
@@ -389,6 +436,7 @@ export async function getArchiveItems(): Promise<ArchiveItem[]> {
         fileMeta: fileMeta || undefined,
         externalUrl,
         actionLabel: config.actionLabel,
+        thumbnailUrl,
       });
     });
 

@@ -18,6 +18,8 @@ export const DEFAULT_ARCHIVE_ITEMS: ArchiveItem[] = [
     fileMeta: "18 Halaman",
     externalUrl: "#",
     actionLabel: "Unduh SOP",
+    thumbnailUrl:
+      "https://images.unsplash.com/photo-1450133064473-71024230f91b?w=800&auto=format&fit=crop&q=80",
   },
   {
     id: "laporan-meeting-q1-q3",
@@ -36,6 +38,8 @@ export const DEFAULT_ARCHIVE_ITEMS: ArchiveItem[] = [
     fileMeta: "36 Halaman",
     externalUrl: "#",
     actionLabel: "Buka Dokumen",
+    thumbnailUrl:
+      "https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=800&auto=format&fit=crop&q=80",
   },
   {
     id: "video-tutorial-pemilahan-sewing",
@@ -54,6 +58,8 @@ export const DEFAULT_ARCHIVE_ITEMS: ArchiveItem[] = [
     fileMeta: "Full HD 1080p",
     externalUrl: "#",
     actionLabel: "Tonton Video",
+    thumbnailUrl:
+      "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=800&auto=format&fit=crop&q=80",
   },
   {
     id: "slides-roadmap-zero-waste",
@@ -72,6 +78,8 @@ export const DEFAULT_ARCHIVE_ITEMS: ArchiveItem[] = [
     fileMeta: "24 Slides",
     externalUrl: "#",
     actionLabel: "Buka Slides",
+    thumbnailUrl:
+      "https://images.unsplash.com/photo-1557804506-669a67965ba0?w=800&auto=format&fit=crop&q=80",
   },
   {
     id: "project-data-driven-waste",
@@ -90,6 +98,8 @@ export const DEFAULT_ARCHIVE_ITEMS: ArchiveItem[] = [
     fileMeta: "Spreadsheet & Analytics",
     externalUrl: "#",
     actionLabel: "Akses Project",
+    thumbnailUrl:
+      "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&auto=format&fit=crop&q=80",
   },
   {
     id: "poster-awareness-3r-canva",
@@ -108,6 +118,8 @@ export const DEFAULT_ARCHIVE_ITEMS: ArchiveItem[] = [
     fileMeta: "Canva Template",
     externalUrl: "#",
     actionLabel: "Buka di Canva",
+    thumbnailUrl:
+      "https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?w=800&auto=format&fit=crop&q=80",
   },
 ];
 

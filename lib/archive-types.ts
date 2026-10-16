@@ -23,4 +23,5 @@ export interface ArchiveItem {
   fileMeta?: string;
   externalUrl: string;
   actionLabel: string;
+  thumbnailUrl?: string;
 }
