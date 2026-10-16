@@ -51,39 +51,41 @@ export function ArchiveSection({ initialItems }: ArchiveSectionProps) {
   }, []);
 
   const filteredItems = useMemo(() => {
-    return items.filter((item) => {
-      const typeLower = item.typeBadge.toLowerCase();
-      const matchesCategory =
-        activeCategory === "all" ||
-        item.category === activeCategory ||
-        (activeCategory === "video" && (item.iconType === "video" || typeLower.includes("video"))) ||
-        (activeCategory === "slides" &&
-          (item.iconType === "presentation" ||
-            typeLower.includes("slide") ||
-            typeLower.includes("ppt"))) ||
-        (activeCategory === "poster" &&
-          (item.iconType === "image" ||
-            typeLower.includes("canva") ||
-            typeLower.includes("poster"))) ||
-        (activeCategory === "meeting" &&
-          (item.iconType === "pdf" || typeLower.includes("pdf"))) ||
-        (activeCategory === "data" &&
-          (item.category === "data" ||
-            item.iconType === "sheets" ||
-            typeLower.includes("sheet") ||
-            typeLower.includes("project")));
+    return items
+      .filter((item) => {
+        const typeLower = item.typeBadge.toLowerCase();
+        const matchesCategory =
+          activeCategory === "all" ||
+          item.category === activeCategory ||
+          (activeCategory === "video" && (item.iconType === "video" || typeLower.includes("video"))) ||
+          (activeCategory === "slides" &&
+            (item.iconType === "presentation" ||
+              typeLower.includes("slide") ||
+              typeLower.includes("ppt"))) ||
+          (activeCategory === "poster" &&
+            (item.iconType === "image" ||
+              typeLower.includes("canva") ||
+              typeLower.includes("poster"))) ||
+          (activeCategory === "meeting" &&
+            (item.iconType === "pdf" || typeLower.includes("pdf"))) ||
+          (activeCategory === "data" &&
+            (item.category === "data" ||
+              item.iconType === "sheets" ||
+              typeLower.includes("sheet") ||
+              typeLower.includes("project")));
 
-      const q = searchQuery.toLowerCase().trim();
-      const matchesSearch =
-        !q ||
-        item.title.toLowerCase().includes(q) ||
-        item.description.toLowerCase().includes(q) ||
-        item.categoryLabel.toLowerCase().includes(q) ||
-        item.typeBadge.toLowerCase().includes(q) ||
-        (item.periodOrDuration && item.periodOrDuration.toLowerCase().includes(q));
+        const q = searchQuery.toLowerCase().trim();
+        const matchesSearch =
+          !q ||
+          item.title.toLowerCase().includes(q) ||
+          item.description.toLowerCase().includes(q) ||
+          item.categoryLabel.toLowerCase().includes(q) ||
+          item.typeBadge.toLowerCase().includes(q) ||
+          (item.periodOrDuration && item.periodOrDuration.toLowerCase().includes(q));
 
-      return matchesCategory && matchesSearch;
-    });
+        return matchesCategory && matchesSearch;
+      })
+      .sort((a, b) => (b.timestamp ?? 0) - (a.timestamp ?? 0));
   }, [items, activeCategory, searchQuery]);
 
   const handleScroll = (direction: "prev" | "next") => {

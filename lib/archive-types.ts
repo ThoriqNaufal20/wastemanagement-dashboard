@@ -15,6 +15,8 @@ export interface ArchiveItem {
   typeBadge: string;
   badgeColorClass: string;
   periodOrDuration?: string;
+  date?: string;
+  timestamp?: number;
   description: string;
   gradientClass: string;
   iconType: "pdf" | "sheets" | "image" | "presentation" | "video";

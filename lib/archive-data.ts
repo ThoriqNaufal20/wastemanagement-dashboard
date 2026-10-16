@@ -12,6 +12,154 @@ import {
 
 export { DEFAULT_ARCHIVE_ITEMS, ARCHIVE_CATEGORIES };
 
+const MONTH_MAP: Record<string, number> = {
+  jan: 0,
+  januari: 0,
+  january: 0,
+  feb: 1,
+  februari: 1,
+  february: 1,
+  mar: 2,
+  maret: 2,
+  march: 2,
+  apr: 3,
+  april: 3,
+  mei: 4,
+  may: 4,
+  jun: 5,
+  juni: 5,
+  june: 5,
+  jul: 6,
+  juli: 6,
+  july: 6,
+  agu: 7,
+  ags: 7,
+  agust: 7,
+  agustus: 7,
+  aug: 7,
+  august: 7,
+  sep: 8,
+  sept: 8,
+  september: 8,
+  okt: 9,
+  oct: 9,
+  oktober: 9,
+  october: 9,
+  nov: 10,
+  nop: 10,
+  nopember: 10,
+  november: 10,
+  des: 11,
+  dec: 11,
+  desember: 11,
+  december: 11,
+};
+
+/**
+ * Mengonversi string tanggal atau periode ke nilai timestamp numerik (milidetik)
+ * untuk pengurutan kronologis (terbaru ke terlama).
+ */
+export function parseArchiveDateToTimestamp(
+  rawDate?: string,
+  period?: string
+): number {
+  if (rawDate) {
+    const clean = rawDate.trim().toLowerCase();
+
+    // 1. Format: "12 Oct 2026", "12-Oct-2026", "12 Oktober 2026"
+    const dmyWordMatch = clean.match(
+      /^(\d{1,2})[\s\-\/\.]+([a-z]+)[\s\-\/\.]+(\d{4})/
+    );
+    if (dmyWordMatch) {
+      const day = parseInt(dmyWordMatch[1], 10);
+      const mStr = dmyWordMatch[2];
+      const year = parseInt(dmyWordMatch[3], 10);
+      const month = MONTH_MAP[mStr] ?? MONTH_MAP[mStr.substring(0, 3)];
+      if (month !== undefined) {
+        return new Date(Date.UTC(year, month, day)).getTime();
+      }
+    }
+
+    // 2. Format: "YYYY-MM-DD" atau "YYYY/MM/DD"
+    const ymdMatch = clean.match(/^(\d{4})[\-\/\.](\d{1,2})[\-\/\.](\d{1,2})/);
+    if (ymdMatch) {
+      const year = parseInt(ymdMatch[1], 10);
+      const month = parseInt(ymdMatch[2], 10) - 1;
+      const day = parseInt(ymdMatch[3], 10);
+      return new Date(Date.UTC(year, month, day)).getTime();
+    }
+
+    // 3. Format: "DD-MM-YYYY" atau "DD/MM/YYYY"
+    const dmyNumMatch = clean.match(
+      /^(\d{1,2})[\-\/\.](\d{1,2})[\-\/\.](\d{4})/
+    );
+    if (dmyNumMatch) {
+      const day = parseInt(dmyNumMatch[1], 10);
+      const month = parseInt(dmyNumMatch[2], 10) - 1;
+      const year = parseInt(dmyNumMatch[3], 10);
+      return new Date(Date.UTC(year, month, day)).getTime();
+    }
+
+    // 4. Format: "Oct 2026" atau "Oktober 2026"
+    const myWordMatch = clean.match(/^([a-z]+)[\s\-\/\.]+(\d{4})/);
+    if (myWordMatch) {
+      const mStr = myWordMatch[1];
+      const year = parseInt(myWordMatch[2], 10);
+      const month = MONTH_MAP[mStr] ?? MONTH_MAP[mStr.substring(0, 3)];
+      if (month !== undefined) {
+        return new Date(Date.UTC(year, month, 1)).getTime();
+      }
+    }
+
+    // 5. Fallback native Date.parse
+    const parsed = Date.parse(rawDate);
+    if (!isNaN(parsed)) {
+      return parsed;
+    }
+  }
+
+  // 6. Estimasi dari periode jika rawDate kosong
+  if (period) {
+    const cleanPeriod = period.trim().toLowerCase();
+    const yearMatch = cleanPeriod.match(/\b(20\d{2})\b/);
+    const year = yearMatch ? parseInt(yearMatch[1], 10) : 2026;
+
+    if (
+      cleanPeriod.includes("q4") ||
+      cleanPeriod.includes("kuartal iv") ||
+      cleanPeriod.includes("kuartal 4")
+    ) {
+      return new Date(Date.UTC(year, 11, 31)).getTime();
+    }
+    if (
+      cleanPeriod.includes("q3") ||
+      cleanPeriod.includes("kuartal iii") ||
+      cleanPeriod.includes("kuartal 3")
+    ) {
+      return new Date(Date.UTC(year, 8, 30)).getTime();
+    }
+    if (
+      cleanPeriod.includes("q2") ||
+      cleanPeriod.includes("kuartal ii") ||
+      cleanPeriod.includes("kuartal 2")
+    ) {
+      return new Date(Date.UTC(year, 5, 30)).getTime();
+    }
+    if (
+      cleanPeriod.includes("q1") ||
+      cleanPeriod.includes("kuartal i") ||
+      cleanPeriod.includes("kuartal 1")
+    ) {
+      return new Date(Date.UTC(year, 2, 31)).getTime();
+    }
+    if (yearMatch) {
+      return new Date(Date.UTC(year, 0, 1)).getTime();
+    }
+  }
+
+  return 0;
+}
+
 function normalizeCategory(
   rawCat: string | undefined,
   rawType: string | undefined
@@ -223,6 +371,8 @@ export async function getArchiveItems(): Promise<ArchiveItem[]> {
       const externalUrl = (row["Link URL"] || row["Link"] || row["URL"] || "#").trim();
       const fileMeta = (row["Meta File"] || row["Meta"] || "").trim();
 
+      const timestamp = parseArchiveDateToTimestamp(rawDate, rawPeriod);
+
       items.push({
         id: `archive-${index + 1}`,
         title,
@@ -231,6 +381,8 @@ export async function getArchiveItems(): Promise<ArchiveItem[]> {
         typeBadge: config.typeBadge,
         badgeColorClass: config.badgeColorClass,
         periodOrDuration: periodOrDuration || undefined,
+        date: rawDate || undefined,
+        timestamp,
         description,
         gradientClass: config.gradientClass,
         iconType: config.iconType,
@@ -239,6 +391,9 @@ export async function getArchiveItems(): Promise<ArchiveItem[]> {
         actionLabel: config.actionLabel,
       });
     });
+
+    // Urutkan item dari tanggal terbaru ke terlama (paling kiri = tanggal paling baru)
+    items.sort((a, b) => (b.timestamp ?? 0) - (a.timestamp ?? 0));
 
     return items.length > 0 ? items : DEFAULT_ARCHIVE_ITEMS;
   } catch (err) {
