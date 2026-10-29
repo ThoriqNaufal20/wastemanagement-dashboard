@@ -185,6 +185,7 @@ NEXT_PUBLIC_INTERNAL_AUDIT_URL="https://your-internal-audit-system.com"
 | **Internal Audit Main** | `WEBInternalAuditMain` | Factory, Period, OTS Finding, AVG Score, Area Belum Audit, Start Date, End Date |
 | **OTS Internal Audit Area** | `WEBOTSInternalAudit` | Period, Factory, Area, OTS Finding, In Progress, No CAP, Hold, PIC |
 | **OTS Internal Audit Detail** | `WEBOTSInternalAuditDetail` | Periode, Factory, Area, Section, No Poin, Poin Audit, Kategori, Status, Deskripsi Temuan, Tgl Dibuat, CAP (Tindakan Perbaikan), Target CAP, Tgl Selesai Aktual, Team Support, Link Foto Temuan, Link Foto Perbaikan |
+| **Internal Audit Belum Audit** | `WEBInternalAuditBelumAudit` | Factory, Period, Area, Section, Poin Audit, Jawaban PIC |
 | **Audit Support Team** | `WEBInternalAuditSupportTeam` | PERIOD, FACT., AREA, STATUS, FINDING, IMAGE, SUPPORTIVE DEPARTMENT, CAP, TARGET FIN, ACTUAL FIN |
 | **Progress Shipment** | `WEBProgressShipment` | W, Inv#, Buyer, Qty Shipment, Qty Carton, Hutang Prod, Hutang Carton, Hutang Envelope, Filter Week |
 | **WIP Sewing** | `WEBWipSewing` | FACT, LINE, SPO, STYLE, SIZE, QTY (PCS), SCAN DST, OVERDUE |

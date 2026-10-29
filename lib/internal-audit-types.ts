@@ -55,6 +55,16 @@ export interface OtsInternalAuditDetailRow {
   isOts: boolean;
 }
 
+export interface InternalAuditBelumAuditRow {
+  factory: string;
+  fact: string;
+  period: string;
+  area: string;
+  section: string;
+  poinAudit: string;
+  jawabanPic: string;
+}
+
 export interface InternalAuditFullData {
   mainRows: InternalAuditRow[];
   areaRows: OtsInternalAuditAreaRow[];

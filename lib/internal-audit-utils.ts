@@ -108,6 +108,40 @@ export function isAuditLate(
 }
 
 import type { StatusLevel } from "@/components/dashboard/status-chip";
+import type { InternalAuditRow } from "@/lib/internal-audit-types";
+
+/**
+ * Cek apakah factory sudah melewati start date (jadwal sudah mulai berjalan).
+ * Digunakan untuk menyaring area belum audit agar hanya menampilkan pabrik yang sudah mulai.
+ */
+export function isFactoryStarted(
+  factoryName: string,
+  mainRows: InternalAuditRow[],
+  now: Date = new Date()
+): boolean {
+  if (!factoryName) return false;
+  const clean = factoryName
+    .trim()
+    .toUpperCase()
+    .replace(/^FACTORY\s*/i, "")
+    .replace(/^FACT\s*/i, "")
+    .trim();
+
+  const match = mainRows.find((r) => {
+    const rName = (r.factory || r.fact || "")
+      .trim()
+      .toUpperCase()
+      .replace(/^FACTORY\s*/i, "")
+      .replace(/^FACT\s*/i, "")
+      .trim();
+    return rName === clean;
+  });
+
+  if (!match) return false;
+  const parsedStart = parseAuditDate(match.startDate, false);
+  if (!parsedStart) return false;
+  return now.getTime() >= parsedStart.getTime();
+}
 
 /**
  * Aturan status baris Internal Audit di tabel:

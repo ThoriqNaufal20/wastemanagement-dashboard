@@ -20,7 +20,8 @@ import { WipSewingCard } from "@/components/dashboard/wip-sewing-card";
 import { KelolosanChartCard } from "@/components/dashboard/kelolosan-chart-card";
 import { CorrectiveActionPlanCard } from "@/components/dashboard/corrective-action-plan-card";
 import { InternalAuditTable } from "@/components/dashboard/internal-audit-table";
-import { InternalAuditSupportTable } from "@/components/dashboard/internal-audit-support-table";
+import { InternalAuditBelumAuditTable } from "@/components/dashboard/internal-audit-belum-audit-table";
+
 import { auditSupportiveDept } from "@/lib/mock-data";
 import { getUrgencyFlags } from "@/lib/urgency";
 import { computeTrend, buildAllDepartmentsAverage } from "@/lib/scorecard-types";
@@ -78,8 +79,15 @@ import type {
 } from "@/lib/progress-shipment-types";
 import { getCapDashboardData } from "@/lib/cap-data";
 import type { CapDashboardData } from "@/lib/cap-types";
-import { getInternalAuditMainData } from "@/lib/internal-audit-data";
-import type { InternalAuditRow } from "@/lib/internal-audit-types";
+import {
+  getInternalAuditMainData,
+  getInternalAuditBelumAuditData,
+} from "@/lib/internal-audit-data";
+import type {
+  InternalAuditRow,
+  InternalAuditBelumAuditRow,
+} from "@/lib/internal-audit-types";
+import { isFactoryStarted } from "@/lib/internal-audit-utils";
 import { getInternalAuditSupportData } from "@/lib/internal-audit-support-data";
 import type { InternalAuditSupportData } from "@/lib/internal-audit-support-types";
 import { prefetchNamedRanges } from "@/lib/google-sheets";
@@ -94,6 +102,7 @@ const DASHBOARD_NAMED_RANGES = [
   "WEBProgressShipment",
   "WEBCAP",
   "WEBInternalAuditMain",
+  "WEBInternalAuditBelumAudit",
   "WEBInternalAuditSupportTeam",
 ];
 
@@ -111,6 +120,7 @@ async function loadDashboardDataDirect() {
     progressShipmentSummary,
     capData,
     internalAuditData,
+    internalAuditBelumAuditData,
     internalAuditSupportData,
   ] = await Promise.all([
     getAllScorecardData(),
@@ -124,6 +134,7 @@ async function loadDashboardDataDirect() {
     getProgressShipmentSummary("next week"),
     getCapDashboardData(2026),
     getInternalAuditMainData(),
+    getInternalAuditBelumAuditData(),
     getInternalAuditSupportData(),
   ]);
 
@@ -139,6 +150,7 @@ async function loadDashboardDataDirect() {
     progressShipmentSummary,
     capData,
     internalAuditData,
+    internalAuditBelumAuditData,
     internalAuditSupportData,
   };
 }
@@ -164,6 +176,7 @@ export default async function DashboardPage() {
   let progressShipmentSummary: ProgressShipmentSummary | undefined = undefined;
   let capData: CapDashboardData | undefined = undefined;
   let internalAuditData: InternalAuditRow[] = [];
+  let internalAuditBelumAuditData: InternalAuditBelumAuditRow[] = [];
   let internalAuditSupportData: InternalAuditSupportData = {
     rows: [],
     factSummaries: [],
@@ -222,11 +235,18 @@ export default async function DashboardPage() {
     progressShipmentSummary = loadedData.progressShipmentSummary || undefined;
     capData = loadedData.capData || undefined;
     internalAuditData = loadedData.internalAuditData || [];
+    internalAuditBelumAuditData = loadedData.internalAuditBelumAuditData || [];
     internalAuditSupportData =
       loadedData.internalAuditSupportData || internalAuditSupportData;
   }
 
-  const urgency = getUrgencyFlags(new Date(), internalAuditData);
+  const now = new Date();
+  const urgency = getUrgencyFlags(now, internalAuditData);
+
+  // Saring area belum audit agar HANYA memasukkan factory yang start date nya sudah jalan
+  const startedBelumAuditRows = internalAuditBelumAuditData.filter((row) =>
+    isFactoryStarted(row.factory, internalAuditData, now)
+  );
 
   const scorecardAllDept = buildAllDepartmentsAverage(scorecardData);
   const dashboardDeptAllDept = buildAllDepartmentsAverage(dashboardDeptData);
@@ -251,18 +271,14 @@ export default async function DashboardPage() {
       hasData: urgency.internalAudit.totalOts > 0,
     },
     {
-      key: "audit-support",
-      label: "Audit support · late",
-      value: internalAuditSupportData.totalLate,
-      suffix: `/ ${internalAuditSupportData.totalInProgress} in-progress`,
-      status: (internalAuditSupportData.totalLate > 0
-        ? "late"
-        : internalAuditSupportData.totalInProgress > 0
-          ? "on_progress"
-          : undefined) as StatusLevel | undefined,
-      icon: Users,
-      href: "/audit-supportive-dept",
-      hasData: internalAuditSupportData.totalInProgress > 0 || internalAuditSupportData.totalLate > 0,
+      key: "internal-audit-belum",
+      label: "Internal audit · Belum diaudit",
+      value: startedBelumAuditRows.length,
+      suffix: "area/poin",
+      status: (startedBelumAuditRows.length > 0 ? "on_progress" : undefined) as StatusLevel | undefined,
+      icon: ClipboardList,
+      href: "/internal-audit",
+      hasData: startedBelumAuditRows.length > 0,
     },
     // ---------- 3R Glove Active — data ASLI dari WEBGlove3R (Opsi C: teks biasa, bukan pecahan) ----------
     {
@@ -423,14 +439,12 @@ export default async function DashboardPage() {
 
         <section>
           <div className="grid grid-cols-1 items-stretch gap-4 xl:grid-cols-12">
-            <div className="flex flex-col xl:col-span-8">
+            <div className="flex flex-col xl:col-span-7 2xl:col-span-8">
               <InternalAuditTable data={internalAuditData} className="h-full flex-1" />
             </div>
-            <div className="flex flex-col xl:col-span-4">
-              <InternalAuditSupportTable
-                summaries={internalAuditSupportData.factSummaries}
-                totalOts={internalAuditSupportData.totalOts}
-                totalRows={internalAuditSupportData.totalRows}
+            <div className="flex flex-col xl:col-span-5 2xl:col-span-4">
+              <InternalAuditBelumAuditTable
+                data={startedBelumAuditRows}
                 className="h-full flex-1"
               />
             </div>

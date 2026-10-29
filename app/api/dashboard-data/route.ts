@@ -11,7 +11,10 @@ import {
   getProgressShipmentSummary,
 } from "@/lib/progress-shipment-data";
 import { getCapDashboardData } from "@/lib/cap-data";
-import { getInternalAuditMainData } from "@/lib/internal-audit-data";
+import {
+  getInternalAuditMainData,
+  getInternalAuditBelumAuditData,
+} from "@/lib/internal-audit-data";
 
 export const dynamic = "force-dynamic";
 
@@ -25,6 +28,7 @@ const DASHBOARD_NAMED_RANGES = [
   "WEBProgressShipment",
   "WEBCAP",
   "WEBInternalAuditMain",
+  "WEBInternalAuditBelumAudit",
 ];
 
 export async function GET() {
@@ -43,6 +47,7 @@ export async function GET() {
       progressShipmentSummary,
       capData,
       internalAuditData,
+      internalAuditBelumAuditData,
     ] = await Promise.all([
       getAllScorecardData(),
       getAllDashboardDeptData(),
@@ -55,6 +60,7 @@ export async function GET() {
       getProgressShipmentSummary("next week"),
       getCapDashboardData(2026),
       getInternalAuditMainData(),
+      getInternalAuditBelumAuditData(),
     ]);
 
     return NextResponse.json({
@@ -68,6 +74,9 @@ export async function GET() {
       progressShipmentChart,
       progressShipmentSummary,
       capData,
+      internalAuditData,
+      internalAuditBelumAuditData,
+    });
       internalAuditData,
     });
   } catch (error: any) {

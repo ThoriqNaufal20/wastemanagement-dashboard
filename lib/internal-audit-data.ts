@@ -4,9 +4,13 @@ import {
   getNamedRangeDataWithLinks,
   prefetchNamedRanges,
 } from "@/lib/google-sheets";
-import { internalAuditRows as mockInternalAuditRows } from "@/lib/mock-data";
+import {
+  internalAuditRows as mockInternalAuditRows,
+  internalAuditBelumAuditRows as mockBelumAuditRows,
+} from "@/lib/mock-data";
 import type {
   InternalAuditRow,
+  InternalAuditBelumAuditRow,
   OtsInternalAuditAreaRow,
   OtsInternalAuditDetailRow,
   InternalAuditFullData,
@@ -447,5 +451,67 @@ export async function getInternalAuditFullData(): Promise<InternalAuditFullData>
       totalChecked,
     },
   };
+}
+
+/**
+ * 5. Data Area Internal Audit yang Belum Dilakukan Audit (WEBInternalAuditBelumAudit)
+ * Kolom: Factory | Period | Area | Section | Poin Audit | Jawaban PIC
+ */
+export async function getInternalAuditBelumAuditData(): Promise<InternalAuditBelumAuditRow[]> {
+  try {
+    const rows = await getNamedRangeData("WEBInternalAuditBelumAudit");
+    if (!rows || rows.length === 0) return mockBelumAuditRows;
+
+    const items: InternalAuditBelumAuditRow[] = [];
+
+    rows.forEach((row) => {
+      const cleanRow: Record<string, string> = {};
+      Object.keys(row).forEach((k) => {
+        cleanRow[k.trim().toUpperCase()] = (row[k] || "").trim();
+      });
+
+      const factory =
+        cleanRow["FACTORY"] ||
+        cleanRow["FACT"] ||
+        cleanRow["FACT."] ||
+        cleanRow["PABRIK"] ||
+        "";
+      const period =
+        cleanRow["PERIOD"] ||
+        cleanRow["PERIODE"] ||
+        "";
+      const area = cleanRow["AREA"] || "";
+      const section = cleanRow["SECTION"] || cleanRow["SEKSI"] || "";
+      const poinAudit =
+        cleanRow["POIN AUDIT"] ||
+        cleanRow["POIN_AUDIT"] ||
+        cleanRow["AUDIT POINT"] ||
+        "";
+      const jawabanPic =
+        cleanRow["JAWABAN PIC"] ||
+        cleanRow["JAWABAN_PIC"] ||
+        cleanRow["JAWABAN"] ||
+        cleanRow["PIC"] ||
+        "";
+
+      // Lewati baris kosong
+      if (!factory && !area && !section && !poinAudit) return;
+
+      items.push({
+        factory,
+        fact: factory,
+        period,
+        area,
+        section,
+        poinAudit,
+        jawabanPic,
+      });
+    });
+
+    return items.length > 0 ? items : mockBelumAuditRows;
+  } catch (err) {
+    console.error("[InternalAudit] Gagal memuat named range WEBInternalAuditBelumAudit:", err);
+    return mockBelumAuditRows;
+  }
 }
 

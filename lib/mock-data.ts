@@ -1,4 +1,7 @@
-import type { InternalAuditRow } from "@/lib/internal-audit-types";
+import type {
+  InternalAuditRow,
+  InternalAuditBelumAuditRow,
+} from "@/lib/internal-audit-types";
 
 // ============================================================
 // MOCK DATA — Waste Management Dashboard
@@ -38,6 +41,37 @@ export const internalAuditRows: InternalAuditRow[] = [
 
 // Threshold tentatif — sesuaikan begitu rules resmi diberikan
 export const internalAuditUrgentThreshold = 80;
+
+// ---------- Internal Audit Belum Diaudit ----------
+export const internalAuditBelumAuditRows: InternalAuditBelumAuditRow[] = [
+  {
+    factory: "F",
+    fact: "F",
+    period: "Q4 2026",
+    area: "Produksi",
+    section: "Cutting",
+    poinAudit: "Pembersihan sisa limbah kain per shift",
+    jawabanPic: "Belum dijadwalkan inspeksi",
+  },
+  {
+    factory: "F",
+    fact: "F",
+    period: "Q4 2026",
+    area: "Gudang B3",
+    section: "Storage",
+    poinAudit: "Ketersediaan spill kit & simbol limbah",
+    jawabanPic: "Menunggu jadwal auditor",
+  },
+  {
+    factory: "A",
+    fact: "A",
+    period: "Q4 2026",
+    area: "Sewing Line 1",
+    section: "Sewing",
+    poinAudit: "Tempat sampah terpilah di jalur produksi",
+    jawabanPic: "Sedang dikoordinasikan",
+  },
+];
 
 // ---------- Internal Audit Supportive Dept ----------
 // Format: overdue / in-progress (bukan overdue/total keseluruhan)
