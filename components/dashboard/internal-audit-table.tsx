@@ -85,8 +85,8 @@ export function InternalAuditTable({
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead>Factory</TableHead>
               <TableHead>Period</TableHead>
-              <TableHead>Fact</TableHead>
               <TableHead className="text-right">OTS finding</TableHead>
               <TableHead className="text-right">Avg score</TableHead>
               <TableHead className="text-right">Area belum audit</TableHead>
@@ -112,11 +112,11 @@ export function InternalAuditTable({
                     isNavigable ? "cursor-pointer transition-colors hover:bg-muted/50" : ""
                   )}
                 >
+                  <TableCell className="font-semibold text-foreground">
+                    {row.factory || row.fact}
+                  </TableCell>
                   <TableCell className="text-muted-foreground">
                     {row.period}
-                  </TableCell>
-                  <TableCell className="font-semibold text-foreground">
-                    {row.fact}
                   </TableCell>
                   <TableCell
                     className={`text-right font-medium ${

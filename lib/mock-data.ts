@@ -1,3 +1,5 @@
+import type { InternalAuditRow } from "@/lib/internal-audit-types";
+
 // ============================================================
 // MOCK DATA — Waste Management Dashboard
 // Struktur ini akan jadi acuan mapping kolom Google Sheets nanti.
@@ -27,11 +29,11 @@ export const correctiveActionPlan = [
 
 // ---------- Internal Audit ----------
 // Satuan: jumlah temuan. Urgensi grid dinamis dipicu oleh otsFinding tertinggi.
-export const internalAuditRows = [
-  { period: "Q2-2026", fact: "F", otsFinding: 102, avgScore: "79.51%", areaBelumAudit: 0, startDate: "Apr 20, 2026", endDate: "May 18, 2026" },
-  { period: "Q2-2026", fact: "B", otsFinding: 24, avgScore: "41.40%", areaBelumAudit: 0, startDate: "May 11, 2026", endDate: "May 22, 2026" },
-  { period: "Q2-2026", fact: "A", otsFinding: 45, avgScore: "84.26%", areaBelumAudit: 0, startDate: "May 25, 2026", endDate: "Jun 19, 2026" },
-  { period: "Q2-2026", fact: "K", otsFinding: 76, avgScore: "86.17%", areaBelumAudit: 0, startDate: "Jun 22, 2026", endDate: "Jul 17, 2026" },
+export const internalAuditRows: InternalAuditRow[] = [
+  { period: "Q2-2026", fact: "F", factory: "F", otsFinding: 102, avgScore: "79.51%", areaBelumAudit: 0, startDate: "Apr 20, 2026", endDate: "May 18, 2026" },
+  { period: "Q2-2026", fact: "B", factory: "B", otsFinding: 24, avgScore: "41.40%", areaBelumAudit: 0, startDate: "May 11, 2026", endDate: "May 22, 2026" },
+  { period: "Q2-2026", fact: "A", factory: "A", otsFinding: 45, avgScore: "84.26%", areaBelumAudit: 0, startDate: "May 25, 2026", endDate: "Jun 19, 2026" },
+  { period: "Q2-2026", fact: "K", factory: "K", otsFinding: 76, avgScore: "86.17%", areaBelumAudit: 0, startDate: "Jun 22, 2026", endDate: "Jul 17, 2026" },
 ];
 
 // Threshold tentatif — sesuaikan begitu rules resmi diberikan

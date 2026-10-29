@@ -1,5 +1,6 @@
 export interface InternalAuditRow {
   fact: string;
+  factory?: string;
   period: string;
   otsFinding: number;
   avgScore: string;

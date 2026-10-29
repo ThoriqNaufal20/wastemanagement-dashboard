@@ -32,6 +32,7 @@ function formatAvgScore(val: string | undefined): { text: string; num: number } 
 
 /**
  * 1. Data Ringkasan Utama Per Pabrik (WEBInternalAuditMain)
+ * Format Kolom: Factory | Period | OTS Finding | AVG Score | Area Belum Audit | Start Date | End Date
  */
 export async function getInternalAuditMainData(): Promise<InternalAuditRow[]> {
   try {
@@ -39,6 +40,7 @@ export async function getInternalAuditMainData(): Promise<InternalAuditRow[]> {
     if (!rows || rows.length === 0) {
       return mockInternalAuditRows.map((r) => ({
         ...r,
+        factory: r.fact,
         avgScoreRaw: parseFloat(r.avgScore.replace("%", "")),
       }));
     }
@@ -51,12 +53,17 @@ export async function getInternalAuditMainData(): Promise<InternalAuditRow[]> {
         cleanRow[k.trim().toUpperCase()] = (row[k] || "").trim();
       });
 
-      const fact = cleanRow["FACT"] || "";
+      const fact =
+        cleanRow["FACTORY"] ||
+        cleanRow["FACT"] ||
+        cleanRow["FACT."] ||
+        cleanRow["PABRIK"] ||
+        "";
       if (!fact) return;
 
       const period =
-        cleanRow["PERIOD (L)"] ||
         cleanRow["PERIOD"] ||
+        cleanRow["PERIOD (L)"] ||
         cleanRow["PERIODE"] ||
         "";
 
@@ -67,7 +74,11 @@ export async function getInternalAuditMainData(): Promise<InternalAuditRow[]> {
         "0";
       const otsFinding = parseInt(otsFindingStr.replace(/[^0-9]/g, ""), 10) || 0;
 
-      const rawAvgScore = cleanRow["AVG SCORE"] || cleanRow["AVG_SCORE"] || "";
+      const rawAvgScore =
+        cleanRow["AVG SCORE"] ||
+        cleanRow["AVG_SCORE"] ||
+        cleanRow["AVERAGE SCORE"] ||
+        "";
       const { text: avgScore, num: avgScoreRaw } = formatAvgScore(rawAvgScore);
 
       const areaStr =
@@ -78,19 +89,20 @@ export async function getInternalAuditMainData(): Promise<InternalAuditRow[]> {
       const areaBelumAudit = parseInt(areaStr.replace(/[^0-9]/g, ""), 10) || 0;
 
       const startDate =
-        cleanRow["START DATE (L)"] ||
         cleanRow["START DATE"] ||
+        cleanRow["START DATE (L)"] ||
         cleanRow["START_DATE"] ||
         "";
 
       const endDate =
-        cleanRow["END DATE (L)"] ||
         cleanRow["END DATE"] ||
+        cleanRow["END DATE (L)"] ||
         cleanRow["END_DATE"] ||
         "";
 
       items.push({
         fact,
+        factory: fact,
         period,
         otsFinding,
         avgScore,
@@ -105,12 +117,14 @@ export async function getInternalAuditMainData(): Promise<InternalAuditRow[]> {
       ? items
       : mockInternalAuditRows.map((r) => ({
           ...r,
+          factory: r.fact,
           avgScoreRaw: parseFloat(r.avgScore.replace("%", "")),
         }));
   } catch (err) {
     console.error("[InternalAudit] Gagal memuat named range WEBInternalAuditMain:", err);
     return mockInternalAuditRows.map((r) => ({
       ...r,
+      factory: r.fact,
       avgScoreRaw: parseFloat(r.avgScore.replace("%", "")),
     }));
   }

@@ -182,7 +182,7 @@ NEXT_PUBLIC_INTERNAL_AUDIT_URL="https://your-internal-audit-system.com"
 ### B. Daftar Named Range & Modul Terkait
 | Modul | Nama Named Range | Kolom Utama yang Dibaca |
 |---|---|---|
-| **Internal Audit** | `WEBInternalAudit` | FACT, AREA, START DATE, END DATE, AREA SUDAH AUDIT, AREA BELUM AUDIT, OTS FINDING |
+| **Internal Audit Main** | `WEBInternalAuditMain` | Factory, Period, OTS Finding, AVG Score, Area Belum Audit, Start Date, End Date |
 | **Audit Support Team** | `WEBInternalAuditSupportTeam` | PERIOD, FACT., AREA, STATUS, FINDING, IMAGE, SUPPORTIVE DEPARTMENT, CAP, TARGET FIN, ACTUAL FIN |
 | **Progress Shipment** | `WEBProgressShipment` | W, Inv#, Buyer, Qty Shipment, Qty Carton, Hutang Prod, Hutang Carton, Hutang Envelope, Filter Week |
 | **WIP Sewing** | `WEBWipSewing` | FACT, LINE, SPO, STYLE, SIZE, QTY (PCS), SCAN DST, OVERDUE |
