@@ -13,6 +13,7 @@ export interface InternalAuditRow {
 export interface OtsInternalAuditAreaRow {
   period: string;
   fact: string;
+  factory?: string;
   area: string;
   otsFinding: number;
   inProgress: number;

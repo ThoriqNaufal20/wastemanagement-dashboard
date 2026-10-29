@@ -27,7 +27,7 @@ const ICON_CHIP_TINT: Record<StatusLevel, string> = {
   late: "bg-status-critical/15 text-status-critical",
   overdue: "bg-status-critical/15 text-status-critical",
   attention: "bg-status-warning/15 text-status-warning",
-  on_progress: "bg-primary/10 text-primary",
+  on_progress: "bg-blue-500/15 text-blue-600 dark:text-blue-400",
   pending: "bg-status-warning/15 text-status-warning",
   done: "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400",
   not_started: "bg-muted text-muted-foreground",

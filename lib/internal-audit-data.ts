@@ -132,7 +132,7 @@ export async function getInternalAuditMainData(): Promise<InternalAuditRow[]> {
 
 /**
  * 2. Data Rekap Per Area & PIC (WEBOTSInternalAudit)
- * Kolom: PERIOD, FACT., AREA, OTS FINDING, IN PROGRESS, NO CAP, HOLD, PIC
+ * Kolom: Period | Factory | Area | OTS Finding | In Progress | No CAP | Hold | PIC
  */
 export async function getOtsInternalAuditAreaRows(): Promise<OtsInternalAuditAreaRow[]> {
   try {
@@ -148,7 +148,12 @@ export async function getOtsInternalAuditAreaRows(): Promise<OtsInternalAuditAre
       });
 
       const period = cleanRow["PERIOD"] || "";
-      const fact = cleanRow["FACT."] || cleanRow["FACT"] || "";
+      const fact =
+        cleanRow["FACTORY"] ||
+        cleanRow["FACT."] ||
+        cleanRow["FACT"] ||
+        cleanRow["PABRIK"] ||
+        "";
       const area = cleanRow["AREA"] || "";
 
       // Lewati baris kosong di Google Sheet
@@ -157,9 +162,18 @@ export async function getOtsInternalAuditAreaRows(): Promise<OtsInternalAuditAre
       const otsFinding =
         parseInt((cleanRow["OTS FINDING"] || "0").replace(/[^0-9]/g, ""), 10) || 0;
       const inProgress =
-        parseInt((cleanRow["IN PROGRESS"] || "0").replace(/[^0-9]/g, ""), 10) || 0;
+        parseInt(
+          (cleanRow["IN PROGRESS"] || cleanRow["IN_PROGRESS"] || "0").replace(
+            /[^0-9]/g,
+            ""
+          ),
+          10
+        ) || 0;
       const noCap =
-        parseInt((cleanRow["NO CAP"] || "0").replace(/[^0-9]/g, ""), 10) || 0;
+        parseInt(
+          (cleanRow["NO CAP"] || cleanRow["NO_CAP"] || "0").replace(/[^0-9]/g, ""),
+          10
+        ) || 0;
       const hold =
         parseInt((cleanRow["HOLD"] || "0").replace(/[^0-9]/g, ""), 10) || 0;
       const pic = cleanRow["PIC"] || "";
@@ -167,6 +181,7 @@ export async function getOtsInternalAuditAreaRows(): Promise<OtsInternalAuditAre
       items.push({
         period,
         fact,
+        factory: fact,
         area,
         otsFinding,
         inProgress,

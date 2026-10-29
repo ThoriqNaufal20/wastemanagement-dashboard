@@ -214,7 +214,7 @@ export function InternalAuditView({ initialData }: InternalAuditViewProps) {
               <option value="ALL">Semua Pabrik</option>
               {uniqueFacts.map((f) => (
                 <option key={f} value={f}>
-                  Factory {f}
+                  {f.toLowerCase().startsWith("fact") ? f : `Factory ${f}`}
                 </option>
               ))}
             </select>
@@ -468,7 +468,7 @@ export function InternalAuditView({ initialData }: InternalAuditViewProps) {
                           {row.period}
                         </TableCell>
                         <TableCell className="font-semibold text-foreground">
-                          Fact {row.fact}
+                          {row.fact.toLowerCase().startsWith("fact") ? row.fact : `Fact ${row.fact}`}
                         </TableCell>
                         <TableCell className="font-medium text-foreground">
                           {row.area}
