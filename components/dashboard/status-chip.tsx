@@ -4,7 +4,8 @@ export type StatusLevel =
   | "attention"
   | "on_progress"
   | "pending"
-  | "done";
+  | "done"
+  | "not_started";
 
 const STATUS_CONFIG: Record<StatusLevel, { label: string; className: string }> = {
   late: {
@@ -22,6 +23,10 @@ const STATUS_CONFIG: Record<StatusLevel, { label: string; className: string }> =
   on_progress: {
     label: "ON PROGRESS",
     className: "bg-muted text-muted-foreground",
+  },
+  not_started: {
+    label: "NOT STARTED",
+    className: "bg-slate-500/10 text-slate-600 dark:text-slate-400",
   },
   // Pending sekarang warning (oranye/kuning) — bukan netral abu-abu lagi.
   // Bukan urgent/critical, tapi tetap butuh perhatian (menunggu diproses).

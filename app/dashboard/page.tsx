@@ -34,6 +34,7 @@ const SEVERITY_WEIGHT: Record<string, number> = {
   pending: 2,
   on_progress: 1,
   done: 0,
+  not_started: 0,
   none: 0,
 };
 

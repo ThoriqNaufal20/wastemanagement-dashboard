@@ -98,10 +98,11 @@ export function InternalAuditTable({
           <TableBody>
             {rows.map((row, i) => {
               // Status aturan:
-              // - DONE: sudah tidak ada area yg belum audit (areaBelumAudit === 0)
-              // - ON PROGRESS: terdapat area yg belum audit tetapi belum melewati end date
+              // - NOT STARTED: belum melewati start date
+              // - ON PROGRESS: sudah melewati start date dan belum melewati end date (masih ada area belum audit)
               // - LATE: sudah melewati end date tetapi masih ada area yg belum diaudit
-              const status = getAuditRowStatus(row.endDate, row.areaBelumAudit);
+              // - DONE: sudah tidak ada area yg belum audit (areaBelumAudit === 0)
+              const status = getAuditRowStatus(row.startDate, row.endDate, row.areaBelumAudit);
               const hasOts = row.otsFinding > 0;
 
               return (

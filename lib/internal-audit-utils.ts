@@ -25,11 +25,18 @@ const MONTH_MAP: Record<string, number> = {
 /**
  * Parsing tanggal dari berbagai variasi format spreadsheet:
  * Contoh: "25-May-2026", "19-Jun-2026", "19-Mei-2026", "May 18, 2026", "2026-06-19"
+ * endOfDay = true  -> 23:59:59.999 (default untuk deadline / end date)
+ * endOfDay = false -> 00:00:00.000 (untuk start date agar terhitung sejak awal hari)
  */
-export function parseAuditDate(dateStr: string): Date | null {
+export function parseAuditDate(dateStr: string, endOfDay: boolean = true): Date | null {
   if (!dateStr) return null;
   const s = dateStr.trim();
   if (!s) return null;
+
+  const hours = endOfDay ? 23 : 0;
+  const minutes = endOfDay ? 59 : 0;
+  const seconds = endOfDay ? 59 : 0;
+  const ms = endOfDay ? 999 : 0;
 
   // Format dash / slash / space: e.g. "19-Jun-2026" atau "25-May-2026"
   const parts = s.split(/[-/\s]+/);
@@ -45,7 +52,7 @@ export function parseAuditDate(dateStr: string): Date | null {
       let year = parseInt(p2, 10);
       if (year < 100) year += 2000;
       if (!isNaN(day) && !isNaN(year)) {
-        return new Date(year, month, day, 23, 59, 59, 999);
+        return new Date(year, month, day, hours, minutes, seconds, ms);
       }
     }
 
@@ -56,7 +63,7 @@ export function parseAuditDate(dateStr: string): Date | null {
       let year = parseInt(p2, 10);
       if (year < 100) year += 2000;
       if (!isNaN(day) && !isNaN(year)) {
-        return new Date(year, month, day, 23, 59, 59, 999);
+        return new Date(year, month, day, hours, minutes, seconds, ms);
       }
     }
 
@@ -67,11 +74,11 @@ export function parseAuditDate(dateStr: string): Date | null {
     if (!isNaN(n0) && !isNaN(n1) && !isNaN(n2)) {
       if (n0 > 1000) {
         // YYYY-MM-DD
-        return new Date(n0, n1 - 1, n2, 23, 59, 59, 999);
+        return new Date(n0, n1 - 1, n2, hours, minutes, seconds, ms);
       } else {
         // DD-MM-YYYY
         let yr = n2 < 100 ? n2 + 2000 : n2;
-        return new Date(yr, n1 - 1, n0, 23, 59, 59, 999);
+        return new Date(yr, n1 - 1, n0, hours, minutes, seconds, ms);
       }
     }
   }
@@ -79,7 +86,7 @@ export function parseAuditDate(dateStr: string): Date | null {
   // Format standard JavaScript / English text fallback
   const fallback = new Date(s);
   if (!isNaN(fallback.getTime())) {
-    fallback.setHours(23, 59, 59, 999);
+    fallback.setHours(hours, minutes, seconds, ms);
     return fallback;
   }
 
@@ -95,7 +102,7 @@ export function isAuditLate(
   now: Date = new Date()
 ): boolean {
   if (areaBelumAudit <= 0) return false;
-  const parsed = parseAuditDate(endDateStr);
+  const parsed = parseAuditDate(endDateStr, true);
   if (!parsed) return false;
   return now.getTime() > parsed.getTime();
 }
@@ -104,24 +111,45 @@ import type { StatusLevel } from "@/components/dashboard/status-chip";
 
 /**
  * Aturan status baris Internal Audit di tabel:
- * - DONE: jika sudah tidak ada area yang belum diaudit (areaBelumAudit === 0)
- * - LATE: jika sudah melewati end date tetapi masih ada area yang belum diaudit (areaBelumAudit > 0 && now > endDate)
- * - ON PROGRESS: terdapat area yang belum diaudit tetapi belum melewati end date (areaBelumAudit > 0 && now <= endDate)
+ * - NOT STARTED: belum melewati start date (now < startDate)
+ * - DONE: sudah tidak ada area yang belum diaudit (areaBelumAudit === 0) dan sudah mulai
+ * - LATE: sudah melewati end date tetapi masih ada area yang belum diaudit (areaBelumAudit > 0 && now > endDate)
+ * - ON PROGRESS: sudah melewati start date tetapi belum melewati end date (areaBelumAudit > 0 && now >= startDate && now <= endDate)
  */
 export function getAuditRowStatus(
-  endDateStr: string,
-  areaBelumAudit: number,
+  startDateStr: string,
+  endDateStr: string | number,
+  areaBelumAudit: number = 0,
   now: Date = new Date()
 ): StatusLevel {
+  // Dukungan backward-compatibility jika dipanggil dengan format lama: getAuditRowStatus(endDateStr, areaBelumAudit)
+  if (typeof endDateStr === "number") {
+    const area = endDateStr;
+    const nowTime = (areaBelumAudit as unknown as Date) || new Date();
+    if (area <= 0) return "done";
+    const parsedEnd = parseAuditDate(startDateStr, true);
+    if (parsedEnd && nowTime.getTime() > parsedEnd.getTime()) return "late";
+    return "on_progress";
+  }
+
+  // 1. Cek apakah belum melewati start date
+  const parsedStart = parseAuditDate(startDateStr, false);
+  if (parsedStart && now.getTime() < parsedStart.getTime()) {
+    return "not_started";
+  }
+
+  // 2. Jika seluruh area sudah selesai diaudit
   if (areaBelumAudit <= 0) {
     return "done";
   }
 
-  const parsed = parseAuditDate(endDateStr);
-  if (parsed && now.getTime() > parsed.getTime()) {
+  // 3. Jika sudah melewati batas akhir (end date) dan masih ada area belum diaudit
+  const parsedEnd = parseAuditDate(endDateStr, true);
+  if (parsedEnd && now.getTime() > parsedEnd.getTime()) {
     return "late";
   }
 
+  // 4. Sudah melewati start date dan belum melewati end date
   return "on_progress";
 }
 
