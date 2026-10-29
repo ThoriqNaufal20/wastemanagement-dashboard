@@ -77,8 +77,6 @@ export async function GET() {
       internalAuditData,
       internalAuditBelumAuditData,
     });
-      internalAuditData,
-    });
   } catch (error: any) {
     console.error("Dashboard API error:", error);
     return NextResponse.json(
