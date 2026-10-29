@@ -45,12 +45,9 @@ function formatAvgScore(val: string | undefined): { text: string; num: number } 
 export async function getInternalAuditMainData(): Promise<InternalAuditRow[]> {
   try {
     const rows = await getNamedRangeData("WEBInternalAuditMain");
+    // If the named range is empty, return an empty array – the UI will then show no data.
     if (!rows || rows.length === 0) {
-      return mockInternalAuditRows.map((r) => ({
-        ...r,
-        factory: r.fact,
-        avgScoreRaw: parseFloat(r.avgScore.replace("%", "")),
-      }));
+      return [];
     }
 
     const items: InternalAuditRow[] = [];
@@ -121,20 +118,10 @@ export async function getInternalAuditMainData(): Promise<InternalAuditRow[]> {
       });
     });
 
-    return items.length > 0
-      ? items
-      : mockInternalAuditRows.map((r) => ({
-          ...r,
-          factory: r.fact,
-          avgScoreRaw: parseFloat(r.avgScore.replace("%", "")),
-        }));
+    return items;
   } catch (err) {
     console.error("[InternalAudit] Gagal memuat named range WEBInternalAuditMain:", err);
-    return mockInternalAuditRows.map((r) => ({
-      ...r,
-      factory: r.fact,
-      avgScoreRaw: parseFloat(r.avgScore.replace("%", "")),
-    }));
+    return [];
   }
 }
 
