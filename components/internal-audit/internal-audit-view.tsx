@@ -125,14 +125,18 @@ export function InternalAuditView({ initialData }: InternalAuditViewProps) {
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
         const matchArea = row.area.toLowerCase().includes(q);
-        const matchAspect = row.aspect.toLowerCase().includes(q);
+        const matchSection = (row.section || "").toLowerCase().includes(q);
+        const matchNoPoin = (row.noPoin || "").toLowerCase().includes(q);
+        const matchAspect = (row.aspect || "").toLowerCase().includes(q);
         const matchPoint = row.auditPoint.toLowerCase().includes(q);
         const matchFindings = row.findings.toLowerCase().includes(q);
-        const matchCi = row.continuousImprovement.toLowerCase().includes(q);
-        const matchPic = row.pic.toLowerCase().includes(q);
+        const matchCi = (row.continuousImprovement || "").toLowerCase().includes(q);
+        const matchPic = (row.pic || row.teamSupport || "").toLowerCase().includes(q);
         const matchCap = row.cap.toLowerCase().includes(q);
         if (
           !matchArea &&
+          !matchSection &&
+          !matchNoPoin &&
           !matchAspect &&
           !matchPoint &&
           !matchFindings &&
@@ -543,10 +547,10 @@ export function InternalAuditView({ initialData }: InternalAuditViewProps) {
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-[90px]">Pabrik/Per.</TableHead>
-                  <TableHead className="w-[180px]">Area & Aspek</TableHead>
+                  <TableHead className="w-[180px]">Area, Seksi & Aspek</TableHead>
                   <TableHead className="min-w-[260px]">Temuan (Findings)</TableHead>
                   <TableHead className="w-[120px]">Status</TableHead>
-                  <TableHead className="w-[100px]">PIC</TableHead>
+                  <TableHead className="w-[110px]">Team Support</TableHead>
                   <TableHead className="min-w-[220px]">Tindakan (CAP)</TableHead>
                   <TableHead className="w-[110px] text-center">Dokumentasi</TableHead>
                   <TableHead className="w-[100px]">Validasi</TableHead>
@@ -576,11 +580,18 @@ export function InternalAuditView({ initialData }: InternalAuditViewProps) {
 
                         <TableCell className="align-top text-xs">
                           <p className="font-semibold text-foreground">{item.area}</p>
-                          {item.aspect && (
-                            <span className="mt-0.5 inline-block rounded bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">
-                              {item.aspect}
-                            </span>
-                          )}
+                          <div className="flex flex-wrap items-center gap-1 mt-0.5">
+                            {item.section && (
+                              <span className="inline-block rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-medium text-primary">
+                                {item.section}
+                              </span>
+                            )}
+                            {item.aspect && (
+                              <span className="inline-block rounded bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">
+                                {item.aspect}
+                              </span>
+                            )}
+                          </div>
                         </TableCell>
 
                         <TableCell className="align-top text-xs">
@@ -611,16 +622,16 @@ export function InternalAuditView({ initialData }: InternalAuditViewProps) {
                         </TableCell>
 
                         <TableCell className="align-top text-xs text-foreground font-medium">
-                          {item.pic || "-"}
+                          {item.teamSupport || item.pic || "-"}
                         </TableCell>
 
                         <TableCell className="align-top text-xs">
                           <p className="text-muted-foreground line-clamp-2" title={item.cap}>
                             {item.cap || <span className="italic text-muted-foreground/60">Belum ada CAP</span>}
                           </p>
-                          {item.targetFin && (
+                          {(item.targetCap || item.targetFin) && (
                             <span className="mt-1 block text-[10px] text-muted-foreground">
-                              Target: {item.targetFin}
+                              Target: {item.targetCap || item.targetFin}
                             </span>
                           )}
                         </TableCell>
@@ -660,7 +671,7 @@ export function InternalAuditView({ initialData }: InternalAuditViewProps) {
                         </TableCell>
 
                         <TableCell className="align-top text-xs">
-                          {item.validasiAuditor.toUpperCase() === "OK" ? (
+                          {item.validasiAuditor?.toUpperCase() === "OK" ? (
                             <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold text-emerald-600">
                               <CheckCircle2 className="h-3 w-3" />
                               OK
@@ -747,13 +758,23 @@ export function InternalAuditView({ initialData }: InternalAuditViewProps) {
             </button>
 
             <div className="border-b border-border pb-4">
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <span className="rounded bg-primary/10 px-2 py-0.5 text-xs font-bold text-primary">
                   Factory {selectedDetailItem.fact}
                 </span>
                 <span className="rounded bg-muted px-2 py-0.5 text-xs font-mono text-muted-foreground">
                   {selectedDetailItem.period}
                 </span>
+                {selectedDetailItem.section && (
+                  <span className="rounded bg-primary/5 px-2 py-0.5 text-xs font-semibold text-primary">
+                    Seksi: {selectedDetailItem.section}
+                  </span>
+                )}
+                {selectedDetailItem.noPoin && (
+                  <span className="rounded bg-muted px-2 py-0.5 text-xs font-mono text-muted-foreground">
+                    No. Poin: {selectedDetailItem.noPoin}
+                  </span>
+                )}
                 <span
                   className={`rounded-full px-2.5 py-0.5 text-xs font-bold ${
                     selectedDetailItem.status === "DONE"
@@ -771,7 +792,7 @@ export function InternalAuditView({ initialData }: InternalAuditViewProps) {
               </h3>
               {selectedDetailItem.aspect && (
                 <p className="text-xs text-muted-foreground">
-                  Aspek: <span className="font-semibold text-foreground">{selectedDetailItem.aspect}</span>
+                  Kategori / Aspek: <span className="font-semibold text-foreground">{selectedDetailItem.aspect}</span>
                 </p>
               )}
             </div>
@@ -813,24 +834,30 @@ export function InternalAuditView({ initialData }: InternalAuditViewProps) {
                 </p>
               </div>
 
-              {/* Grid PIC & Jadwal */}
+              {/* Grid Team Support & Jadwal */}
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 rounded-xl bg-muted/30 p-3">
                 <div>
-                  <p className="text-muted-foreground text-[11px]">PIC</p>
-                  <p className="font-semibold text-foreground">{selectedDetailItem.pic || "-"}</p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground text-[11px]">Target Selesai</p>
-                  <p className="font-semibold text-foreground">{selectedDetailItem.targetFin || "-"}</p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground text-[11px]">Realisasi (Actual)</p>
-                  <p className="font-semibold text-foreground">{selectedDetailItem.actualFin || "-"}</p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground text-[11px]">Validasi Auditor</p>
+                  <p className="text-muted-foreground text-[11px]">Team Support</p>
                   <p className="font-semibold text-foreground">
-                    {selectedDetailItem.validasiAuditor || "Pending"}
+                    {selectedDetailItem.teamSupport || selectedDetailItem.pic || "-"}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground text-[11px]">Tgl Dibuat</p>
+                  <p className="font-semibold text-foreground">
+                    {selectedDetailItem.tglDibuat || "-"}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground text-[11px]">Target CAP</p>
+                  <p className="font-semibold text-foreground">
+                    {selectedDetailItem.targetCap || selectedDetailItem.targetFin || "-"}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground text-[11px]">Selesai Aktual</p>
+                  <p className="font-semibold text-foreground">
+                    {selectedDetailItem.tglSelesaiAktual || selectedDetailItem.actualFin || selectedDetailItem.validasiAuditor || "-"}
                   </p>
                 </div>
               </div>

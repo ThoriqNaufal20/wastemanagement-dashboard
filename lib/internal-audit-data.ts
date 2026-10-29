@@ -1,5 +1,9 @@
 import "server-only";
-import { getNamedRangeData, prefetchNamedRanges } from "@/lib/google-sheets";
+import {
+  getNamedRangeData,
+  getNamedRangeDataWithLinks,
+  prefetchNamedRanges,
+} from "@/lib/google-sheets";
 import { internalAuditRows as mockInternalAuditRows } from "@/lib/mock-data";
 import type {
   InternalAuditRow,
@@ -200,13 +204,19 @@ export async function getOtsInternalAuditAreaRows(): Promise<OtsInternalAuditAre
 
 /**
  * 3. Data Detail Rincian Temuan (WEBOTSInternalAuditDetail)
- * Kolom: FACT., PERIOD, AREA, ASPECT, AUDIT POINT, PHOTO, FINDINGS,
- *        CONTINUOUS IMPROVEMENT, STATUS, PIC, CAP, TARGET FIN, ACTUAL FIN,
- *        PHOTO (AFTER), Ontime?, VALIDASI AUDITOR, NOTE
+ * Kolom Baru:
+ * Periode | Factory | Area | Section | No Poin | Poin Audit | Kategori | Status |
+ * Deskripsi Temuan | Tgl Dibuat | CAP (Tindakan Perbaikan) | Target CAP | Tgl Selesai Aktual |
+ * Team Support | Link Foto Temuan | Link Foto Perbaikan
  */
 export async function getOtsInternalAuditDetailRows(): Promise<OtsInternalAuditDetailRow[]> {
   try {
-    const rows = await getNamedRangeData("WEBOTSInternalAuditDetail");
+    let rows: Record<string, string>[] = [];
+    try {
+      rows = await getNamedRangeDataWithLinks("WEBOTSInternalAuditDetail");
+    } catch {
+      rows = await getNamedRangeData("WEBOTSInternalAuditDetail");
+    }
     if (!rows || rows.length === 0) return [];
 
     const items: OtsInternalAuditDetailRow[] = [];
@@ -217,21 +227,41 @@ export async function getOtsInternalAuditDetailRows(): Promise<OtsInternalAuditD
         cleanRow[k.trim().toUpperCase()] = (row[k] || "").trim();
       });
 
-      const fact = cleanRow["FACT."] || cleanRow["FACT"] || "";
-      const period = cleanRow["PERIOD"] || "";
+      const fact =
+        cleanRow["FACTORY"] ||
+        cleanRow["FACT."] ||
+        cleanRow["FACT"] ||
+        cleanRow["PABRIK"] ||
+        "";
+      const period =
+        cleanRow["PERIODE"] ||
+        cleanRow["PERIOD"] ||
+        "";
       const area = cleanRow["AREA"] || "";
 
       // Lewati jika fact, period, dan area semuanya kosong
       if (!fact && !period && !area) return;
 
-      const aspect = cleanRow["ASPECT"] || "";
-      const auditPoint = cleanRow["AUDIT POINT"] || cleanRow["AUDIT_POINT"] || "";
-      const photoUrl = cleanRow["PHOTO"] || cleanRow["FOTO"] || "";
-      const findings = cleanRow["FINDINGS"] || cleanRow["TEMUAN"] || "";
-      const continuousImprovement =
-        cleanRow["CONTINUOUS IMPROVEMENT"] ||
-        cleanRow["CONTINUOUS_IMPROVEMENT"] ||
-        cleanRow["CI"] ||
+      const section = cleanRow["SECTION"] || cleanRow["SEKSI"] || "";
+      const noPoin =
+        cleanRow["NO POIN"] ||
+        cleanRow["NO_POIN"] ||
+        cleanRow["NO POINT"] ||
+        cleanRow["NO."] ||
+        "";
+
+      const auditPoint =
+        cleanRow["POIN AUDIT"] ||
+        cleanRow["POIN_AUDIT"] ||
+        cleanRow["AUDIT POINT"] ||
+        cleanRow["AUDIT_POINT"] ||
+        "";
+
+      const aspect =
+        cleanRow["KATEGORI"] ||
+        cleanRow["CATEGORY"] ||
+        cleanRow["ASPECT"] ||
+        cleanRow["ASPEK"] ||
         "";
 
       const rawStatus = cleanRow["STATUS"] || "";
@@ -249,44 +279,108 @@ export async function getOtsInternalAuditDetailRows(): Promise<OtsInternalAuditD
         status = rawStatus;
       }
 
-      const pic = cleanRow["PIC"] || "";
-      const cap = cleanRow["CAP"] || "";
-      const targetFin = cleanRow["TARGET FIN"] || cleanRow["TARGET_FIN"] || "";
-      const actualFin = cleanRow["ACTUAL FIN"] || cleanRow["ACTUAL_FIN"] || "";
+      const findings =
+        cleanRow["DESKRIPSI TEMUAN"] ||
+        cleanRow["DESKRIPSI_TEMUAN"] ||
+        cleanRow["TEMUAN"] ||
+        cleanRow["FINDINGS"] ||
+        "";
+
+      const tglDibuat =
+        cleanRow["TGL DIBUAT"] ||
+        cleanRow["TGL_DIBUAT"] ||
+        cleanRow["TANGGAL DIBUAT"] ||
+        cleanRow["CREATED AT"] ||
+        "";
+
+      const cap =
+        cleanRow["CAP (TINDAKAN PERBAIKAN)"] ||
+        cleanRow["CAP"] ||
+        cleanRow["TINDAKAN PERBAIKAN"] ||
+        "";
+
+      const targetFin =
+        cleanRow["TARGET CAP"] ||
+        cleanRow["TARGET_CAP"] ||
+        cleanRow["TARGET FIN"] ||
+        cleanRow["TARGET_FIN"] ||
+        "";
+
+      const actualFin =
+        cleanRow["TGL SELESAI AKTUAL"] ||
+        cleanRow["TGL_SELESAI_AKTUAL"] ||
+        cleanRow["ACTUAL FIN"] ||
+        cleanRow["ACTUAL_FIN"] ||
+        "";
+
+      const pic =
+        cleanRow["TEAM SUPPORT"] ||
+        cleanRow["TEAM_SUPPORT"] ||
+        cleanRow["SUPPORT TEAM"] ||
+        cleanRow["PIC"] ||
+        "";
+
+      const photoUrl =
+        cleanRow["LINK FOTO TEMUAN"] ||
+        cleanRow["LINK_FOTO_TEMUAN"] ||
+        cleanRow["FOTO TEMUAN"] ||
+        cleanRow["PHOTO"] ||
+        cleanRow["FOTO"] ||
+        "";
+
       const photoAfterUrl =
+        cleanRow["LINK FOTO PERBAIKAN"] ||
+        cleanRow["LINK_FOTO_PERBAIKAN"] ||
+        cleanRow["FOTO PERBAIKAN"] ||
         cleanRow["PHOTO (AFTER)"] ||
         cleanRow["PHOTO AFTER"] ||
         cleanRow["FOTO SETELAH"] ||
+        "";
+
+      const continuousImprovement =
+        cleanRow["CONTINUOUS IMPROVEMENT"] ||
+        cleanRow["CONTINUOUS_IMPROVEMENT"] ||
+        cleanRow["CI"] ||
         "";
       const ontime = cleanRow["ONTIME?"] || cleanRow["ONTIME"] || "";
       const validasiAuditor =
         cleanRow["VALIDASI AUDITOR"] || cleanRow["VALIDASI_AUDITOR"] || "";
       const note = cleanRow["NOTE"] || cleanRow["CATATAN"] || "";
 
-      // Sesuai rumus COUNTIFS di Google Sheets user:
-      // Temuan dihitung OTS jika (FINDINGS != '' OR CI != '') AND VALIDASI != 'OK' AND STATUS != 'DONE'
-      const hasIssue = findings !== "" || continuousImprovement !== "";
+      // Temuan dihitung OTS jika status bukan DONE
+      const hasIssue = findings !== "" || continuousImprovement !== "" || cap !== "";
       const isOts =
-        hasIssue &&
-        validasiAuditor.toUpperCase() !== "OK" &&
-        status !== "DONE";
+        (hasIssue || status !== "DONE") &&
+        status !== "DONE" &&
+        (!validasiAuditor || validasiAuditor.toUpperCase() !== "OK");
 
       items.push({
         id: `${fact}-${period}-${area}-${idx}`,
         fact,
+        factory: fact,
         period,
         area,
+        section,
+        noPoin,
         aspect,
+        kategori: aspect,
         auditPoint,
         photoUrl,
+        linkFotoTemuan: photoUrl,
         findings,
+        deskripsiTemuan: findings,
         continuousImprovement,
         status,
         pic,
+        teamSupport: pic,
         cap,
+        tglDibuat,
         targetFin,
+        targetCap: targetFin,
         actualFin,
+        tglSelesaiAktual: actualFin,
         photoAfterUrl,
+        linkFotoPerbaikan: photoAfterUrl,
         ontime,
         validasiAuditor,
         note,

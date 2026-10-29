@@ -25,22 +25,33 @@ export interface OtsInternalAuditAreaRow {
 export interface OtsInternalAuditDetailRow {
   id: string;
   fact: string;
+  factory?: string;
   period: string;
   area: string;
+  section?: string;
+  noPoin?: string;
   aspect: string;
+  kategori?: string;
   auditPoint: string;
   photoUrl: string;
+  linkFotoTemuan?: string;
   findings: string;
-  continuousImprovement: string;
+  deskripsiTemuan?: string;
+  continuousImprovement?: string;
   status: string; // "IN PROGRESS", "DONE", "HOLD", "OPEN"
   pic: string;
+  teamSupport?: string;
   cap: string;
+  tglDibuat?: string;
   targetFin: string;
+  targetCap?: string;
   actualFin: string;
+  tglSelesaiAktual?: string;
   photoAfterUrl: string;
-  ontime: string;
-  validasiAuditor: string;
-  note: string;
+  linkFotoPerbaikan?: string;
+  ontime?: string;
+  validasiAuditor?: string;
+  note?: string;
   isOts: boolean;
 }
 
