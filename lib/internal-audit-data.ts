@@ -4,10 +4,6 @@ import {
   getNamedRangeDataWithLinks,
   prefetchNamedRanges,
 } from "@/lib/google-sheets";
-import {
-  internalAuditRows as mockInternalAuditRows,
-  internalAuditBelumAuditRows as mockBelumAuditRows,
-} from "@/lib/mock-data";
 import type {
   InternalAuditRow,
   InternalAuditBelumAuditRow,
@@ -447,7 +443,8 @@ export async function getInternalAuditFullData(): Promise<InternalAuditFullData>
 export async function getInternalAuditBelumAuditData(): Promise<InternalAuditBelumAuditRow[]> {
   try {
     const rows = await getNamedRangeData("WEBInternalAuditBelumAudit");
-    if (!rows || rows.length === 0) return mockBelumAuditRows;
+    // Jika named range kosong, kembalikan array kosong — UI harus mengikuti data spreadsheet.
+    if (!rows || rows.length === 0) return [];
 
     const items: InternalAuditBelumAuditRow[] = [];
 
@@ -495,10 +492,10 @@ export async function getInternalAuditBelumAuditData(): Promise<InternalAuditBel
       });
     });
 
-    return items.length > 0 ? items : mockBelumAuditRows;
+    return items;
   } catch (err) {
     console.error("[InternalAudit] Gagal memuat named range WEBInternalAuditBelumAudit:", err);
-    return mockBelumAuditRows;
+    return [];
   }
 }
 
