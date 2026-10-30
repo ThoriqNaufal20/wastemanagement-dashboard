@@ -20,8 +20,8 @@ interface KelolosanChartCardProps {
 // Warna yang kontras tinggi dan mudah dibedakan
 const FACTORY_COLORS: Record<string, string> = {
   "Fact A": "#0d9488", // Teal
-  "Fact B": "#f59e0b", // Amber/Orange — sebelumnya Indigo, terlalu mirip Violet
-  "Fact F": "#ef4444", // Red — sebelumnya Violet, terlalu mirip Indigo
+  "Fact B": "#0CA031", // Amber/Orange — sebelumnya Indigo, terlalu mirip Violet
+  "Fact F": "#CF1BA8", // Red — sebelumnya Violet, terlalu mirip Indigo
   "Fact K": "#2563eb", // Blue
 };
 
@@ -31,7 +31,7 @@ const DEFAULT_SERIES_COLORS = [
   "#ef4444", // Red
   "#2563eb", // Blue
   "#8b5cf6", // Purple
-  "#64748b", // Slate
+  "#4CEE90", // Slate
 ];
 
 function getKelolosanBarColor(key: string, index: number): string {
