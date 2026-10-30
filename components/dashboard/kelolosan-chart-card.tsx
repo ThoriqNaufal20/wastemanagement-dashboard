@@ -46,7 +46,7 @@ function computeMostSignificantChange(
   data: KelolosanWeekPoint[],
   seriesKeys: string[]
 ): { factKey: string; delta: number; direction: "up" | "down" } | null {
-  if (data.length < 2 || seriesKeys.length === 0) return null;
+  if (data.length < 3 || seriesKeys.length === 0) return null;
 
   const latest = data[data.length - 1];
 
