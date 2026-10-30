@@ -17,19 +17,20 @@ interface KelolosanChartCardProps {
   data: KelolosanWeekPoint[];
 }
 
+// Warna yang kontras tinggi dan mudah dibedakan
 const FACTORY_COLORS: Record<string, string> = {
   "Fact A": "#0d9488", // Teal
-  "Fact B": "#6366f1", // Indigo
-  "Fact F": "#7c3aed", // Violet
-  "Fact K": "#0284c7", // Sky / Deep Blue
+  "Fact B": "#f59e0b", // Amber/Orange — sebelumnya Indigo, terlalu mirip Violet
+  "Fact F": "#ef4444", // Red — sebelumnya Violet, terlalu mirip Indigo
+  "Fact K": "#2563eb", // Blue
 };
 
 const DEFAULT_SERIES_COLORS = [
   "#0d9488", // Teal
-  "#0284c7", // Sky Blue
-  "#6366f1", // Indigo
-  "#7c3aed", // Violet
-  "#0891b2", // Cyan
+  "#f59e0b", // Amber
+  "#ef4444", // Red
+  "#2563eb", // Blue
+  "#8b5cf6", // Purple
   "#64748b", // Slate
 ];
 
@@ -37,16 +38,69 @@ function getKelolosanBarColor(key: string, index: number): string {
   return FACTORY_COLORS[key] || DEFAULT_SERIES_COLORS[index % DEFAULT_SERIES_COLORS.length];
 }
 
+/**
+ * Hitung perubahan setiap factory antara minggu terakhir dan rata-rata minggu sebelumnya.
+ * Return: factory dengan perubahan paling signifikan (prioritas kenaikan / merah).
+ */
+function computeMostSignificantChange(
+  data: KelolosanWeekPoint[],
+  seriesKeys: string[]
+): { factKey: string; delta: number; direction: "up" | "down" } | null {
+  if (data.length < 2 || seriesKeys.length === 0) return null;
+
+  const latest = data[data.length - 1];
+
+  // Rata-rata dari semua minggu sebelumnya (bukan hanya first)
+  const previousWeeks = data.slice(0, -1);
+
+  type FactChange = { factKey: string; delta: number; direction: "up" | "down" };
+  const changes: FactChange[] = [];
+
+  for (const key of seriesKeys) {
+    const latestVal = Number(latest[key]) || 0;
+
+    // Hitung rata-rata minggu sebelumnya
+    let sum = 0;
+    let count = 0;
+    for (const w of previousWeeks) {
+      const v = Number(w[key]);
+      if (!isNaN(v) && v !== 0) {
+        sum += v;
+        count += 1;
+      }
+    }
+    if (count === 0) continue;
+
+    const avgPrev = sum / count;
+    const delta = Math.round((latestVal - avgPrev) * 10) / 10;
+
+    if (delta !== 0) {
+      changes.push({
+        factKey: key,
+        delta,
+        direction: delta > 0 ? "up" : "down",
+      });
+    }
+  }
+
+  if (changes.length === 0) return null;
+
+  // Prioritas: kenaikan (up = buruk) didahulukan, urutkan berdasarkan delta terbesar
+  const increases = changes.filter((c) => c.direction === "up").sort((a, b) => b.delta - a.delta);
+  const decreases = changes.filter((c) => c.direction === "down").sort((a, b) => a.delta - b.delta);
+
+  // Ambil yang paling signifikan: kenaikan dulu (karena lebih urgent), lalu penurunan
+  if (increases.length > 0) return increases[0];
+  if (decreases.length > 0) return decreases[0];
+
+  return null;
+}
+
 export function KelolosanChartCard({ data }: KelolosanChartCardProps) {
   const seriesKeys =
     data.length > 0 ? Object.keys(data[0]).filter((k) => k !== "week") : [];
-  const first = data[0];
-  const last = data[data.length - 1];
-  const primaryKey = seriesKeys[seriesKeys.length - 1];
-  const deltaPrimary =
-    first && last && primaryKey
-      ? Math.round((Number(last[primaryKey]) - Number(first[primaryKey])) * 10) / 10
-      : 0;
+
+  const change = computeMostSignificantChange(data, seriesKeys);
 
   return (
     <Link
@@ -61,12 +115,26 @@ export function KelolosanChartCard({ data }: KelolosanChartCardProps) {
       </div>
 
       <p className="mb-2 line-clamp-2 text-xs text-muted-foreground">
-        {primaryKey ? (
+        {change ? (
           <>
-            {primaryKey} {deltaPrimary >= 0 ? "naik" : "turun"}{" "}
-            <span className="font-medium text-foreground">{Math.abs(deltaPrimary)}%</span>{" "}
-            vs {first?.week}
+            {change.factKey}{" "}
+            {change.direction === "up" ? (
+              <>
+                <span className="font-medium text-red-600 dark:text-red-400">
+                  ↑ naik {Math.abs(change.delta)}%
+                </span>
+              </>
+            ) : (
+              <>
+                <span className="font-medium text-green-600 dark:text-green-400">
+                  ↓ turun {Math.abs(change.delta)}%
+                </span>
+              </>
+            )}{" "}
+            vs rata-rata minggu sebelumnya
           </>
+        ) : seriesKeys.length > 0 ? (
+          "Tidak ada perubahan signifikan"
         ) : (
           "Belum ada data minggu terfilter"
         )}
