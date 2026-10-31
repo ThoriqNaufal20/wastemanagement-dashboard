@@ -65,19 +65,11 @@ export function InternalAuditTable({
       )}
     >
       <div className="mb-3 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <p className="text-sm font-semibold text-foreground">
-            Internal audit — rekap
-          </p>
-          <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">
-            Rekap Pabrik
-          </span>
-        </div>
+        <p className="text-sm font-semibold text-foreground">
+          Rekap Internal Audit
+        </p>
         {isNavigable && (
-          <div className="flex items-center gap-1 text-xs text-muted-foreground transition-colors group-hover:text-primary">
-            <span>Lihat detail & temuan</span>
-            <ChevronRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
-          </div>
+          <ChevronRight className="h-3.5 w-3.5 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
         )}
       </div>
 
@@ -97,11 +89,6 @@ export function InternalAuditTable({
           </TableHeader>
           <TableBody>
             {rows.map((row, i) => {
-              // Status aturan:
-              // - NOT STARTED: belum melewati start date
-              // - ON PROGRESS: sudah melewati start date dan belum melewati end date (masih ada area belum audit)
-              // - LATE: sudah melewati end date tetapi masih ada area yg belum diaudit
-              // - DONE: sudah tidak ada area yg belum audit (areaBelumAudit === 0)
               const status = getAuditRowStatus(row.startDate, row.endDate, row.areaBelumAudit);
               const hasOts = row.otsFinding > 0;
 
@@ -176,4 +163,3 @@ export function InternalAuditTable({
     </div>
   );
 }
-
