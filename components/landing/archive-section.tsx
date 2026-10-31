@@ -232,6 +232,11 @@ export function ArchiveSection({ initialItems }: ArchiveSectionProps) {
     <div className="flex min-h-full w-full flex-col items-center justify-center bg-background px-4 sm:px-6 2xl:px-12 pt-20 pb-8 overflow-y-auto">
       <div className="mx-auto w-full max-w-[1140px] 2xl:max-w-[1500px] flex flex-col justify-center">
 
+        {/* Judul Minimalis Seperti Section Lain (Tanpa Warna) */}
+        <p className="mb-2 text-[11px] 2xl:text-xs uppercase tracking-wide text-muted-foreground">
+          Arsip Dokumen
+        </p>
+
         {/* 1. Minimal Top Toolbar: Search + Categories Filter + Catalog Link */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-3">
           {/* Search Box */}
