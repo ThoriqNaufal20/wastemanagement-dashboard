@@ -11,9 +11,6 @@ import {
   Play,
   Search,
   ExternalLink,
-  FolderArchive,
-  Sparkles,
-  Calendar,
   X,
   LayoutGrid,
   Eye,
@@ -136,7 +133,7 @@ export function ArchiveSection({ initialItems }: ArchiveSectionProps) {
   const featuredItem = filteredItems[0];
   const feedItems = filteredItems.slice(1);
 
-  const renderIcon = (type: ArchiveItem["iconType"], className = "h-4 w-4") => {
+  const renderIcon = (type: ArchiveItem["iconType"], className = "h-3.5 w-3.5") => {
     switch (type) {
       case "pdf":
         return <FileText className={className} />;
@@ -153,25 +150,8 @@ export function ArchiveSection({ initialItems }: ArchiveSectionProps) {
     }
   };
 
-  const getSourceBadge = (category: string) => {
-    switch (category) {
-      case "data":
-        return { label: "Data Analytics", code: "DA", color: "bg-emerald-600 text-white" };
-      case "slides":
-        return { label: "Executive Deck", code: "EX", color: "bg-sky-600 text-white" };
-      case "poster":
-        return { label: "Campaign 3R", code: "3R", color: "bg-purple-600 text-white" };
-      case "video":
-        return { label: "Waste Management", code: "WM", color: "bg-teal-600 text-white" };
-      default:
-        return { label: "Waste Management", code: "WM", color: "bg-primary text-primary-foreground" };
-    }
-  };
-
   /**
-   * Komponen Thumbnail Media Nyata
-   * Menampilkan gambar thumbnail nyata dari Google Drive / Slides / Video,
-   * dengan fallback mulus ke gradien bila gambar tidak tersedia.
+   * Komponen Thumbnail Media
    */
   const MediaThumbnail = ({
     item,
@@ -190,35 +170,34 @@ export function ArchiveSection({ initialItems }: ArchiveSectionProps) {
     return (
       <div
         onClick={onOpenPreview}
-        className={`relative overflow-hidden rounded-xl 2xl:rounded-2xl cursor-pointer bg-muted flex items-center justify-center text-white select-none ${className}`}
+        className={`relative overflow-hidden rounded-xl cursor-pointer bg-muted/60 flex items-center justify-center text-white select-none ${className}`}
       >
         {hasImage ? (
           <>
             <img
               src={item.thumbnailUrl}
               alt={item.title}
-              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
               onError={() => setImgFailed(true)}
               loading="lazy"
             />
-            {/* Dark vignette gradient for high contrast readability */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-black/10 group-hover:from-black/75 transition-colors" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent transition-opacity group-hover:opacity-80" />
           </>
         ) : (
           <div
             className={`w-full h-full bg-gradient-to-br ${item.gradientClass} relative flex items-center justify-center`}
           >
-            <div className="absolute inset-0 bg-black/30 group-hover:bg-black/20 transition-colors" />
+            <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors" />
           </div>
         )}
 
         {/* Format Badge Top-Left */}
         <div className="absolute top-2 left-2 z-10">
-          <span className="inline-flex items-center gap-1 rounded-md bg-black/65 px-2 py-0.5 text-[10px] 2xl:text-xs font-semibold uppercase tracking-wider text-white backdrop-blur-md border border-white/10 shadow-sm">
+          <span className="inline-flex items-center gap-1 rounded-md bg-black/60 backdrop-blur-md px-1.5 py-0.5 text-[9px] 2xl:text-[10px] font-medium uppercase tracking-wider text-white border border-white/10">
             {item.category === "video" ? (
-              <Play className="h-2.5 w-2.5 fill-white" />
+              <Play className="h-2 w-2 fill-white" />
             ) : (
-              renderIcon(item.iconType, "h-2.5 w-2.5")
+              renderIcon(item.iconType, "h-2 w-2")
             )}
             {item.typeBadge}
           </span>
@@ -226,21 +205,21 @@ export function ArchiveSection({ initialItems }: ArchiveSectionProps) {
 
         {/* Center Hover Action / Play Button */}
         <div
-          className={`relative z-10 flex items-center justify-center rounded-2xl bg-white/20 backdrop-blur-md text-white border border-white/25 shadow-lg transition-all group-hover:scale-110 group-hover:bg-white/30 ${
-            isLarge ? "h-11 w-11 2xl:h-14 2xl:w-14" : "h-7 w-7 2xl:h-9 2xl:w-9"
+          className={`relative z-10 flex items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white border border-white/20 shadow-md transition-all duration-200 opacity-80 group-hover:opacity-100 group-hover:scale-110 ${
+            isLarge ? "h-11 w-11" : "h-7 w-7"
           }`}
         >
           {item.category === "video" ? (
-            <Play className={`${isLarge ? "h-5 w-5 ml-0.5" : "h-3.5 w-3.5 ml-0.5"} fill-white`} />
+            <Play className={`${isLarge ? "h-4 w-4 ml-0.5" : "h-3 w-3 ml-0.5"} fill-white`} />
           ) : (
-            renderIcon(item.iconType, isLarge ? "h-5 w-5 text-white" : "h-3.5 w-3.5 text-white")
+            renderIcon(item.iconType, isLarge ? "h-4 w-4 text-white" : "h-3 w-3 text-white")
           )}
         </div>
 
         {/* File Meta / Duration Bottom-Right */}
         {item.fileMeta && (
-          <div className="absolute bottom-2 right-2 z-10">
-            <span className="rounded bg-black/65 px-1.5 py-0.5 text-[9px] 2xl:text-[10px] font-medium text-white/90 backdrop-blur-md border border-white/10">
+          <div className="absolute bottom-1.5 right-1.5 z-10">
+            <span className="rounded bg-black/60 px-1.5 py-0.5 text-[9px] font-medium text-white/90 backdrop-blur-md border border-white/10">
               {item.fileMeta}
             </span>
           </div>
@@ -250,48 +229,20 @@ export function ArchiveSection({ initialItems }: ArchiveSectionProps) {
   };
 
   return (
-    <div className="flex min-h-full w-full flex-col items-center justify-start sm:justify-center bg-background px-4 sm:px-6 2xl:px-12 pt-20 sm:pt-22 2xl:pt-26 pb-6 overflow-y-auto">
-      <div className="mx-auto w-full max-w-[1140px] 2xl:max-w-[1600px] flex flex-col justify-center">
+    <div className="flex min-h-full w-full flex-col items-center justify-center bg-background px-4 sm:px-6 2xl:px-12 pt-20 pb-8 overflow-y-auto">
+      <div className="mx-auto w-full max-w-[1140px] 2xl:max-w-[1500px] flex flex-col justify-center">
 
-        {/* 1. Header Section (Diberi jarak aman di bawah fixed navbar) */}
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-2.5 border-b border-border/60 pb-2.5 2xl:pb-3.5">
-          <div>
-            <div className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-2.5 py-0.5 2xl:px-3.5 2xl:py-1 text-[11px] 2xl:text-xs font-semibold uppercase tracking-wider text-primary border border-primary/20">
-              <FolderArchive className="h-3 w-3 2xl:h-3.5 2xl:w-3.5" />
-              Resource & Archive Center
-            </div>
-            <h2 className="mt-1 text-lg sm:text-2xl 2xl:text-3xl font-extrabold tracking-tight text-foreground">
-              Gudang Arsip & Publikasi
-            </h2>
-            <p className="mt-0.5 text-xs 2xl:text-sm text-muted-foreground">
-              Pusat penyimpanan laporan, rilis project, materi presentasi, dan video edukasi.
-            </p>
-          </div>
-
-          {/* Quick Actions: Button Katalog Lengkap */}
-          <div className="flex items-center gap-2 self-start lg:self-end">
-            <button
-              onClick={() => setIsCatalogModalOpen(true)}
-              className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/5 px-3 py-1 2xl:px-3.5 2xl:py-1.5 text-xs 2xl:text-sm font-semibold text-primary hover:bg-primary/10 transition active:scale-95 shadow-xs"
-            >
-              <LayoutGrid className="h-3.5 w-3.5" />
-              <span>Katalog Lengkap ({items.length})</span>
-              <span>&rarr;</span>
-            </button>
-          </div>
-        </div>
-
-        {/* 2. Controls Bar: Search & Filter Pills */}
-        <div className="mt-2.5 2xl:mt-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        {/* 1. Minimal Top Toolbar: Search + Categories Filter + Catalog Link */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-3">
           {/* Search Box */}
-          <div className="relative w-full sm:w-64 2xl:w-80">
+          <div className="relative w-full sm:w-64 2xl:w-72">
             <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
             <input
               type="text"
-              placeholder="Cari arsip, topik, atau tanggal..."
+              placeholder="Cari arsip atau topik..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full rounded-full border border-border bg-card py-1.5 pl-8 pr-3 text-xs 2xl:text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition shadow-xs"
+              className="w-full rounded-full border border-border/60 bg-card py-1.5 pl-8 pr-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:outline-none transition shadow-2xs"
             />
             {searchQuery && (
               <button
@@ -303,7 +254,7 @@ export function ArchiveSection({ initialItems }: ArchiveSectionProps) {
             )}
           </div>
 
-          {/* Filter Pills */}
+          {/* Filter Pills + Catalog Button */}
           <div className="flex items-center gap-1.5 overflow-x-auto py-0.5 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
             {ARCHIVE_CATEGORIES.map((cat) => {
               const isActive = activeCategory === cat.id;
@@ -311,257 +262,188 @@ export function ArchiveSection({ initialItems }: ArchiveSectionProps) {
                 <button
                   key={cat.id}
                   onClick={() => setActiveCategory(cat.id)}
-                  className={`rounded-full px-2.5 py-1 2xl:px-3.5 2xl:py-1.5 text-[11px] 2xl:text-xs font-medium transition-all ${
+                  className={`rounded-full px-2.5 py-1 text-[11px] 2xl:text-xs transition-colors shrink-0 ${
                     isActive
-                      ? "bg-primary text-primary-foreground shadow-xs font-semibold"
-                      : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground"
+                      ? "bg-primary text-primary-foreground font-semibold"
+                      : "bg-muted/70 text-muted-foreground hover:bg-muted hover:text-foreground font-normal"
                   }`}
                 >
                   {cat.label}
                 </button>
               );
             })}
+
+            <button
+              onClick={() => setIsCatalogModalOpen(true)}
+              className="inline-flex items-center gap-1 rounded-full border border-border/70 bg-card hover:bg-muted/60 px-2.5 py-1 text-[11px] 2xl:text-xs font-medium text-muted-foreground hover:text-foreground transition shrink-0 ml-1"
+              title="Buka katalog lengkap"
+            >
+              <LayoutGrid className="h-3 w-3" />
+              <span>Katalog ({items.length})</span>
+            </button>
           </div>
         </div>
 
-        {/* 3. Main Split Screen Body (Layout B1) */}
+        {/* 2. Main Content Layout */}
         {filteredItems.length > 0 ? (
-          <div className="mt-2.5 2xl:mt-3.5 grid grid-cols-1 lg:grid-cols-12 gap-3.5 2xl:gap-5 items-stretch">
-            
-            {/* SISI KIRI (Col 5): Featured Document #1 (Elegan, Selaras dengan Palet Navy-Teal) */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-3.5 2xl:gap-4 items-stretch">
+
+            {/* SISI KIRI: Featured Document */}
             {featuredItem && (
-              <div className="lg:col-span-5 flex flex-col justify-between rounded-2xl 2xl:rounded-3xl border border-border/80 bg-card text-card-foreground shadow-sm hover:shadow-md transition-all relative overflow-hidden group p-3.5 sm:p-4 2xl:p-5">
-                {/* Subtle refined accent glow */}
-                <div className="absolute -right-16 -top-16 w-48 h-48 rounded-full bg-primary/10 dark:bg-primary/20 blur-3xl pointer-events-none" />
-
+              <div
+                onClick={() => setPreviewItem(featuredItem)}
+                className="lg:col-span-5 group flex flex-col justify-between rounded-2xl border border-border/60 bg-card p-3.5 2xl:p-4 transition-all duration-200 hover:border-border hover:shadow-xs cursor-pointer relative"
+              >
                 <div>
-                  {/* Top Header inside Card */}
-                  <div className="flex items-center justify-between pb-2.5 border-b border-border/70 mb-2.5">
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20 font-bold text-[10px] 2xl:text-xs tracking-wider uppercase shadow-xs">
-                      <Sparkles className="h-3 w-3" />
-                      Sorotan Utama
-                    </span>
-                    <span className="text-[11px] 2xl:text-xs text-muted-foreground font-mono font-medium flex items-center gap-1">
-                      <Calendar className="h-3 w-3" />
-                      {featuredItem.date || featuredItem.periodOrDuration || "Terbaru"}
-                    </span>
-                  </div>
-
-                  {/* Real Media Preview Thumbnail */}
                   <MediaThumbnail
                     item={featuredItem}
                     isLarge={true}
-                    className="w-full aspect-video shadow-xs border border-border/40"
+                    className="w-full aspect-video shadow-2xs border border-border/30"
                     onOpenPreview={() => setPreviewItem(featuredItem)}
                   />
 
-                  {/* Meta Source & Title */}
-                  <div className="mt-2.5 2xl:mt-3.5">
-                    <div className="flex items-center gap-2 text-[10px] 2xl:text-[11px] text-muted-foreground mb-1">
-                      <span className={`w-3.5 h-3.5 rounded-full flex items-center justify-center font-bold text-[7px] ${getSourceBadge(featuredItem.category).color}`}>
-                        {getSourceBadge(featuredItem.category).code}
-                      </span>
-                      <span className="font-semibold text-foreground/80">
-                        {getSourceBadge(featuredItem.category).label}
+                  <div className="mt-3">
+                    <div className="flex items-center gap-2 text-[10px] text-muted-foreground mb-1">
+                      <span className="font-semibold uppercase tracking-wider text-primary">
+                        {featuredItem.categoryLabel}
                       </span>
                       <span>•</span>
-                      <span className="text-primary font-mono font-medium">
-                        {featuredItem.date || "Terbaru"}
-                      </span>
+                      <span>{featuredItem.date || "Terbaru"}</span>
                     </div>
 
-                    <h3 className="text-sm sm:text-base 2xl:text-lg font-bold text-foreground group-hover:text-primary transition-colors leading-snug line-clamp-1 sm:line-clamp-2">
+                    <h3 className="text-sm 2xl:text-base font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2">
                       {featuredItem.title}
                     </h3>
 
-                    <p className="mt-1 text-[11px] 2xl:text-xs text-muted-foreground leading-relaxed line-clamp-2">
+                    <p className="mt-1 text-xs text-muted-foreground line-clamp-2 leading-relaxed">
                       {featuredItem.description}
                     </p>
                   </div>
                 </div>
 
-                {/* Footer Actions */}
-                <div className="mt-3 pt-2.5 border-t border-border/70 flex items-center justify-between gap-2">
-                  <span className="text-[10px] 2xl:text-xs font-bold uppercase tracking-wider text-primary">
-                    {featuredItem.categoryLabel}
-                  </span>
-
+                {/* Minimal Footer */}
+                <div className="mt-3 pt-2.5 border-t border-border/40 flex items-center justify-between text-xs text-muted-foreground">
+                  <span className="text-[11px]">{featuredItem.typeBadge}</span>
                   <div className="flex items-center gap-2">
-                    {/* Tombol Preview Cepat Interaktif */}
-                    <button
-                      onClick={() => setPreviewItem(featuredItem)}
-                      className="inline-flex items-center gap-1 px-2.5 py-1 2xl:px-3 2xl:py-1.5 rounded-lg text-xs font-semibold bg-muted hover:bg-muted/80 text-foreground transition"
-                      title="Preview langsung dokumen di layar"
-                    >
+                    <span className="inline-flex items-center gap-1 text-[11px] group-hover:text-foreground transition-colors">
                       <Eye className="h-3 w-3" />
-                      <span>Preview</span>
-                    </button>
-
-                    {/* Tombol Akses URL */}
+                      Preview
+                    </span>
                     <a
                       href={featuredItem.externalUrl}
                       target={featuredItem.externalUrl !== "#" ? "_blank" : undefined}
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 px-3 py-1 2xl:px-3.5 2xl:py-1.5 rounded-lg text-xs font-semibold bg-primary hover:bg-primary/90 text-primary-foreground transition shadow-xs"
+                      onClick={(e) => e.stopPropagation()}
+                      className="text-muted-foreground hover:text-primary transition-colors p-1"
+                      title="Buka dokumen asli"
                     >
-                      <span>{featuredItem.actionLabel}</span>
-                      <ExternalLink className="h-3 w-3" />
+                      <ExternalLink className="h-3.5 w-3.5" />
                     </a>
                   </div>
                 </div>
               </div>
             )}
 
-            {/* SISI KANAN (Col 7): Scrollable Feed dengan Media Thumbnail Nyata */}
+            {/* SISI KANAN: List Dokumen Lainnya */}
             <div className="lg:col-span-7 flex flex-col justify-between">
-              
-              <div className="flex items-center justify-between mb-1.5">
-                <span className="text-[10px] 2xl:text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                  Publikasi & Dokumen Lainnya ({feedItems.length} Arsip)
-                </span>
-                <span className="text-[10px] 2xl:text-xs text-muted-foreground">
-                  Gulir untuk melihat lebih banyak &darr;
-                </span>
-              </div>
-
-              {/* Scrollable Feed Container */}
-              <div className="space-y-2 2xl:space-y-3 max-h-[330px] sm:max-h-[360px] 2xl:max-h-[500px] overflow-y-auto pr-1.5 [scrollbar-width:thin]">
+              <div className="space-y-2 max-h-[380px] 2xl:max-h-[480px] overflow-y-auto pr-1 [scrollbar-width:thin]">
                 {feedItems.length > 0 ? (
-                  feedItems.map((item) => {
-                    const badge = getSourceBadge(item.category);
-                    return (
-                      <article
-                        key={item.id}
-                        className="group p-2.5 2xl:p-3 rounded-xl 2xl:rounded-2xl border border-border/80 bg-card hover:border-primary/40 hover:shadow-xs transition-all flex flex-col sm:flex-row gap-2.5 2xl:gap-3.5"
-                      >
-                        {/* Real Media Thumbnail */}
-                        <MediaThumbnail
-                          item={item}
-                          isLarge={false}
-                          className="w-full sm:w-28 2xl:w-36 h-20 2xl:h-24 shrink-0 shadow-xs border border-border/40"
-                          onOpenPreview={() => setPreviewItem(item)}
-                        />
+                  feedItems.map((item) => (
+                    <article
+                      key={item.id}
+                      onClick={() => setPreviewItem(item)}
+                      className="group p-2.5 rounded-xl border border-border/60 bg-card hover:border-border hover:shadow-2xs transition-all duration-200 flex items-center gap-3 cursor-pointer"
+                    >
+                      <MediaThumbnail
+                        item={item}
+                        isLarge={false}
+                        className="w-24 sm:w-28 h-16 sm:h-18 shrink-0 shadow-2xs border border-border/30"
+                        onOpenPreview={() => setPreviewItem(item)}
+                      />
 
-                        {/* Article Details */}
-                        <div className="flex-1 flex flex-col justify-between">
-                          <div>
-                            {/* Meta Author / Source line */}
-                            <div className="flex items-center gap-1.5 text-[9px] 2xl:text-[10px] text-muted-foreground mb-0.5">
-                              <span className={`w-3 h-3 rounded-full flex items-center justify-center font-bold text-[6px] ${badge.color}`}>
-                                {badge.code}
-                              </span>
-                              <span className="font-semibold text-foreground/80">
-                                {badge.label}
-                              </span>
-                              <span>•</span>
-                              <span className="font-mono text-primary font-medium">
-                                {item.date || item.periodOrDuration || "Terbaru"}
-                              </span>
-                            </div>
-
-                            {/* Title */}
-                            <h4
-                              onClick={() => setPreviewItem(item)}
-                              className="text-xs sm:text-sm font-bold text-foreground group-hover:text-primary transition-colors line-clamp-1 leading-snug cursor-pointer"
-                            >
-                              {item.title}
-                            </h4>
-
-                            {/* Excerpt */}
-                            <p className="mt-0.5 text-[10px] 2xl:text-[11px] text-muted-foreground line-clamp-2 leading-relaxed">
-                              {item.description}
-                            </p>
-                          </div>
-
-                          {/* Footer Tag & Actions */}
-                          <div className="mt-1.5 pt-1 border-t border-border/60 flex items-center justify-between text-[10px]">
-                            <span className="font-extrabold uppercase tracking-wide text-primary">
-                              {item.categoryLabel}
-                            </span>
-                            <div className="flex items-center gap-2">
-                              <button
-                                onClick={() => setPreviewItem(item)}
-                                className="inline-flex items-center gap-0.5 text-muted-foreground hover:text-foreground transition font-medium"
-                              >
-                                <Eye className="h-3 w-3" />
-                                <span>Preview</span>
-                              </button>
-                              <a
-                                href={item.externalUrl}
-                                target={item.externalUrl !== "#" ? "_blank" : undefined}
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center gap-0.5 font-semibold text-primary hover:underline transition-colors"
-                              >
-                                <span>{item.actionLabel}</span>
-                                <ExternalLink className="h-2.5 w-2.5" />
-                              </a>
-                            </div>
-                          </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 text-[10px] text-muted-foreground mb-0.5">
+                          <span className="font-semibold text-primary uppercase tracking-wider">
+                            {item.categoryLabel}
+                          </span>
+                          <span>•</span>
+                          <span>{item.date || "Terbaru"}</span>
                         </div>
-                      </article>
-                    );
-                  })
+
+                        <h4 className="text-xs sm:text-sm font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1">
+                          {item.title}
+                        </h4>
+
+                        <p className="mt-0.5 text-[11px] text-muted-foreground line-clamp-1">
+                          {item.description}
+                        </p>
+                      </div>
+
+                      <div className="shrink-0 flex items-center gap-1.5 pr-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <a
+                          href={item.externalUrl}
+                          target={item.externalUrl !== "#" ? "_blank" : undefined}
+                          rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          className="p-1 text-muted-foreground hover:text-primary transition-colors"
+                          title="Buka dokumen asli"
+                        >
+                          <ExternalLink className="h-3.5 w-3.5" />
+                        </a>
+                      </div>
+                    </article>
+                  ))
                 ) : (
-                  <div className="p-6 text-center rounded-2xl border border-dashed border-border bg-card/50">
+                  <div className="p-8 text-center rounded-xl border border-dashed border-border/50 bg-card/40">
                     <p className="text-xs text-muted-foreground">
-                      Hanya terdapat 1 arsip yang cocok dengan pencarian / filter ini.
+                      Hanya terdapat 1 arsip pada kategori ini.
                     </p>
                   </div>
                 )}
               </div>
-
-              {/* Footer Note of Right Side */}
-              <div className="mt-2 pt-1.5 border-t border-border/40 flex items-center justify-between text-[10px] 2xl:text-xs text-muted-foreground">
-                <span>💡 Diurutkan otomatis: Dokumen terbaru selalu di posisi paling atas</span>
-                <span className="font-medium text-foreground">
-                  {filteredItems.length} Arsip Ditampilkan
-                </span>
-              </div>
-
             </div>
 
           </div>
         ) : (
-          /* Empty State if Search Finds Nothing */
-          <div className="mt-6 py-10 text-center rounded-2xl border border-dashed border-border bg-card/40">
-            <p className="text-sm font-semibold text-foreground">
+          /* Empty State */
+          <div className="mt-6 py-12 text-center rounded-2xl border border-dashed border-border/60 bg-card/40">
+            <p className="text-xs font-semibold text-foreground">
               Arsip tidak ditemukan
             </p>
             <p className="mt-1 text-xs text-muted-foreground">
-              Tidak ada arsip yang cocok dengan kata kunci &quot;{searchQuery}&quot;.
+              Tidak ada arsip yang cocok dengan pencarian &quot;{searchQuery}&quot;.
             </p>
             <button
               onClick={() => {
                 setActiveCategory("all");
                 setSearchQuery("");
               }}
-              className="mt-3 rounded-full bg-primary/10 px-4 py-1.5 text-xs font-medium text-primary hover:bg-primary/20 transition"
+              className="mt-3 rounded-full bg-primary/10 px-3.5 py-1 text-xs font-medium text-primary hover:bg-primary/20 transition"
             >
-              Reset Filter & Pencarian
+              Reset Filter
             </button>
           </div>
         )}
 
       </div>
 
-      {/* 4. MODAL DIALOG: PREVIEW LANGSUNG (Interactive Embed Player / Viewer) */}
-      {/* Menggunakan createPortal ke document.body agar tidak tertutup atau terpotong navbar */}
+      {/* 3. MODAL DIALOG: PREVIEW LANGSUNG */}
       {mounted &&
         previewItem &&
         createPortal(
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
-            <div className="relative w-full max-w-4xl max-h-[85vh] rounded-3xl border border-border bg-card shadow-2xl flex flex-col overflow-hidden">
+            <div className="relative w-full max-w-4xl max-h-[85vh] rounded-2xl border border-border bg-card shadow-2xl flex flex-col overflow-hidden">
               {/* Modal Header */}
-              <div className="p-3.5 sm:p-4 border-b border-border flex items-center justify-between bg-background">
+              <div className="p-3.5 border-b border-border flex items-center justify-between bg-background">
                 <div className="pr-4">
                   <div className="flex items-center gap-2 text-xs text-muted-foreground mb-0.5">
-                    <span className="px-2 py-0.5 rounded bg-primary/10 text-primary font-bold text-[10px] uppercase">
-                      {previewItem.typeBadge}
+                    <span className="font-semibold text-primary uppercase text-[10px]">
+                      {previewItem.categoryLabel}
                     </span>
                     <span>•</span>
                     <span className="font-mono">{previewItem.date || previewItem.periodOrDuration}</span>
                   </div>
-                  <h3 className="text-sm sm:text-base font-bold text-foreground line-clamp-1">
+                  <h3 className="text-sm sm:text-base font-semibold text-foreground line-clamp-1">
                     {previewItem.title}
                   </h3>
                 </div>
@@ -570,10 +452,10 @@ export function ArchiveSection({ initialItems }: ArchiveSectionProps) {
                     href={previewItem.externalUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="px-3 py-1.5 rounded-xl border border-border hover:bg-muted text-xs font-semibold inline-flex items-center gap-1 text-foreground transition"
+                    className="px-3 py-1.5 rounded-lg border border-border hover:bg-muted text-xs font-semibold inline-flex items-center gap-1 text-foreground transition"
                   >
-                    <span>Buka di Tab Baru</span>
-                    <ExternalLink className="h-3.5 w-3.5" />
+                    <span>Buka Dokumen</span>
+                    <ExternalLink className="h-3 w-3" />
                   </a>
                   <button
                     onClick={() => setPreviewItem(null)}
@@ -631,22 +513,20 @@ export function ArchiveSection({ initialItems }: ArchiveSectionProps) {
           document.body
         )}
 
-      {/* 5. MODAL DIALOG: KATALOG LENGKAP (Grid 4-Kolom Lengkap) */}
-      {/* Menggunakan createPortal ke document.body agar tidak tertutup atau terpotong navbar */}
+      {/* 4. MODAL DIALOG: KATALOG LENGKAP */}
       {mounted &&
         isCatalogModalOpen &&
         createPortal(
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-5 bg-black/75 backdrop-blur-md animate-in fade-in duration-200">
-            <div className="relative w-full max-w-5xl max-h-[85vh] rounded-3xl border border-border bg-card shadow-2xl flex flex-col overflow-hidden">
-              
+            <div className="relative w-full max-w-5xl max-h-[85vh] rounded-2xl border border-border bg-card shadow-2xl flex flex-col overflow-hidden">
               {/* Modal Header */}
-              <div className="p-4 sm:p-5 border-b border-border flex items-center justify-between bg-background">
+              <div className="p-4 border-b border-border flex items-center justify-between bg-background">
                 <div>
-                  <h3 className="text-base sm:text-lg font-bold text-foreground">
-                    Katalog Lengkap Arsip & Publikasi
+                  <h3 className="text-base font-semibold text-foreground">
+                    Katalog Lengkap Arsip
                   </h3>
                   <p className="text-xs text-muted-foreground">
-                    Semua materi presentasi, sheet data, laporan, dan video edukasi Waste Management.
+                    Daftar seluruh dokumen dan materi Waste Management.
                   </p>
                 </div>
                 <button
@@ -659,35 +539,31 @@ export function ArchiveSection({ initialItems }: ArchiveSectionProps) {
               </div>
 
               {/* Modal Content Grid */}
-              <div className="p-4 sm:p-6 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3.5">
+              <div className="p-4 sm:p-6 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
                 {filteredItems.map((item) => (
                   <div
                     key={item.id}
-                    className="rounded-2xl border border-border bg-background p-3 flex flex-col justify-between hover:border-primary/50 hover:shadow-xs transition-all group"
+                    onClick={() => {
+                      setIsCatalogModalOpen(false);
+                      setPreviewItem(item);
+                    }}
+                    className="rounded-xl border border-border/60 bg-background p-3 flex flex-col justify-between hover:border-border hover:shadow-2xs transition-all cursor-pointer group"
                   >
                     <div>
-                      {/* Media Thumbnail */}
                       <MediaThumbnail
                         item={item}
                         isLarge={false}
-                        className="aspect-video rounded-xl mb-2.5 shadow-xs"
+                        className="aspect-video rounded-lg mb-2 shadow-2xs"
                         onOpenPreview={() => {
                           setIsCatalogModalOpen(false);
                           setPreviewItem(item);
                         }}
                       />
 
-                      {/* Date & Title */}
-                      <div className="text-[10px] text-primary font-mono font-semibold">
-                        {item.date || item.periodOrDuration || "Terbaru"}
+                      <div className="text-[10px] text-muted-foreground">
+                        {item.date || "Terbaru"}
                       </div>
-                      <h5
-                        onClick={() => {
-                          setIsCatalogModalOpen(false);
-                          setPreviewItem(item);
-                        }}
-                        className="text-xs sm:text-sm font-bold text-foreground mt-0.5 line-clamp-2 group-hover:text-primary transition-colors cursor-pointer"
-                      >
+                      <h5 className="text-xs font-semibold text-foreground mt-0.5 line-clamp-2 group-hover:text-primary transition-colors">
                         {item.title}
                       </h5>
                       <p className="mt-1 text-[11px] text-muted-foreground line-clamp-2">
@@ -695,35 +571,29 @@ export function ArchiveSection({ initialItems }: ArchiveSectionProps) {
                       </p>
                     </div>
 
-                    {/* Footer Action */}
-                    <div className="mt-2.5 pt-2 border-t border-border flex items-center justify-between text-[10px]">
-                      <span className="font-extrabold uppercase text-primary">
+                    <div className="mt-2.5 pt-2 border-t border-border/50 flex items-center justify-between text-[10px] text-muted-foreground">
+                      <span className="font-semibold text-primary uppercase">
                         {item.categoryLabel}
                       </span>
-                      <a
-                        href={item.externalUrl}
-                        target={item.externalUrl !== "#" ? "_blank" : undefined}
-                        rel="noopener noreferrer"
-                        className="font-bold text-foreground hover:text-primary inline-flex items-center gap-0.5"
-                      >
-                        Buka <ExternalLink className="h-2.5 w-2.5" />
-                      </a>
+                      <span className="inline-flex items-center gap-0.5 group-hover:text-foreground transition-colors">
+                        <Eye className="h-3 w-3" />
+                        Preview
+                      </span>
                     </div>
                   </div>
                 ))}
               </div>
 
               {/* Modal Footer */}
-              <div className="p-3 sm:p-4 border-t border-border bg-background flex items-center justify-between text-xs text-muted-foreground">
-                <span>Menampilkan {filteredItems.length} arsip terurut tanggal terbaru</span>
+              <div className="p-3 border-t border-border bg-background flex items-center justify-between text-xs text-muted-foreground">
+                <span>{filteredItems.length} arsip</span>
                 <button
                   onClick={() => setIsCatalogModalOpen(false)}
-                  className="px-4 py-1.5 rounded-full bg-muted font-medium hover:bg-muted/80 text-foreground transition"
+                  className="px-3.5 py-1 rounded-full bg-muted font-medium hover:bg-muted/80 text-foreground transition"
                 >
                   Tutup
                 </button>
               </div>
-
             </div>
           </div>,
           document.body
