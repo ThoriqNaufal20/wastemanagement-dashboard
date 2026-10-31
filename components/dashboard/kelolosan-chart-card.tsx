@@ -19,18 +19,19 @@ interface KelolosanChartCardProps {
 
 // Warna yang kontras tinggi dan mudah dibedakan
 const FACTORY_COLORS: Record<string, string> = {
-  "Fact A": "#0d9488", // Teal
-  "Fact B": "#0CA031", // Green
-  "Fact F": "#CF1BA8", // Magenta/Pink
-  "Fact K": "#3E2E85", // Amber/Orange
+  "Fact A": "#0d9488",  // Teal
+  "Fact B": "#f59e0b",  // Amber/Orange
+  "Fact CPA": "#f59e0b", // Amber/Orange (nama factory di spreadsheet)
+  "Fact F": "#CF1BA8",  // Magenta/Pink
+  "Fact K": "#3E2E85",  // Dark Indigo
 };
 
 const DEFAULT_SERIES_COLORS = [
   "#0d9488", // Teal
-  "#0CA031", // Green
+  "#f59e0b", // Amber
   "#CF1BA8", // Magenta
-  "#3E2E85", // Amber
-  "#8b5cf6", // Purple
+  "#3E2E85", // Dark Indigo
+  "#0CA031", // Green
   "#64748b", // Slate
 ];
 
