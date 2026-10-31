@@ -14,7 +14,7 @@ import { useFullPageScroll } from "@/components/landing/full-page-scroll";
 
 // Template link URL untuk aplikasi eksternal Internal Audit (dapat diganti langsung di sini atau via NEXT_PUBLIC_INTERNAL_AUDIT_URL di .env.local)
 export const INTERNAL_AUDIT_APP_URL =
-  process.env.NEXT_PUBLIC_INTERNAL_AUDIT_URL || "https://example.com/internal-audit";
+  process.env.NEXT_PUBLIC_INTERNAL_AUDIT_URL || "https://internal-audit-adira.vercel.app/";
 
 const NAV_ITEMS = [
   { label: "Beranda", index: 0 },
