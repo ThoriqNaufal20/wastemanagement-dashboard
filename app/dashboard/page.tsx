@@ -259,6 +259,18 @@ export default async function DashboardPage() {
   const scorecardValue = scorecardTrend?.latest ?? null;
   const dashboardDeptValue = dashboardDeptTrend?.latest ?? null;
 
+  const getQuarterDisplayNote = (quarterStr?: string): string => {
+    if (!quarterStr) return "Penilaian kuartal terbaru";
+    const match = quarterStr.match(/Q[-_ ]?(\d)/i);
+    if (match) {
+      return `Penilaian ini adalah kuartal ${match[1]}`;
+    }
+    return `Penilaian periode ${quarterStr}`;
+  };
+
+  const scorecardNote = getQuarterDisplayNote(scorecardTrend?.latestQuarter);
+  const dashboardDeptNote = getQuarterDisplayNote(dashboardDeptTrend?.latestQuarter);
+
   const problemItems: RingkasanItem[] = [
     {
       key: "internal-audit",
@@ -370,7 +382,7 @@ export default async function DashboardPage() {
       icon: FileText,
       href: "/scorecard",
       hasData: scorecardValue !== null,
-      note: "Penilaian ini adalah kuartal 2",
+      note: scorecardNote,
     },
     {
       key: "dashboard-dept",
@@ -381,7 +393,7 @@ export default async function DashboardPage() {
       icon: LayoutDashboard,
       href: "/dashboard-departement",
       hasData: dashboardDeptValue !== null,
-      note: "Penilaian ini adalah kuartal 2",
+      note: dashboardDeptNote,
     },
   ].filter((item) => item.hasData);
 

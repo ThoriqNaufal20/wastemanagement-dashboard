@@ -24,20 +24,31 @@ export interface Trend {
   direction: "up" | "down" | "flat";
   delta: number;
   latest: number | null;
+  latestQuarter?: string;
+  previousQuarter?: string;
 }
 
 export function computeTrend(series: QuarterValue[]): Trend {
   const filled = series.filter((s) => s.value !== null);
   if (filled.length < 2) {
-    return { direction: "flat", delta: 0, latest: filled[0]?.value ?? null };
+    return {
+      direction: "flat",
+      delta: 0,
+      latest: filled[0]?.value ?? null,
+      latestQuarter: filled[0]?.quarter,
+    };
   }
-  const latest = filled[filled.length - 1].value as number;
-  const previous = filled[filled.length - 2].value as number;
+  const latestItem = filled[filled.length - 1];
+  const prevItem = filled[filled.length - 2];
+  const latest = latestItem.value as number;
+  const previous = prevItem.value as number;
   const delta = Math.round((latest - previous) * 10) / 10;
   return {
     direction: delta > 0 ? "up" : delta < 0 ? "down" : "flat",
     delta,
     latest,
+    latestQuarter: latestItem.quarter,
+    previousQuarter: prevItem.quarter,
   };
 }
 
