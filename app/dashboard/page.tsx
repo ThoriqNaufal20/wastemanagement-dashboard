@@ -268,7 +268,7 @@ export default async function DashboardPage() {
     if (!quarterStr) return "Penilaian kuartal terbaru";
     const match = quarterStr.match(/Q[-_ ]?(\d)/i);
     if (match) {
-      return `Penilaian ini adalah kuartal ${match[1]}`;
+      return `Q- ${match[1]}`;
     }
     return `Penilaian periode ${quarterStr}`;
   };
