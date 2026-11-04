@@ -146,10 +146,10 @@ export function TeamSection() {
         <div className="mt-6 sm:mt-8 2xl:mt-14 w-full overflow-hidden">
           <div className="mb-2 2xl:mb-4 flex items-center justify-center gap-2">
             <p className="text-[11px] 2xl:text-base text-muted-foreground">
-              Momen tim kami
+              
             </p>
             <span className="text-[10px] 2xl:text-xs text-muted-foreground/70">
-              · Klik foto untuk memperbesar
+              · 
             </span>
           </div>
 
