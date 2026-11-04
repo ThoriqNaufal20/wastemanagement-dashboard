@@ -10,6 +10,11 @@ interface MetricCardProps {
   icon: LucideIcon;
   href: string;
   note?: string;
+  trend?: {
+    direction: "up" | "down" | "flat";
+    delta: number;
+    text?: string;
+  };
 }
 
 const CARD_TINT: Record<StatusLevel, string> = {
@@ -55,6 +60,7 @@ export function MetricCard({
   icon: Icon,
   href,
   note,
+  trend,
 }: MetricCardProps) {
   const shouldPulse = status ? PULSING_STATUSES.includes(status) : false;
   const cardTint = status ? CARD_TINT[status] : "bg-card";
@@ -94,6 +100,25 @@ export function MetricCard({
             </span>
           )}
         </p>
+        {trend && (
+          <p
+            className={`mt-1.5 flex items-center gap-1 text-xs font-semibold leading-tight ${
+              trend.direction === "up"
+                ? "text-emerald-600 dark:text-emerald-400"
+                : trend.direction === "down"
+                ? "text-red-600 dark:text-red-400"
+                : "text-muted-foreground"
+            }`}
+          >
+            {trend.text || (
+              <>
+                {trend.direction === "up" && `↑ Naik +${Math.abs(trend.delta)}%`}
+                {trend.direction === "down" && `↓ Turun -${Math.abs(trend.delta)}%`}
+                {trend.direction === "flat" && `Tetap 0%`}
+              </>
+            )}
+          </p>
+        )}
       </div>
 
       {status && <StatusChip status={status} />}

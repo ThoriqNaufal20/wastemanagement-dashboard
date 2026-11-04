@@ -61,6 +61,11 @@ type RingkasanItem = {
   href: string;
   hasData: boolean;
   note?: string;
+  trend?: {
+    direction: "up" | "down" | "flat";
+    delta: number;
+    text?: string;
+  };
 };
 
 import { getAllScorecardData } from "@/lib/scorecard-data";
@@ -271,6 +276,29 @@ export default async function DashboardPage() {
   const scorecardNote = getQuarterDisplayNote(scorecardTrend?.latestQuarter);
   const dashboardDeptNote = getQuarterDisplayNote(dashboardDeptTrend?.latestQuarter);
 
+  const getTrendSummary = (trend: any) => {
+    if (!trend || trend.delta === undefined || trend.latest === null) return undefined;
+    if (trend.direction === "up") {
+      return {
+        direction: "up" as const,
+        delta: trend.delta,
+        text: `↑ Naik +${Math.abs(trend.delta)}%`,
+      };
+    }
+    if (trend.direction === "down") {
+      return {
+        direction: "down" as const,
+        delta: trend.delta,
+        text: `↓ Turun -${Math.abs(trend.delta)}%`,
+      };
+    }
+    return {
+      direction: "flat" as const,
+      delta: 0,
+      text: "Tetap 0%",
+    };
+  };
+
   const problemItems: RingkasanItem[] = [
     {
       key: "internal-audit",
@@ -383,6 +411,7 @@ export default async function DashboardPage() {
       href: "/scorecard",
       hasData: scorecardValue !== null,
       note: scorecardNote,
+      trend: getTrendSummary(scorecardTrend),
     },
     {
       key: "dashboard-dept",
@@ -394,6 +423,7 @@ export default async function DashboardPage() {
       href: "/dashboard-departement",
       hasData: dashboardDeptValue !== null,
       note: dashboardDeptNote,
+      trend: getTrendSummary(dashboardDeptTrend),
     },
   ].filter((item) => item.hasData);
 
@@ -421,6 +451,7 @@ export default async function DashboardPage() {
                 icon={item.icon}
                 href={item.href}
                 note={item.note}
+                trend={item.trend}
               />
             ))}
           </div>
