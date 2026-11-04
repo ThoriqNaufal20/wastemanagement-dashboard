@@ -7,6 +7,8 @@ import { TeamSection } from "@/components/landing/team-carousel";
 import { ArchiveSection } from "@/components/landing/archive-section";
 import { FullPageScroll } from "@/components/landing/full-page-scroll";
 import { getArchiveItems, DEFAULT_ARCHIVE_ITEMS } from "@/lib/archive-data";
+import { getLandingKpiData } from "@/lib/landing-kpi-server";
+import { LANDING_KPI_SNAPSHOT } from "@/lib/landing-kpi-data";
 
 export default async function LandingPage() {
   let archiveItems = DEFAULT_ARCHIVE_ITEMS;
@@ -14,6 +16,13 @@ export default async function LandingPage() {
     archiveItems = await getArchiveItems();
   } catch (err) {
     console.warn("[LandingPage] Error loading archive items:", err);
+  }
+
+  let kpiData = LANDING_KPI_SNAPSHOT;
+  try {
+    kpiData = await getLandingKpiData();
+  } catch (err) {
+    console.warn("[LandingPage] Error loading KPI data:", err);
   }
 
   return (
@@ -25,7 +34,7 @@ export default async function LandingPage() {
       <AboutWhatWeDo />
 
       {/* 3. KPI */}
-      <KpiSection />
+      <KpiSection initialData={kpiData} />
 
       {/* 4. Dashboard Preview */}
       <DashboardPreview />

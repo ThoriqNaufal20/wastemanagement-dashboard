@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { LANDING_KPI_SNAPSHOT } from "@/lib/landing-kpi-data";
+import { LANDING_KPI_SNAPSHOT, type LandingKpiData } from "@/lib/landing-kpi-data";
 
 function CountUp({
   end,
@@ -60,7 +60,7 @@ function CountUp({
   );
 }
 
-export function KpiSection() {
+export function KpiSection({ initialData }: { initialData?: LandingKpiData } = {}) {
   const sectionRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
   const [isAnalysisOpen, setIsAnalysisOpen] = useState(false);
@@ -109,7 +109,8 @@ export function KpiSection() {
     };
   }, [isAnalysisOpen]);
 
-  const { scorecard, recycled, reduction, projects } = LANDING_KPI_SNAPSHOT;
+  const data = initialData || LANDING_KPI_SNAPSHOT;
+  const { scorecard, recycled, reduction, projects } = data;
 
   return (
     <div
@@ -201,7 +202,7 @@ export function KpiSection() {
         </div>
 
         <p className="mt-5 2xl:mt-8 text-[11px] 2xl:text-sm italic text-muted-foreground">
-          Data kuartal 3 2026 — Waste Management Department
+          
         </p>
       </div>
 
@@ -241,9 +242,21 @@ export function KpiSection() {
                     <span className="text-3xl font-bold text-foreground tracking-tight">
                       {scorecard.score.toFixed(1)}%
                     </span>
-                    <span className="ml-2 text-xs font-semibold text-emerald-500">
-                      ↑ Naik +{scorecard.delta}%
-                    </span>
+                    {scorecard.direction === "up" && (
+                      <span className="ml-2 text-xs font-semibold text-emerald-500">
+                        ↑ Naik +{Math.abs(scorecard.delta)}%
+                      </span>
+                    )}
+                    {scorecard.direction === "down" && (
+                      <span className="ml-2 text-xs font-semibold text-red-500">
+                        ↓ Turun -{Math.abs(scorecard.delta)}%
+                      </span>
+                    )}
+                    {scorecard.direction === "flat" && (
+                      <span className="ml-2 text-xs font-medium text-muted-foreground">
+                        Tetap 0%
+                      </span>
+                    )}
                   </div>
                   <span className="text-[11px] font-mono text-muted-foreground">
                     Periode {scorecard.quarter}
