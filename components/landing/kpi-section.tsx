@@ -263,28 +263,55 @@ export function KpiSection({ initialData }: { initialData?: LandingKpiData } = {
                   </span>
                 </div>
 
-                {/* 6 Bar Aspek dengan Animasi Looping Lambat (~4.2s) */}
+                {/* 6 Bar Aspek dengan Warna Kenaikan (Hijau) / Penurunan (Merah) & Animasi Loop Lambat */}
                 <div className="space-y-4">
-                  {scorecard.aspects.map((aspect, idx) => (
-                    <div key={aspect.name}>
-                      <div className="flex justify-between text-xs mb-1.5">
-                        <span className="text-foreground/90 font-medium">{aspect.name}</span>
-                        <span className="font-mono text-muted-foreground font-semibold">
-                          {aspect.score.toFixed(1)}%
-                        </span>
+                  {scorecard.aspects.map((aspect, idx) => {
+                    const isUp = aspect.direction === "up";
+                    const isDown = aspect.direction === "down";
+                    const barColor = isUp
+                      ? "bg-emerald-500"
+                      : isDown
+                      ? "bg-red-500"
+                      : "bg-primary";
+                    const animationName = isUp
+                      ? "kpiBarBreatheUp"
+                      : isDown
+                      ? "kpiBarBreatheDown"
+                      : "kpiBarBreathe";
+
+                    return (
+                      <div key={aspect.name}>
+                        <div className="flex justify-between items-center text-xs mb-1.5">
+                          <span className="text-foreground/90 font-medium">{aspect.name}</span>
+                          <div className="flex items-center font-mono">
+                            <span className="text-muted-foreground font-semibold">
+                              {aspect.score.toFixed(1)}%
+                            </span>
+                            {isUp && (
+                              <span className="text-[10px] font-semibold text-emerald-500 ml-1.5">
+                                ↑ +{Math.abs(aspect.delta || 0).toFixed(1)}%
+                              </span>
+                            )}
+                            {isDown && (
+                              <span className="text-[10px] font-semibold text-red-500 ml-1.5">
+                                ↓ -{Math.abs(aspect.delta || 0).toFixed(1)}%
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <div className="w-full bg-muted/60 rounded-full h-1.5 overflow-hidden">
+                          <div
+                            className={`h-full rounded-full transition-all ${barColor}`}
+                            style={{
+                              width: `${aspect.targetPercent}%`,
+                              animation: `${animationName} 4.2s ease-in-out infinite`,
+                              animationDelay: `${idx * -0.7}s`,
+                            }}
+                          />
+                        </div>
                       </div>
-                      <div className="w-full bg-muted/60 rounded-full h-1.5 overflow-hidden">
-                        <div
-                          className="bg-primary h-full rounded-full transition-all"
-                          style={{
-                            width: `${aspect.targetPercent}%`,
-                            animation: `kpiBarBreathe 4.2s ease-in-out infinite`,
-                            animationDelay: `${idx * -0.7}s`,
-                          }}
-                        />
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
 
                 {/* Catatan Analisa Minimalis */}
@@ -307,18 +334,42 @@ export function KpiSection({ initialData }: { initialData?: LandingKpiData } = {
           document.body
         )}
 
-      {/* Global Style Keyframe Animation untuk Looping Bar Halus */}
+      {/* Global Style Keyframe Animation untuk Looping Bar Halus (Hijau / Merah / Teal) */}
       <style jsx global>{`
         @keyframes kpiBarBreathe {
           0%,
           100% {
-            transform: scaleX(0.95);
+            transform: scaleX(0.96);
             opacity: 0.85;
           }
           50% {
             transform: scaleX(1.02);
             opacity: 1;
             filter: drop-shadow(0 0 5px rgba(13, 148, 136, 0.45));
+          }
+        }
+        @keyframes kpiBarBreatheUp {
+          0%,
+          100% {
+            transform: scaleX(0.96);
+            opacity: 0.85;
+          }
+          50% {
+            transform: scaleX(1.02);
+            opacity: 1;
+            filter: drop-shadow(0 0 5px rgba(16, 185, 129, 0.45));
+          }
+        }
+        @keyframes kpiBarBreatheDown {
+          0%,
+          100% {
+            transform: scaleX(0.96);
+            opacity: 0.85;
+          }
+          50% {
+            transform: scaleX(1.02);
+            opacity: 1;
+            filter: drop-shadow(0 0 5px rgba(239, 68, 68, 0.45));
           }
         }
       `}</style>

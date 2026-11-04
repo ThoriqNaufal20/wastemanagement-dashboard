@@ -44,10 +44,20 @@ export async function getLandingKpiData(): Promise<LandingKpiData> {
       wmDept.aspects.length > 0
         ? wmDept.aspects.map((asp) => {
             const rawVal = qIndex >= 0 ? asp.series[qIndex]?.value : null;
+            const prevVal = qIndex > 0 ? asp.series[qIndex - 1]?.value : null;
             const score = rawVal ?? 75.0;
+            const delta =
+              rawVal !== null && prevVal !== null
+                ? Math.round((rawVal - prevVal) * 10) / 10
+                : 0;
+            const direction: "up" | "down" | "flat" =
+              delta > 0 ? "up" : delta < 0 ? "down" : "flat";
+
             return {
               name: asp.label || asp.aspect,
               score,
+              delta,
+              direction,
               minPercent: Math.max(0, Math.round(score - 5)),
               targetPercent: score,
             };
