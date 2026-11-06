@@ -12,12 +12,12 @@ export interface TeamMember {
 
 // TODO: ganti "Nama", role, atau avatar dengan data tim asli begitu tersedia.
 const TEAM: { head: TeamMember; members: TeamMember[] } = {
-  head: { name: "Caren Ryana Kosasih", role: "Manager Waste Management" },
+  head: { name: "Caren Ryana Kosasih", role: "Manager Waste Management", avatar: "/team/Caren Ryana.jpg" },
   members: [
-    { name: "Inas Arfieny Halimatus Nadiyah", role: "Staff Waste Management" },
-    { name: "Joseph Johanes Aditya", role: "Staff 3R" },
-    { name: "Dicky Abrian Setiyanto", role: "Staff Data Analyst" },
-    { name: "Muhammad Thoriq Naufal", role: "Staff Data Analyst" },
+    { name: "Inas Arfieny Halimatus Nadiyah", role: "Staff Waste Management", avatar: "/team/Inas Arfieny.jpg" },
+    { name: "Joseph Johanes Aditya", role: "Staff 3R", avatar: "/team/Joseph.jpg" },
+    { name: "Dicky Abrian Setiyanto", role: "Staff Data Analyst", avatar: "/team/Dicky Abrian.jpg" },
+    { name: "Muhammad Thoriq Naufal", role: "Staff Data Analyst", avatar: "/team/Thoriq Naufal.jpg" },
   ],
 };
 
