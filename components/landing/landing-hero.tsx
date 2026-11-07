@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { Recycle, LineChart, ClipboardCheck, Leaf } from "lucide-react";
 import { ScrambleText } from "@/components/dashboard/scramble-text";
-import { useFullPageGoTo } from "@/components/landing/full-page-scroll";
 
 const CHIPS = [
   {
@@ -66,7 +65,6 @@ const BLOBS = [
 
 export function LandingHero() {
   const [scrambleSettled, setScrambleSettled] = useState(false);
-  const goTo = useFullPageGoTo();
 
   return (
     <div className="relative flex h-full w-full flex-col overflow-hidden bg-background pt-16 sm:pt-20">
@@ -136,15 +134,6 @@ export function LandingHero() {
             berkelanjutan, dan monitoring berbasis data untuk menciptakan
             dampak lingkungan yang nyata dan terukur.
           </p>
-
-          <div className="mt-7 2xl:mt-10 flex flex-wrap items-center justify-center gap-3 2xl:gap-5">
-            <button
-              onClick={() => goTo(1)}
-              className="rounded-full border border-border bg-card/80 px-7 py-2.5 2xl:px-9 2xl:py-3.5 text-sm 2xl:text-base font-medium text-foreground transition-all hover:bg-muted hover:border-primary/40 shadow-xs"
-            >
-              Tentang Kami
-            </button>
-          </div>
         </div>
 
         {/* Floating Badges / Chips */}

@@ -19,9 +19,9 @@ export const INTERNAL_AUDIT_APP_URL =
 const NAV_ITEMS = [
   { label: "Beranda", index: 0 },
   { label: "Tentang", index: 1 },
-  { label: "KPI", index: 2 },
-  { label: "Preview", index: 3 },
-  { label: "Tim", index: 4 },
+  { label: "Tim", index: 2 },
+  { label: "KPI", index: 3 },
+  { label: "Dashboard", index: 4 },
   { label: "Arsip", index: 5 },
   { label: "Kontak", index: 6 },
 ];

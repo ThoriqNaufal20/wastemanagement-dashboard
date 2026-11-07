@@ -27,25 +27,25 @@ export default async function LandingPage() {
 
   return (
     <FullPageScroll>
-      {/* 1. Hero */}
+      {/* 1. Hero / Beranda */}
       <LandingHero />
 
-      {/* 2. About Us + What We Do */}
+      {/* 2. About Us + What We Do / Tentang */}
       <AboutWhatWeDo />
 
-      {/* 3. KPI */}
-      <KpiSection initialData={kpiData} />
-
-      {/* 4. Dashboard Preview */}
-      <DashboardPreview />
-
-      {/* 5. Team */}
+      {/* 3. Team / Struktur Tim */}
       <TeamSection />
 
-      {/* 6. Archive & Publications */}
+      {/* 4. KPI */}
+      <KpiSection initialData={kpiData} />
+
+      {/* 5. Dashboard Preview */}
+      <DashboardPreview />
+
+      {/* 6. Archive & Publications / Arsip */}
       <ArchiveSection initialItems={archiveItems} />
 
-      {/* 7. Contact & Footer */}
+      {/* 7. Contact & Footer / Kontak */}
       <div className="flex h-full w-full flex-col items-center justify-center bg-background px-4 py-12">
         <div className="mx-auto w-full max-w-[850px] 2xl:max-w-[1400px] space-y-8 2xl:space-y-12 text-center">
           <div>
@@ -63,7 +63,7 @@ export default async function LandingPage() {
           {/* Contact Cards Grid */}
           <div className="grid grid-cols-1 gap-4 2xl:gap-8 text-left sm:grid-cols-3">
             <a
-              href="mailto:wastemanagement@adirasemesta.com"
+              href="mailto:dataanalyst.adira@gmail.com"
               className="group flex flex-col justify-between rounded-2xl 2xl:rounded-3xl border border-border bg-card p-5 2xl:p-8 transition-all duration-200 hover:border-primary/40 hover:shadow-md"
             >
               <div>
@@ -72,7 +72,7 @@ export default async function LandingPage() {
                 </div>
                 <p className="mt-3 2xl:mt-5 text-xs 2xl:text-sm font-medium text-muted-foreground">Email</p>
                 <p className="mt-0.5 text-xs 2xl:text-base font-semibold text-foreground transition-colors group-hover:text-primary break-all">
-                  wastemanagement@adirasemesta.com
+                  datanalyst.adira@gmail.com
                 </p>
               </div>
               <span className="mt-3 2xl:mt-5 text-[11px] 2xl:text-sm text-muted-foreground group-hover:text-foreground">
@@ -98,20 +98,25 @@ export default async function LandingPage() {
               </span>
             </a>
 
-            <div className="flex flex-col justify-between rounded-2xl 2xl:rounded-3xl border border-border bg-card p-5 2xl:p-8">
+            <a
+              href="https://www.google.com/maps/place/PT+Adira+Semesta+Industry+(Factory+F)/@-6.9632882,107.5754557,19.11z/data=!4m15!1m8!3m7!1s0x2e68e8d3a80484df:0x1df5c257f3654c45!2sJl.+Kopo+Bihbul+Raya+No.96,+Margahayu+Tengah,+Kec.+Margahayu,+Kabupaten+Bandung,+Jawa+Barat+40228"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group flex flex-col justify-between rounded-2xl 2xl:rounded-3xl border border-border bg-card p-5 2xl:p-8 transition-all duration-200 hover:border-primary/40 hover:shadow-md"
+            >
               <div>
-                <div className="flex h-9 w-9 2xl:h-14 2xl:w-14 items-center justify-center rounded-xl 2xl:rounded-2xl bg-primary/10 text-primary">
+                <div className="flex h-9 w-9 2xl:h-14 2xl:w-14 items-center justify-center rounded-xl 2xl:rounded-2xl bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
                   <MapPin className="h-4 w-4 2xl:h-7 2xl:w-7" />
                 </div>
                 <p className="mt-3 2xl:mt-5 text-xs 2xl:text-sm font-medium text-muted-foreground">Alamat</p>
-                <p className="mt-0.5 text-xs 2xl:text-base font-semibold text-foreground">
-                  Bandung, Indonesia
+                <p className="mt-0.5 text-xs 2xl:text-sm font-semibold text-foreground transition-colors group-hover:text-primary leading-snug">
+                  Jl. Kopo Bihbul Raya No.96, Kabupaten Bandung, Jawa Barat
                 </p>
               </div>
-              <span className="mt-3 2xl:mt-5 text-[11px] 2xl:text-sm text-muted-foreground">
-                PT. Adira Semesta Industry
+              <span className="mt-3 2xl:mt-5 text-[11px] 2xl:text-sm text-muted-foreground group-hover:text-foreground">
+                Buka di Google Maps &rarr;
               </span>
-            </div>
+            </a>
           </div>
 
           <p className="text-[11px] 2xl:text-sm text-muted-foreground pt-4">

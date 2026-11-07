@@ -87,7 +87,7 @@ export function TeamSection() {
 
         {/* Head */}
         <div className="inline-flex flex-col items-center gap-1.5 2xl:gap-2.5">
-          <div className="flex h-16 w-16 2xl:h-24 2xl:w-24 items-center justify-center overflow-hidden rounded-full bg-primary/10 shadow-sm">
+          <div className="flex h-20 w-20 2xl:h-32 2xl:w-32 items-center justify-center overflow-hidden rounded-full bg-primary/10 shadow-sm">
             {TEAM.head.avatar ? (
               <img
                 src={TEAM.head.avatar}
@@ -95,7 +95,7 @@ export function TeamSection() {
                 className="h-full w-full object-cover"
               />
             ) : (
-              <User className="h-7 w-7 2xl:h-11 2xl:w-11 text-primary" />
+              <User className="h-9 w-9 2xl:h-13 2xl:w-13 text-primary" />
             )}
           </div>
           <p className="mt-1 text-sm 2xl:text-xl font-medium 2xl:font-semibold text-foreground">
