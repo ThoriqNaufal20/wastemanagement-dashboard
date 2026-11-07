@@ -87,7 +87,7 @@ export function TeamSection() {
 
         {/* Head */}
         <div className="inline-flex flex-col items-center gap-1.5 2xl:gap-2.5">
-          <div className="flex h-14 w-14 2xl:h-20 2xl:w-20 items-center justify-center overflow-hidden rounded-full bg-primary/10 shadow-sm">
+          <div className="flex h-16 w-16 2xl:h-24 2xl:w-24 items-center justify-center overflow-hidden rounded-full bg-primary/10 shadow-sm">
             {TEAM.head.avatar ? (
               <img
                 src={TEAM.head.avatar}
@@ -95,7 +95,7 @@ export function TeamSection() {
                 className="h-full w-full object-cover"
               />
             ) : (
-              <User className="h-6 w-6 2xl:h-10 2xl:w-10 text-primary" />
+              <User className="h-7 w-7 2xl:h-11 2xl:w-11 text-primary" />
             )}
           </div>
           <p className="mt-1 text-sm 2xl:text-xl font-medium 2xl:font-semibold text-foreground">
@@ -118,7 +118,7 @@ export function TeamSection() {
                 {/* Garis vertikal menuju profile */}
                 <div className="h-5 2xl:h-7 w-px bg-border" />
 
-                <div className="mt-1 flex h-[48px] w-[48px] 2xl:h-[72px] 2xl:w-[72px] items-center justify-center overflow-hidden rounded-full bg-primary/10 shadow-sm">
+                <div className="mt-1 flex h-14 w-14 2xl:h-20 2xl:w-20 items-center justify-center overflow-hidden rounded-full bg-primary/10 shadow-sm">
                   {member.avatar ? (
                     <img
                       src={member.avatar}
@@ -126,7 +126,7 @@ export function TeamSection() {
                       className="h-full w-full object-cover"
                     />
                   ) : (
-                    <User className="h-5 w-5 2xl:h-8 2xl:w-8 text-primary" />
+                    <User className="h-6 w-6 2xl:h-9 2xl:w-9 text-primary" />
                   )}
                 </div>
 

@@ -144,7 +144,7 @@ export function KpiSection({ initialData }: { initialData?: LandingKpiData } = {
             </p>
 
             <p className="mt-2 2xl:mt-4 text-xs sm:text-sm 2xl:text-lg font-medium text-muted-foreground">
-              Scorecard Dept
+              Scorecard
             </p>
 
             {/* Subtle indicator dot di pojok (tanpa teks berisik) */}
